@@ -16,9 +16,9 @@ git switch -c feat/ast-chunker
 
 # 3. Bosser + committer par petits paquets
 git add src/chunkers/ast_chunker.py
-git commit -m "Add AST-based chunker for Python files"
+git commit -m "feat: AST-based chunker for Python files"
 git add tests/test_ast_chunker.py
-git commit -m "Add unit tests for AST chunker"
+git commit -m "test: unit tests for AST chunker"
 # ... etc, autant de commits que d'étapes cohérentes
 
 # 4. Se resync avec main avant de pousser
