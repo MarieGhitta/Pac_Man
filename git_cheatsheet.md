@@ -74,9 +74,6 @@ feat(api)!: change retriever signature   # ! = breaking change
 - Une ligne de résumé claire (~50 car.), détails dans le corps si besoin
 - Un commit = un changement cohérent qui compile / passe les tests
 
-| Type| Usage |
-|---|---|
-
 ---
 
 ## Commandes du quotidien
