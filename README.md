@@ -17,16 +17,16 @@
 <!-- A Configuration section explaining the config file structure and default values. -->
 
 ### Highscore
-<!-- A Configuration section explaining the config file structure and default values. -->
+<!-- A Highscore section explaining how the highscore system works and why you decided to implement it this way. -->
 
 ### Maze Generation
-<!-- A Configuration section explaining the config file structure and default values. -->
+<!-- A Maze Generation section explaining how the assigned A-Maze-ing package is used to generate mazes. -->
 
 ### Implementation
-<!-- A Configuration section explaining the config file structure and default values. -->
+<!-- An Implementation section with a technical summary of your implementation. -->
 
 ### General Software Architecture
-<!-- A Configuration section explaining the config file structure and default values. -->
+<!-- A General Software Architecture section, with high-level overview of the software architecture (modules, classes, and their relationships). -->
 
 ### Project Management
-<!-- A Configuration section explaining the config file structure and default values. -->
+<!-- A Project Management section, with a brief overview of how you managed the project and a link to the dedicated project management directory. -->
