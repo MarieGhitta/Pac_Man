@@ -11,6 +11,7 @@ dist/
 .eggs/
 wheels/
 *.whl
+!libs/*.whl
 
 # --- Virtual environments ---
 .venv/
