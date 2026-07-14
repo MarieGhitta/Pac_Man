@@ -1,5 +1,5 @@
-MAIN    := pac-man.py
-CONFIG  := config.json
+MAIN := pac-man.py
+CONFIG := config.json
 
 .PHONY: install uninstall run debug clean lint lint-strict
 
