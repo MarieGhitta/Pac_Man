@@ -19,10 +19,6 @@ env/
 ENV/
 .env
 
-# --- uv ---
-.uv/
-uv.lock
-
 # --- Type checking / linting caches ---
 .mypy_cache/
 .dmypy.json
