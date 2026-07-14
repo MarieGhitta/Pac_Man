@@ -17,6 +17,9 @@ git switch -c feat/ast-chunker
 # 3. Bosser + committer par petits paquets
 git add src/chunkers/ast_chunker.py
 git commit -m "Add AST-based chunker for Python files"
+git add tests/test_ast_chunker.py
+git commit -m "Add unit tests for AST chunker"
+# ... etc, autant de commits que d'étapes cohérentes
 
 # 4. Se resync avec main avant de pousser
 git fetch origin
@@ -45,11 +48,34 @@ git branch -d feat/ast-chunker
 | `docs/`      | documentation                  |
 | `test/`      | ajout / correction de tests    |
 
-## Messages de commit
+## Messages de commit — Conventional Commits
 
-- À l'impératif présent : `Add`, `Fix`, `Remove`, pas `Added` / `wip` / `fix stuff`
+Format : `<type>[scope optionnel]: <description>`
+
+```
+feat: add AST-based splitter
+fix(bm25): correct off-by-one in scoring
+feat(api)!: change retriever signature   # ! = breaking change
+```
+
+| Type        | Usage                                      |
+|-------------|--------------------------------------------|
+| `feat:`     | nouvelle fonctionnalité                    |
+| `fix:`      | correction de bug                          |
+| `refactor:` | réécriture sans changer le comportement    |
+| `docs:`     | documentation                              |
+| `test:`     | ajout / correction de tests                |
+| `chore:`    | maintenance (deps, config, build…)         |
+| `perf:`     | optimisation de perf                       |
+| `style:`    | formatage, pas de changement logique       |
+| `ci:`       | config CI/CD                               |
+
+- À l'impératif présent : `Add`, `Fix`, `Refactor`, pas `Added` / `wip` / `fix stuff`
 - Une ligne de résumé claire (~50 car.), détails dans le corps si besoin
 - Un commit = un changement cohérent qui compile / passe les tests
+
+| Type| Usage |
+|---|---|
 
 ---
 
