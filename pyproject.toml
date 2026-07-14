@@ -17,3 +17,6 @@ dev = [
     "flake8-docstrings>=1.7.0",
     "mypy>=2.3.0",
 ]
+
+[tool.mypy]
+exclude = ['\.venv/', 'libs/']
