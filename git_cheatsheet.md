@@ -11,8 +11,12 @@
 git switch main
 git pull origin main
 
-# 2. Créer sa branche
+# 2.a Créer sa branche
 git switch -c feat/ast-chunker
+git checkout -b <nom_de_la_branche>
+
+# 2.b Changer de branche
+git checkout <nom_de_la_branche>
 
 # 3. Bosser + committer par petits paquets
 git add src/chunkers/ast_chunker.py
