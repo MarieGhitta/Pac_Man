@@ -1,0 +1,13 @@
+{
+    "levels": [
+        {
+            "width": 20,
+            "height": 20
+        },
+        42,
+        {
+            "width": 15,
+            "height": 10
+        }
+    ]
+}
