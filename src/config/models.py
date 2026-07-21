@@ -7,8 +7,8 @@ class LevelConfig:
         """Initialize a level configuration.
 
         Args:
-            width: width of the level.
-            height: height of the level.
+            width: Width of the level.
+            height: Height of the level.
         """
         self.width: int = width
         self.height: int = height
@@ -28,6 +28,19 @@ class Config:
             seed: int,
             level_max_time: int,
     ) -> None:
+        """Initialize the game configuration.
+
+        Args:
+            highscore_filename (str): The file with scores.
+            levels (list[LevelConfig]): THe list of levels.
+            lives (int): The number of lives.
+            pacgum (int): The number of pacgums.
+            points_per_pacgum (int): Points of pacgum.
+            points_per_super_pacgum (int): Points per super pacgum.
+            points_per_ghost (int): points per ghost.
+            seed (int): The seed.
+            level_max_time (int): Max time per level.
+        """
         self.highscore_filename = highscore_filename
         self.levels = levels
         self.lives: int = lives

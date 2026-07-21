@@ -65,3 +65,16 @@ def test_invalid_root_raises_value_error() -> None:
         match="Configuration must be a JSON object.",
     ):
         loader.load("tests/resources/invalid_root.json")
+
+def test_comment_skipped() -> None:
+    loader = ConfigLoader()
+
+    config = loader.load("tests/resources/comment.json")
+
+    assert config.lives == 5
+
+def test_invalid_key() -> None:
+    loader = ConfigLoader()
+
+    config = loader.load("tests/resources/invalid_key.json")
+    assert config.lives == 3

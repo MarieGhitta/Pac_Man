@@ -10,10 +10,10 @@ uninstall:
 	rm -rf .venv
 
 run:
-	uv run python3 $(MAIN) $(CONFIG)
+	uv run $(MAIN) $(CONFIG)
 
 debug:
-	uv run python3 -m pdb $(MAIN) $(CONFIG)
+	uv run -m pdb $(MAIN) $(CONFIG)
 
 lint:
 	uv run flake8 .
