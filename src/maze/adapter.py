@@ -28,7 +28,6 @@ class MazeAdapter:
 
     def _adapt_cell(self, x: int, y: int, value: int) -> Cell:
         """Convert an encoded cell value into a Cell object."""
-
         north_open = bool(value & 1)
         east_open = bool(value & 2)
         south_open = bool(value & 4)
@@ -41,4 +40,3 @@ class MazeAdapter:
                     south_open=south_open,
                     west_open=west_open
                 )
-

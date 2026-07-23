@@ -16,7 +16,7 @@ class ConfigLoader:
                 continue
             clean_lines.append(line)
         return "\n".join(clean_lines)
-    
+
     def _get_int(self, data: dict[str, Any],
                  key: str,
                  default: int,
@@ -29,7 +29,7 @@ class ConfigLoader:
             print(f"Invalid '{key}', using default ({default}).")
             return default
         return value
-    
+
     def _get_str(self, data: dict[str, Any],
                  key: str,
                  default: str) -> str:
@@ -38,22 +38,25 @@ class ConfigLoader:
             print(f"Invalid '{key}', using default ({default}).")
             return default
         return value
-    
+
     def _build_level(self,
                      data: dict[str, Any]) -> LevelConfig:
-        width=self._get_int(data, "width", 20, minimum=1)
-        height=self._get_int(data, "height", 20, minimum=1)
+        width = self._get_int(data, "width", 20, minimum=1)
+        height = self._get_int(data, "height", 20, minimum=1)
         return LevelConfig(width, height)
-    
 
     def _build_config(self, data: dict[str, Any]) -> Config:
         highscore_filename = self._get_str(data, "highscore_filename",
-                                      "highscores.json")
+                                           "highscores.json")
         lives = self._get_int(data, "lives", 3, minimum=1)
         pacgum = self._get_int(data, "pacgum", 42, minimum=0)
-        points_per_pacgum = self._get_int(data, "points_per_pacgum", 10, minimum=0)
-        points_per_super_pacgum = self._get_int(data, "points_per_super_pacgum", 50, minimum=0)
-        points_per_ghost = self._get_int(data, "points_per_ghost", 200, minimum=0)
+        points_per_pacgum = self._get_int(data, "points_per_pacgum", 10,
+                                          minimum=0)
+        points_per_super_pacgum = self._get_int(data, 
+                                                "points_per_super_pacgum",
+                                                50, minimum=0)
+        points_per_ghost = self._get_int(data, "points_per_ghost", 200,
+                                         minimum=0)
         seed = self._get_int(data, "seed", 42)
         level_max_time = self._get_int(data, "level_max_time", 90, minimum=1)
         levels_data = data.get("levels", [])
