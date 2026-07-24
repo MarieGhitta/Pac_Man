@@ -1,14 +1,24 @@
 """Entry point for the Pac-Man game."""
-from src.maze.generator import MazeFactory
+
+import pygame
 from src.config.loader import ConfigLoader
 from src.game.game import Game
+from src.renderer.renderer import Renderer
 
 
-def main():
+def main() -> None:
     config = ConfigLoader().load("config.json")
-    print(config.lives)
     game = Game(config)
-    game.run()
+    renderer = Renderer(game.level)
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        renderer.draw(game)
+        clock.tick(60)
+    pygame.quit()
 
 
 if __name__ == "__main__":
