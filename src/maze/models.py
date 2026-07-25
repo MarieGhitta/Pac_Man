@@ -7,26 +7,26 @@ class Cell:
     def __init__(self,
                  x: int,
                  y: int,
-                 north_open: bool,
-                 east_open: bool,
-                 south_open: bool,
-                 west_open: bool) -> None:
+                 north_wall: bool,
+                 east_wall: bool,
+                 south_wall: bool,
+                 west_wall: bool) -> None:
         """Initialize a cell.
 
         Args:
             x (int): Coordinate x of a cell.
             y (int): Coordinate y of a cell.
-            north_open (bool): True if north wall is open.
-            east_open (bool): True if east wall is open.
-            south_open (bool): True if south wall is open.
-            west_open (bool): True if west wall is open.
+            north_wall (bool): True if north wall is open.
+            east_wall (bool): True if east wall is open.
+            south_wall (bool): True if south wall is open.
+            west_wall (bool): True if west wall is open.
         """
         self.x = x
         self.y = y
-        self.north_open = north_open
-        self.east_open = east_open
-        self.south_open = south_open
-        self.west_open = west_open
+        self.north_wall = north_wall
+        self.east_wall = east_wall
+        self.south_wall = south_wall
+        self.west_wall = west_wall
 
 
 class Maze:
