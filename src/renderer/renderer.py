@@ -3,6 +3,7 @@
 import pygame
 from src.game.game import Game
 from src.game.level import Level
+from src.game.player import Player
 from src.maze.models import Maze
 
 _TILE_SIZE = 42
@@ -24,6 +25,7 @@ class Renderer:
         """Draw the current game state."""
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
+        self._draw_player(game.player)
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
@@ -64,4 +66,14 @@ class Renderer:
                         (screen_x, screen_y + _TILE_SIZE),
                         3,
                     )
-                    
+
+    def _draw_player(self, player: Player) -> None:
+        """Draw the player."""
+        center_x = (_PADDING + player.x * _TILE_SIZE + _TILE_SIZE // 2)
+        center_y = (_PADDING + player.y * _TILE_SIZE + _TILE_SIZE // 2)
+        pygame.draw.circle(
+            self.screen,
+            (255, 255, 0),
+            (center_x, center_y),
+            _TILE_SIZE // 3,
+        )

@@ -10,7 +10,8 @@ class Cell:
                  north_wall: bool,
                  east_wall: bool,
                  south_wall: bool,
-                 west_wall: bool) -> None:
+                 west_wall: bool,
+                 walkable: bool) -> None:
         """Initialize a cell.
 
         Args:
@@ -20,6 +21,7 @@ class Cell:
             east_wall (bool): True if east wall is open.
             south_wall (bool): True if south wall is open.
             west_wall (bool): True if west wall is open.
+            walkable (bool): True if the cell is not blocked.
         """
         self.x = x
         self.y = y
@@ -27,7 +29,8 @@ class Cell:
         self.east_wall = east_wall
         self.south_wall = south_wall
         self.west_wall = west_wall
-
+        self.walkable = walkable
+    
 
 class Maze:
     """Create Maze class."""

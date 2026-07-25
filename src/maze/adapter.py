@@ -38,5 +38,6 @@ class MazeAdapter:
                     north_wall=north_wall,
                     east_wall=east_wall,
                     south_wall=south_wall,
-                    west_wall=west_wall
+                    west_wall=west_wall,
+                    walkable=value != 15
                 )
