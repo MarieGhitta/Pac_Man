@@ -3,6 +3,7 @@
 from src.config.models import LevelConfig
 from src.maze.generator import MazeFactory
 from src.maze.models import Cell
+from src.game.cell_content import CellContent
 
 
 class Level:
@@ -20,6 +21,8 @@ class Level:
             self.level_config.width,
             self.level_config.height,
             seed)
+        self.start_cell = self.player_start_cell()
+        self._initialize_contents()
 
     def player_start_cell(self) -> Cell:
         """Return the player's starting cell."""
@@ -37,4 +40,12 @@ class Level:
             if cell.walkable:
                 return cell
         raise ValueError("The player starting cell is not walkable.")
+
+    def _initialize_contents(self) -> None:
+        """Initialize the contents of the maze cells."""
+        for row in self.maze.cells:
+            for cell in row:
+                if cell.walkable:
+                    cell.content = CellContent.PACGUM
+        self.start_cell.content = CellContent.EMPTY
         

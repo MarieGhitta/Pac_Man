@@ -1,6 +1,9 @@
 """Create maze."""
 
 
+from src.game.cell_content import CellContent
+
+
 class Cell:
     """Create Cell class."""
 
@@ -17,10 +20,10 @@ class Cell:
         Args:
             x (int): Coordinate x of a cell.
             y (int): Coordinate y of a cell.
-            north_wall (bool): True if north wall is open.
-            east_wall (bool): True if east wall is open.
-            south_wall (bool): True if south wall is open.
-            west_wall (bool): True if west wall is open.
+            north_wall (bool): True if there is a north wall.
+            east_wall (bool): True if there is a east wall.
+            south_wall (bool): True if there is a south wall.
+            west_wall (bool): True if there is a west wall.
             walkable (bool): True if the cell is not blocked.
         """
         self.x = x
@@ -30,7 +33,8 @@ class Cell:
         self.south_wall = south_wall
         self.west_wall = west_wall
         self.walkable = walkable
-    
+        self.content = CellContent.EMPTY
+
 
 class Maze:
     """Create Maze class."""

@@ -4,6 +4,7 @@ from src.config.models import Config
 from src.game.level import Level
 from src.game.player import Player
 from src.game.direction import Direction
+from src.game.cell_content import CellContent
 
 
 class Game:
@@ -19,9 +20,8 @@ class Game:
         self.current_level_index = 0
         self.level = Level(config.levels[self.current_level_index],
                            config.seed)
-        start_cell = self.level.player_start_cell()
-        self.player = Player(start_cell.x,
-                             start_cell.y)
+        self.player = Player(self.level.start_cell.x,
+                             self.level.start_cell.y)
 
     def run(self) -> None:
         """Run the game."""
@@ -30,6 +30,8 @@ class Game:
     def move_player(self, direction: Direction) -> None:
         """Move the player in the given direction."""
         current_cell = self.level.maze.cells[self.player.y][self.player.x]
+        if current_cell.content == CellContent.PACGUM:
+            current_cell.content = CellContent.EMPTY
         if direction == Direction.UP:
             if not current_cell.north_wall:
                 self.player.y -= 1

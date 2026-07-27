@@ -4,7 +4,9 @@ import pygame
 from src.game.game import Game
 from src.game.level import Level
 from src.game.player import Player
-from src.maze.models import Maze
+from src.maze.models import Maze, Cell
+from src.game.cell_content import CellContent
+
 
 _TILE_SIZE = 42
 _PADDING = 20
@@ -34,38 +36,55 @@ class Renderer:
             for cell in row:
                 screen_x = _PADDING + cell.x * _TILE_SIZE
                 screen_y = _PADDING + cell.y * _TILE_SIZE
-                if cell.north_wall:
-                    pygame.draw.line(
-                        self.screen,
-                        (0, 0, 255),
-                        (screen_x, screen_y),
-                        (screen_x + _TILE_SIZE, screen_y),
-                        3,
-                    )
-                if cell.east_wall:
-                    pygame.draw.line(
-                        self.screen,
-                        (0, 0, 255),
-                        (screen_x + _TILE_SIZE, screen_y),
-                        (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
-                        3,
-                    )
-                if cell.south_wall:
-                    pygame.draw.line(
-                        self.screen,
-                        (0, 0, 255),
-                        (screen_x, screen_y + _TILE_SIZE),
-                        (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
-                        3,
-                    )
-                if cell.west_wall:
-                    pygame.draw.line(
-                        self.screen,
-                        (0, 0, 255),
-                        (screen_x, screen_y),
-                        (screen_x, screen_y + _TILE_SIZE),
-                        3,
-                    )
+                self._draw_walls(cell, screen_x, screen_y)
+                self._draw_cell_content(cell, screen_x, screen_y)
+
+    def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
+        """Draw the walls of a maze cell."""
+        if cell.north_wall:
+            pygame.draw.line(
+                self.screen,
+                (0, 0, 255),
+                (screen_x, screen_y),
+                (screen_x + _TILE_SIZE, screen_y),
+                3,
+            )
+        if cell.east_wall:
+            pygame.draw.line(
+                self.screen,
+                (0, 0, 255),
+                (screen_x + _TILE_SIZE, screen_y),
+                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
+                3,
+            )
+        if cell.south_wall:
+            pygame.draw.line(
+                self.screen,
+                (0, 0, 255),
+                (screen_x, screen_y + _TILE_SIZE),
+                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
+                3,
+            )
+        if cell.west_wall:
+            pygame.draw.line(
+                self.screen,
+                (0, 0, 255),
+                (screen_x, screen_y),
+                (screen_x, screen_y + _TILE_SIZE),
+                3,
+            )
+
+    def _draw_cell_content(self, cell: Cell,
+                           screen_x: int, screen_y: int) -> None:
+        """Draw the content of a maze cell."""
+        if cell.content == CellContent.PACGUM:
+            pygame.draw.circle(
+                self.screen,
+                (255, 255, 255),
+                (screen_x + _TILE_SIZE // 2,
+                    screen_y + _TILE_SIZE // 2),
+                _TILE_SIZE // 8,
+            )
 
     def _draw_player(self, player: Player) -> None:
         """Draw the player."""
