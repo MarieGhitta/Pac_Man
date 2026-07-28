@@ -9,7 +9,8 @@ from src.game.cell_content import CellContent
 
 
 _TILE_SIZE = 42
-_PADDING = 20
+_PADDING = 40
+_FONT_SIZE = 36
 
 
 class Renderer:
@@ -22,12 +23,14 @@ class Renderer:
         height = level.maze.height * _TILE_SIZE + 2 * _PADDING
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Pac-Man")
+        self.font = pygame.font.Font(None, _FONT_SIZE)
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         self._draw_player(game.player)
+        self._draw_score(game.score)
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
@@ -77,13 +80,21 @@ class Renderer:
     def _draw_cell_content(self, cell: Cell,
                            screen_x: int, screen_y: int) -> None:
         """Draw the content of a maze cell."""
+        center = (screen_x + _TILE_SIZE // 2,
+                  screen_y + _TILE_SIZE // 2)
         if cell.content == CellContent.PACGUM:
             pygame.draw.circle(
                 self.screen,
                 (255, 255, 255),
-                (screen_x + _TILE_SIZE // 2,
-                    screen_y + _TILE_SIZE // 2),
+                center,
                 _TILE_SIZE // 8,
+            )
+        elif cell.content == CellContent.SUPER_PACGUM:
+            pygame.draw.circle(
+                self.screen,
+                (255, 255, 255),
+                center,
+                _TILE_SIZE // 4,
             )
 
     def _draw_player(self, player: Player) -> None:
@@ -96,3 +107,12 @@ class Renderer:
             (center_x, center_y),
             _TILE_SIZE // 3,
         )
+
+    def _draw_score(self, score: int) -> None:
+        """Draw the current score."""
+        score_text = self.font.render(
+            f'Score: {score}',
+            True,
+            (255, 255, 255)
+        )
+        self.screen.blit(score_text, (_PADDING, 10))

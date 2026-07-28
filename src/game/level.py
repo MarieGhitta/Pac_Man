@@ -1,5 +1,6 @@
 """Manage a level."""
 
+import random
 from src.config.models import LevelConfig
 from src.maze.generator import MazeFactory
 from src.maze.models import Cell
@@ -9,7 +10,10 @@ from src.game.cell_content import CellContent
 class Level:
     """Represent a level."""
 
-    def __init__(self, level_config: LevelConfig, seed: int):
+    def __init__(self,
+                 level_config: LevelConfig,
+                 seed: int,
+                 pacgum_count: int):
         """Initialize a level.
 
         Args:
@@ -22,7 +26,7 @@ class Level:
             self.level_config.height,
             seed)
         self.start_cell = self.player_start_cell()
-        self._initialize_contents()
+        self._initialize_contents(pacgum_count)
 
     def player_start_cell(self) -> Cell:
         """Return the player's starting cell."""
@@ -41,11 +45,70 @@ class Level:
                 return cell
         raise ValueError("The player starting cell is not walkable.")
 
-    def _initialize_contents(self) -> None:
+    def _initialize_contents(self, pacgum_count: int) -> None:
         """Initialize the contents of the maze cells."""
+        super_pacgum_cells = self._find_super_pacgum_cells()
+        self._initialize_pacgums(pacgum_count, super_pacgum_cells)
+        self._initialize_super_pacgums(super_pacgum_cells)
+        self._clear_player_start()
+
+    def _find_corner_cell(self, x_range: range, y_range: range) -> Cell:
+        """Return the first walkable cell found when searching from a corner."""
+        for y in y_range:
+            for x in x_range:
+                cell = self.maze.cells[y][x]
+                if cell.walkable:
+                    return cell
+        raise ValueError("No walkable cell found.")
+
+    def _find_super_pacgum_cells(self) -> list[Cell]:
+        """Return the four corner cells for the super pacgums."""
+        cells = [
+            self._find_corner_cell(
+                range(self.maze.width),
+                range(self.maze.height)
+            ),
+            self._find_corner_cell(
+                range(self.maze.width - 1, -1, -1),
+                range(self.maze.height)
+            ),
+            self._find_corner_cell(
+                range(self.maze.width),
+                range(self.maze.height - 1, -1, -1)
+            ),
+            self._find_corner_cell(
+                range(self.maze.width - 1, -1, -1),
+                range(self.maze.height - 1, -1, -1)
+            )
+        ]
+        if len(set(cells)) != 4:
+            raise ValueError("Could not determine four distinct corner cells.")
+        return cells
+
+    def _initialize_pacgums(
+            self,
+            pacgum_count: int,
+            super_pacgum_cells: list[Cell]) -> None:
+        """Place the pacgums in the maze."""
+        available_cells = []
         for row in self.maze.cells:
             for cell in row:
-                if cell.walkable:
-                    cell.content = CellContent.PACGUM
+                if (cell.walkable
+                   and cell is not self.start_cell
+                   and cell not in super_pacgum_cells):
+                    available_cells.append(cell)
+        if pacgum_count > len(available_cells):
+            raise ValueError("Too many pacgums for this maze.")
+        random.shuffle(available_cells)
+        for cell in available_cells[:pacgum_count]:
+            cell.content = CellContent.PACGUM
+
+    def _initialize_super_pacgums(self,
+                                  super_pacgum_cells: list[Cell]) -> None:
+        """Place the super pacgums in the maze."""
+        for cell in super_pacgum_cells:
+            cell.content = CellContent.SUPER_PACGUM
+
+    def _clear_player_start(self) -> None:
+        """Clear the player's starting cell."""
         self.start_cell.content = CellContent.EMPTY
-        
