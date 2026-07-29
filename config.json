@@ -4,6 +4,14 @@
         {
             "width": 10,
             "height": 10
+        },
+        {
+            "width": 15,
+            "height": 15
+        },
+        {
+            "width": 20,
+            "height": 20
         }
     ],
     "lives": 3,

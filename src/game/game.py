@@ -19,9 +19,9 @@ class Game:
         """
         self.config = config
         self.current_level_index = 0
-        self.level = Level(config.levels[self.current_level_index],
-                           config.seed,
-                           config.pacgum)
+        self.level = Level(self.config.levels[self.current_level_index],
+                           self.config.seed,
+                           self.config.pacgum)
         self.player = Player(self.level.start_cell.x,
                              self.level.start_cell.y)
         self.score = 0
@@ -48,7 +48,7 @@ class Game:
         new_cell = self.level.maze.cells[self.player.y][self.player.x]
         self._collect_cell_content(new_cell)
         if self._is_level_completed():
-            print("Level completed!") 
+            self._next_level()
 
     def _collect_cell_content(self, cell: Cell) -> None:
         """Collect the content of a maze cell."""
@@ -67,3 +67,17 @@ class Game:
                    or cell.content == CellContent.SUPER_PACGUM):
                     return False
         return True
+
+    def _next_level(self) -> None:
+        """Load the next level."""
+        self.current_level_index += 1
+        if self.current_level_index >= len(self.config.levels):
+            print("You win!")
+            return
+        self.level = Level(
+            self.config.levels[self.current_level_index],
+            self.config.seed,
+            self.config.pacgum)
+        self.player.move_to(self.level.start_cell.x,
+                            self.level.start_cell.y)
+

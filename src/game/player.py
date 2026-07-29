@@ -8,3 +8,9 @@ class Player:
         """Initialize Pac-Man."""
         self.x = x
         self.y = y
+
+    def move_to(self, x: int, y: int) -> None:
+        """Move the player to the given position."""
+        self.x = x
+        self.y = y
+

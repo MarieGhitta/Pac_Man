@@ -19,14 +19,17 @@ class Renderer:
     def __init__(self, level: Level) -> None:
         """Initialize the renderer."""
         pygame.init()
-        width = level.maze.width * _TILE_SIZE + 2 * _PADDING
-        height = level.maze.height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((width, height))
+        window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
+        window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
+        self.screen = pygame.display.set_mode((window_width, window_height))
         pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, _FONT_SIZE)
+        self.maze_width = level.maze.width
+        self.maze_height = level.maze.height
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
+        self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         self._draw_player(game.player)
@@ -116,3 +119,14 @@ class Renderer:
             (255, 255, 255)
         )
         self.screen.blit(score_text, (_PADDING, 10))
+
+    def _update_window(self, level: Level) -> None:
+        """Resize the window if the level dimensions changed."""
+        if (level.maze.width == self.maze_width
+           and level.maze.height == self.maze_height):
+            return
+        self.maze_width = level.maze.width
+        self.maze_height = level.maze.height
+        width = self.maze_width * _TILE_SIZE + 2 * _PADDING
+        height = self.maze_height * _TILE_SIZE + 2 * _PADDING
+        self.screen = pygame.display.set_mode((width, height))
