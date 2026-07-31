@@ -26,6 +26,7 @@ class Level:
             self.level_config.height,
             seed)
         self.start_cell = self.player_start_cell()
+        self.ghost_start_cells: list[Cell] = []
         self._initialize_contents(pacgum_count)
 
     def player_start_cell(self) -> Cell:
@@ -47,9 +48,10 @@ class Level:
 
     def _initialize_contents(self, pacgum_count: int) -> None:
         """Initialize the contents of the maze cells."""
-        super_pacgum_cells = self._find_super_pacgum_cells()
-        self._initialize_pacgums(pacgum_count, super_pacgum_cells)
-        self._initialize_super_pacgums(super_pacgum_cells)
+        corner_cells = self._find_corner_cells()
+        self.ghost_start_cells = corner_cells
+        self._initialize_pacgums(pacgum_count, corner_cells)
+        self._initialize_super_pacgums(corner_cells)
         self._clear_player_start()
 
     def _find_corner_cell(self, x_range: range, y_range: range) -> Cell:
@@ -61,8 +63,8 @@ class Level:
                     return cell
         raise ValueError("No walkable cell found.")
 
-    def _find_super_pacgum_cells(self) -> list[Cell]:
-        """Return the four corner cells for the super pacgums."""
+    def _find_corner_cells(self) -> list[Cell]:
+        """Return the four walkable corner cells."""
         cells = [
             self._find_corner_cell(
                 range(self.maze.width),
@@ -88,14 +90,14 @@ class Level:
     def _initialize_pacgums(
             self,
             pacgum_count: int,
-            super_pacgum_cells: list[Cell]) -> None:
+            corner_cells: list[Cell]) -> None:
         """Place the pacgums in the maze."""
         available_cells = []
         for row in self.maze.cells:
             for cell in row:
                 if (cell.walkable
                    and cell is not self.start_cell
-                   and cell not in super_pacgum_cells):
+                   and cell not in corner_cells):
                     available_cells.append(cell)
         if pacgum_count > len(available_cells):
             raise ValueError("Too many pacgums for this maze.")
@@ -112,3 +114,5 @@ class Level:
     def _clear_player_start(self) -> None:
         """Clear the player's starting cell."""
         self.start_cell.content = CellContent.EMPTY
+
+

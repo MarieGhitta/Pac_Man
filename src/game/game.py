@@ -6,6 +6,7 @@ from src.game.player import Player
 from src.game.direction import Direction
 from src.game.cell_content import CellContent
 from src.maze.models import Cell
+from src.game.ghost import Ghost
 
 
 class Game:
@@ -25,10 +26,7 @@ class Game:
         self.player = Player(self.level.start_cell.x,
                              self.level.start_cell.y)
         self.score = 0
-
-    def run(self) -> None:
-        """Run the game."""
-        print("Game started!")
+        self.ghosts = self._create_ghosts()
 
     def move_player(self, direction: Direction) -> None:
         """Move the player in the given direction."""
@@ -80,4 +78,11 @@ class Game:
             self.config.pacgum)
         self.player.move_to(self.level.start_cell.x,
                             self.level.start_cell.y)
+
+    def _create_ghosts(self):
+        """Create the ghosts for the current level."""
+        ghosts = []
+        for cell in self.level.ghost_start_cells:
+            ghosts.append(Ghost(cell.x, cell.y))
+        return ghosts
 

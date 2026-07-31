@@ -6,6 +6,7 @@ from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
 from src.game.cell_content import CellContent
+from src.game.ghost import Ghost
 
 
 _TILE_SIZE = 42
@@ -32,6 +33,7 @@ class Renderer:
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
+        self._draw_ghosts(game.ghosts)
         self._draw_player(game.player)
         self._draw_score(game.score)
         pygame.display.flip()
@@ -130,3 +132,19 @@ class Renderer:
         width = self.maze_width * _TILE_SIZE + 2 * _PADDING
         height = self.maze_height * _TILE_SIZE + 2 * _PADDING
         self.screen = pygame.display.set_mode((width, height))
+
+    def _draw_ghosts(self, ghosts: list[Ghost]) -> None:
+        """Draw all ghosts."""
+        for ghost in ghosts:
+            self._draw_ghost(ghost)
+
+    def _draw_ghost(self, ghost: Ghost) -> None:
+        screen_x = _PADDING + ghost.x * _TILE_SIZE
+        screen_y = _PADDING + ghost.y * _TILE_SIZE
+        margin = _TILE_SIZE // 4
+        points = [
+            (screen_x + _TILE_SIZE // 2, screen_y + margin),
+            (screen_x + _TILE_SIZE - margin, screen_y + _TILE_SIZE - margin),
+            (screen_x + margin, screen_y + _TILE_SIZE - margin)
+        ]
+        pygame.draw.polygon(self.screen, (255, 128, 0), points)
