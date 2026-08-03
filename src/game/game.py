@@ -14,8 +14,9 @@ from src.game.ghost_state import GhostState
 
 
 _PLAYER_UPDATE_DELAY = 150
-_GHOST_UPDATE_DELAY = 300
-_GHOST_STATE_DELAY = 8000
+_GHOST_UPDATE_DELAY = 400
+_GHOST_SCATTER_DELAY = 8000
+_GHOST_FRIGHTENED_DELAY = 15000
 
 
 class Game:
@@ -41,6 +42,7 @@ class Game:
         self.last_ghost_update = current_time
         self.ghost_state = GhostState.CHASE
         self.last_state_change = current_time
+        self.lives = self.config.lives
 
     def _create_ghosts(self) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -94,6 +96,7 @@ class Game:
         elif cell.content == CellContent.SUPER_PACGUM:
             cell.content = CellContent.EMPTY
             self.score += self.config.points_per_super_pacgum
+            self._frighten_ghosts()
 
     def _is_level_completed(self) -> bool:
         """Return True if the current level is completed."""
@@ -135,7 +138,7 @@ class Game:
         if current_time - self.last_ghost_update >= _GHOST_UPDATE_DELAY:
             self.last_ghost_update = current_time
             self._update_ghosts()
-        # self._check_collision()
+        self._check_collision()
 
     def _update_ghosts(self) -> None:
         """Update all ghosts."""
@@ -148,7 +151,7 @@ class Game:
 
     def _update_ghost_state(self, current_time: int) -> None:
         """Update the ghosts state."""
-        if current_time - self.last_state_change < _GHOST_STATE_DELAY:
+        if current_time - self.last_state_change < _GHOST_SCATTER_DELAY:
             return
         self.last_state_change = current_time
         if self.ghost_state == GhostState.CHASE:
@@ -156,4 +159,52 @@ class Game:
         else:
             self.ghost_state = GhostState.CHASE
         for ghost in self.ghosts:
+            if ghost.state == GhostState.FRIGHTENED:
+                continue
+            if ghost.state == GhostState.RESPAWN:
+                continue
             ghost.state = self.ghost_state
+
+    def _check_collision(self) -> None:
+        """Check collisions between the player and the ghosts."""
+        for ghost in self.ghosts:
+            if (ghost.x == self.player.x
+               and ghost.y == self.player.y):
+                self._handle_collision(ghost)
+                return
+
+    def _handle_collision(self, ghost: Ghost) -> None:
+        """Handle a collision with a ghost."""
+        if ghost.state == GhostState.FRIGHTENED:
+            self._eat_ghost(ghost)
+        else:
+            self._player_hit()
+
+    def _eat_ghost(self, ghost: Ghost) -> None:
+        """Eat a frightened ghost."""
+        self.score += self.config.points_per_ghost
+        ghost.state = GhostState.RESPAWN
+
+    def _player_hit(self) -> None:
+        """Handle the player being hit."""
+        self.lives -= 1
+        if self.lives == 0:
+            print("Game Over")
+            return
+        self._reset_positions()
+
+    def _reset_positions(self) -> None:
+        """Reset the player and ghosts positions."""
+        self.player.move_to(self.level.start_cell.x,
+                            self.level.start_cell.y)
+        self.player.direction = Direction.NONE
+        self.player.next_direction = Direction.NONE
+        self.ghosts = self._create_ghosts()
+
+    def _frighten_ghosts(self) -> None:
+        """Put all ghosts in frightened state."""
+        current_time = pygame.time.get_ticks()
+        for ghost in self.ghosts:
+            ghost.state = GhostState.FRIGHTENED
+            ghost.frightened_until = current_time + _GHOST_FRIGHTENED_DELAY
+

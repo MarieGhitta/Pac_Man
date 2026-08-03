@@ -8,6 +8,7 @@ from src.maze.models import Maze, Cell
 from src.game.cell_content import CellContent
 from src.game.ghost import Ghost
 from src.game.ghost_type import GhostType
+from src.game.ghost_state import GhostState
 
 
 _TILE_SIZE = 42
@@ -36,7 +37,7 @@ class Renderer:
         self._draw_maze(game.level.maze)
         self._draw_ghosts(game.ghosts)
         self._draw_player(game.player)
-        self._draw_score(game.score)
+        self._draw_score(game)
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
@@ -114,14 +115,21 @@ class Renderer:
             _TILE_SIZE // 3,
         )
 
-    def _draw_score(self, score: int) -> None:
+    def _draw_score(self, game: Game) -> None:
         """Draw the current score."""
         score_text = self.font.render(
-            f'Score: {score}',
+            f'Score: {game.score}',
             True,
             (255, 255, 255)
         )
         self.screen.blit(score_text, (_PADDING, 10))
+        lives_text = self.font.render(
+            f"Lives: {game.lives}",
+            True,
+            (255, 255, 255)
+        )
+        self.screen.blit(lives_text, (self.screen.get_width() -
+                                      lives_text.get_width() - _PADDING, 10))
 
     def _update_window(self, level: Level) -> None:
         """Resize the window if the level dimensions changed."""
@@ -152,6 +160,8 @@ class Renderer:
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the ghost color."""
+        if ghost.state == GhostState.FRIGHTENED:
+            return (0, 0, 255)
         if ghost.type == GhostType.BLINKY:
             return (255, 0, 0)
         if ghost.type == GhostType.PINKY:
