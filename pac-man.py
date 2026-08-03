@@ -20,14 +20,14 @@ def main() -> None:
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        game.move_player(Direction.UP)
+                        game.player.next_direction = Direction.UP
                     elif event.key == pygame.K_RIGHT:
-                        game.move_player(Direction.RIGHT)
+                        game.player.next_direction = Direction.RIGHT
                     elif event.key == pygame.K_DOWN:
-                        game.move_player(Direction.DOWN)
+                        game.player.next_direction = Direction.DOWN
                     elif event.key == pygame.K_LEFT:
-                        game.move_player(Direction.LEFT)
-
+                        game.player.next_direction = Direction.LEFT
+            game.update()
             renderer.draw(game)
             clock.tick(60)
         pygame.quit()

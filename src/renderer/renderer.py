@@ -7,6 +7,7 @@ from src.game.player import Player
 from src.maze.models import Maze, Cell
 from src.game.cell_content import CellContent
 from src.game.ghost import Ghost
+from src.game.ghost_type import GhostType
 
 
 _TILE_SIZE = 42
@@ -147,4 +148,16 @@ class Renderer:
             (screen_x + _TILE_SIZE - margin, screen_y + _TILE_SIZE - margin),
             (screen_x + margin, screen_y + _TILE_SIZE - margin)
         ]
-        pygame.draw.polygon(self.screen, (255, 128, 0), points)
+        pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
+
+    def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
+        """Return the ghost color."""
+        if ghost.type == GhostType.BLINKY:
+            return (255, 0, 0)
+        if ghost.type == GhostType.PINKY:
+            return (255, 105, 180)
+        if ghost.type == GhostType.INKY:
+            return (0, 255, 255)
+        if ghost.type == GhostType.CLYDE:
+            return (255, 128, 0)        
+        

@@ -7,6 +7,7 @@ from enum import Enum, auto
 class Direction(Enum):
     """Represent the possible movement directions."""
 
+    NONE = auto()
     UP = auto()
     RIGHT = auto()
     DOWN = auto()
