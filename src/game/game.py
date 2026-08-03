@@ -16,7 +16,7 @@ from src.game.ghost_state import GhostState
 _PLAYER_UPDATE_DELAY = 150
 _GHOST_UPDATE_DELAY = 400
 _GHOST_SCATTER_DELAY = 8000
-_GHOST_FRIGHTENED_DELAY = 15000
+_GHOST_FRIGHTENED_DELAY = 8000
 
 
 class Game:
@@ -168,6 +168,8 @@ class Game:
     def _check_collision(self) -> None:
         """Check collisions between the player and the ghosts."""
         for ghost in self.ghosts:
+            if ghost.state == GhostState.RESPAWN:
+                continue
             if (ghost.x == self.player.x
                and ghost.y == self.player.y):
                 self._handle_collision(ghost)
@@ -175,17 +177,20 @@ class Game:
 
     def _handle_collision(self, ghost: Ghost) -> None:
         """Handle a collision with a ghost."""
+        print(ghost.type, ghost.state)
         if ghost.state == GhostState.FRIGHTENED:
             self._eat_ghost(ghost)
         else:
             self._player_hit()
 
     def _eat_ghost(self, ghost: Ghost) -> None:
+        print("GHOST EATEN")
         """Eat a frightened ghost."""
         self.score += self.config.points_per_ghost
         ghost.state = GhostState.RESPAWN
 
     def _player_hit(self) -> None:
+        print("PLAYER HIT")
         """Handle the player being hit."""
         self.lives -= 1
         if self.lives == 0:
