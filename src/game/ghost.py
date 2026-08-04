@@ -24,12 +24,13 @@ class Ghost:
         self.respawn_until = 0.0
         self.type = ghost_type
 
-    def update(self, level: Level, player: Player) -> None:
+    def update(self, level: Level, player: Player,
+               normal_state: GhostState) -> None:
         """Update the ghost."""
         current_time = pygame.time.get_ticks()
         if (self.state == GhostState.FRIGHTENED
            and current_time >= self.frightened_until):
-            self.state = GhostState.CHASE
+            self.state = normal_state
         self.direction = self._choose_direction(level, player)
         self._move(level)
         if (self.state == GhostState.RESPAWN

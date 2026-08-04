@@ -143,7 +143,7 @@ class Game:
     def _update_ghosts(self) -> None:
         """Update all ghosts."""
         for ghost in self.ghosts:
-            ghost.update(self.level, self.player)
+            ghost.update(self.level, self.player, self.ghost_state)
 
     def _update_player(self) -> None:
         """Update the player."""
@@ -210,6 +210,8 @@ class Game:
         """Put all ghosts in frightened state."""
         current_time = pygame.time.get_ticks()
         for ghost in self.ghosts:
+            if ghost.state == GhostState.RESPAWN:
+                continue
             ghost.state = GhostState.FRIGHTENED
             ghost.frightened_until = current_time + _GHOST_FRIGHTENED_DELAY
 
