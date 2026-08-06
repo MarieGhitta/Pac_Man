@@ -34,9 +34,10 @@ class Ghost:
         self.direction = self._choose_direction(level, player)
         self._move(level)
         if (self.state == GhostState.RESPAWN
+           and current_time >= self.respawn_until
            and self.x == self.spawn_x
            and self.y == self.spawn_y):
-            self.state = GhostState.CHASE
+            self.state = normal_state
 
     def _choose_direction(self, level: Level, player: Player) -> Direction:
         """Choose the next direction."""

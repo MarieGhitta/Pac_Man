@@ -17,6 +17,7 @@ _PLAYER_UPDATE_DELAY = 150
 _GHOST_UPDATE_DELAY = 400
 _GHOST_SCATTER_DELAY = 8000
 _GHOST_FRIGHTENED_DELAY = 8000
+_GHOST_RESPAWN_DELAY = 5000
 
 
 class Game:
@@ -43,6 +44,8 @@ class Game:
         self.ghost_state = GhostState.CHASE
         self.last_state_change = current_time
         self.lives = self.config.lives
+        self.game_over = False
+        self.victory = False
 
     def _create_ghosts(self) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -111,6 +114,7 @@ class Game:
         """Load the next level."""
         self.current_level_index += 1
         if self.current_level_index >= len(self.config.levels):
+            self.victory = True
             print("You win!")
             return
         self.level = Level(
@@ -130,6 +134,8 @@ class Game:
 
     def update(self) -> None:
         """Update the game state."""
+        if self.game_over or self.victory:
+            return
         current_time = pygame.time.get_ticks()
         self._update_ghost_state(current_time)
         if current_time - self.last_player_update >= _PLAYER_UPDATE_DELAY:
@@ -177,23 +183,23 @@ class Game:
 
     def _handle_collision(self, ghost: Ghost) -> None:
         """Handle a collision with a ghost."""
-        print(ghost.type, ghost.state)
         if ghost.state == GhostState.FRIGHTENED:
             self._eat_ghost(ghost)
         else:
             self._player_hit()
 
     def _eat_ghost(self, ghost: Ghost) -> None:
-        print("GHOST EATEN")
         """Eat a frightened ghost."""
+        current_time = pygame.time.get_ticks()
         self.score += self.config.points_per_ghost
         ghost.state = GhostState.RESPAWN
+        ghost.respawn_until = current_time + _GHOST_RESPAWN_DELAY
 
     def _player_hit(self) -> None:
-        print("PLAYER HIT")
         """Handle the player being hit."""
         self.lives -= 1
         if self.lives == 0:
+            self.game_over = True
             print("Game Over")
             return
         self._reset_positions()
