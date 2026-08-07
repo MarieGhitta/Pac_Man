@@ -1,2 +1,2 @@
 [flake8]
-exclude = .venv,libs
+exclude = .venv,libs, ./exploration, ./tests

@@ -169,5 +169,4 @@ class Renderer:
         if ghost.type == GhostType.INKY:
             return (0, 255, 255)
         if ghost.type == GhostType.CLYDE:
-            return (255, 128, 0)        
-        
+            return (255, 128, 0)

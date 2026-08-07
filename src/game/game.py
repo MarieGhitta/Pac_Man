@@ -220,4 +220,3 @@ class Game:
                 continue
             ghost.state = GhostState.FRIGHTENED
             ghost.frightened_until = current_time + _GHOST_FRIGHTENED_DELAY
-

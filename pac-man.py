@@ -8,6 +8,7 @@ from src.game.direction import Direction
 
 
 def main() -> None:
+    """Run the game."""
     try:
         config = ConfigLoader().load("config.json")
         game = Game(config)

@@ -148,7 +148,8 @@ class Ghost:
         raise ValueError("Invalid direction.")
 
     def _remove_opposite_direction(self,
-                                   directions: list[Direction]) -> list[Direction]:
+                                   directions: list[Direction]
+                                   ) -> list[Direction]:
         """Remove the opposite direction if another direction is available."""
         remaining_directions = []
         if len(directions) == 1:
@@ -171,5 +172,3 @@ class Ghost:
         if self.type == GhostType.INKY:
             return player.x, player.y + 2
         return player.x - 2, player.y
-
-               

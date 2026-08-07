@@ -3,6 +3,7 @@
 
 class LevelConfig:
     """Represent the configuration of a level."""
+
     def __init__(self, width: int, height: int) -> None:
         """Initialize a level configuration.
 
@@ -16,6 +17,7 @@ class LevelConfig:
 
 class Config:
     """Represents the game configuration."""
+
     def __init__(
             self,
             highscore_filename: str,

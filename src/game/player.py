@@ -17,4 +17,3 @@ class Player:
         """Move the player to the given position."""
         self.x = x
         self.y = y
-

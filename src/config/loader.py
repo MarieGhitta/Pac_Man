@@ -52,7 +52,7 @@ class ConfigLoader:
         pacgum = self._get_int(data, "pacgum", 42, minimum=0)
         points_per_pacgum = self._get_int(data, "points_per_pacgum", 10,
                                           minimum=0)
-        points_per_super_pacgum = self._get_int(data, 
+        points_per_super_pacgum = self._get_int(data,
                                                 "points_per_super_pacgum",
                                                 50, minimum=0)
         points_per_ghost = self._get_int(data, "points_per_ghost", 200,

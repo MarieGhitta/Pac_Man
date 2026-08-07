@@ -55,7 +55,7 @@ class Level:
         self._clear_player_start()
 
     def _find_corner_cell(self, x_range: range, y_range: range) -> Cell:
-        """Return the first walkable cell found when searching from a corner."""
+        """Return first walkable cell found when searching from a corner."""
         for y in y_range:
             for x in x_range:
                 cell = self.maze.cells[y][x]
@@ -114,5 +114,3 @@ class Level:
     def _clear_player_start(self) -> None:
         """Clear the player's starting cell."""
         self.start_cell.content = CellContent.EMPTY
-
-
