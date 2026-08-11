@@ -2,6 +2,7 @@
 
 
 import pygame
+import random
 from src.config.models import Config
 from src.game.level import Level
 from src.game.player import Player
@@ -119,7 +120,7 @@ class Game:
             return
         self.level = Level(
             self.config.levels[self.current_level_index],
-            self.config.seed,
+            random.randint(0, 2**32 - 1),
             self.config.pacgum)
         self.player.move_to(self.level.start_cell.x,
                             self.level.start_cell.y)
