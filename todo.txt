@@ -17,3 +17,8 @@
 - cheatcodes
 - config:
     - commentaires /* */ (si j'ai le time)
+
+
+
+QUESTIONS:
+- tout est bien protege dans le config.json? si je met rien dans seed ca fonctionne quand mm avec une valeur par defaut?
