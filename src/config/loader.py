@@ -49,7 +49,7 @@ class ConfigLoader:
         highscore_filename = self._get_str(data, "highscore_filename",
                                            "highscores.json")
         lives = self._get_int(data, "lives", 3, minimum=1)
-        pacgum = self._get_int(data, "pacgum", 42, minimum=0)
+        pacgum = self._get_int(data, "pacgum", 0, minimum=0)
         points_per_pacgum = self._get_int(data, "points_per_pacgum", 10,
                                           minimum=0)
         points_per_super_pacgum = self._get_int(data,
