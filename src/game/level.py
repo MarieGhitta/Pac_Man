@@ -10,10 +10,12 @@ from src.game.cell_content import CellContent
 class Level:
     """Represent a level."""
 
-    def __init__(self,
-                 level_config: LevelConfig,
-                 seed: int,
-                 pacgum_count: int):
+    def __init__(
+        self,
+        level_config: LevelConfig,
+        seed: int,
+        pacgum_count: int
+    ):
         """Initialize a level.
 
         Args:
@@ -24,7 +26,8 @@ class Level:
         self.maze = MazeFactory().generate(
             self.level_config.width,
             self.level_config.height,
-            seed)
+            seed
+        )
         self.start_cell = self.player_start_cell()
         self.ghost_start_cells: list[Cell] = []
         self._initialize_contents(pacgum_count)
@@ -90,17 +93,20 @@ class Level:
     def _initialize_pacgums(
             self,
             pacgum_count: int,
-            corner_cells: list[Cell]) -> None:
+            corner_cells: list[Cell]
+    ) -> None:
         """Place the pacgums in the maze."""
         available_cells = []
         for row in self.maze.cells:
             for cell in row:
-                if (cell.walkable
-                   and cell is not self.start_cell
-                   and cell not in corner_cells):
+                if (
+                    cell.walkable
+                    and cell is not self.start_cell
+                    and cell not in corner_cells
+                ):
                     available_cells.append(cell)
-        if pacgum_count > len(available_cells):
-            raise ValueError("Too many pacgums for this maze.")
+        if pacgum_count < 1 or pacgum_count > len(available_cells):
+            pacgum_count = len(available_cells)
         random.shuffle(available_cells)
         for cell in available_cells[:pacgum_count]:
             cell.content = CellContent.PACGUM
