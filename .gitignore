@@ -60,3 +60,7 @@ builds/
 # --- OS ---
 .DS_Store
 Thumbs.db
+
+# --- Private files ---
+PROJECT_MONITORING.md
+pacman_subject.pdf
