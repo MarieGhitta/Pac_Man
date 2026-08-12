@@ -170,3 +170,4 @@ class Renderer:
             return (0, 255, 255)
         if ghost.ghost_type == GhostType.CLYDE:
             return (255, 128, 0)
+        raise ValueError(f"Unknown ghost type: {ghost.ghost_type}")
