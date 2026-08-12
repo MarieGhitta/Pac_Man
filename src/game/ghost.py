@@ -200,7 +200,7 @@ class Ghost:
                 else:
                     return self.spawn_x, self.spawn_y
 
-    def _position_ahead(self, player: Player, n: int):
+    def _position_ahead(self, player: Player, n: int) -> tuple[int, int]:
         """Return the position n cell ahead of the player."""
         match player.direction:
             case Direction.UP:
