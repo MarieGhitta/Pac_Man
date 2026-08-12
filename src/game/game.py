@@ -137,8 +137,8 @@ class Game:
         self.last_state_change = current_time
         self.last_player_update = current_time
         self.last_ghost_update = current_time
-        self.player.direction = Direction.NONE
-        self.player.next_direction = Direction.NONE
+        self.player.direction = Direction.LEFT
+        self.player.next_direction = Direction.LEFT
 
     def update(self) -> None:
         """Update the game state."""
@@ -218,8 +218,8 @@ class Game:
             self.level.start_cell.x,
             self.level.start_cell.y
         )
-        self.player.direction = Direction.NONE
-        self.player.next_direction = Direction.NONE
+        self.player.direction = Direction.LEFT
+        self.player.next_direction = Direction.LEFT
         self.ghosts = self._create_ghosts()
 
     def _frighten_ghosts(self) -> None:

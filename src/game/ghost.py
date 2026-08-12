@@ -183,8 +183,6 @@ class Ghost:
                     return player.x - 4, player.y
                 case Direction.RIGHT:
                     return player.x + 4, player.y
-                case Direction.NONE:
-                    return player.x, player.y
         if self.ghost_type == GhostType.INKY:
             return player.x, player.y + 2
         return player.x - 2, player.y
