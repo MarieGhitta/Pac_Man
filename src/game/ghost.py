@@ -22,21 +22,29 @@ class Ghost:
         self.state = GhostState.SCATTER
         self.frightened_until = 0.0
         self.respawn_until = 0.0
-        self.type = ghost_type
+        self.ghost_type = ghost_type
 
-    def update(self, level: Level, player: Player,
-               normal_state: GhostState) -> None:
+    def update(
+        self,
+        level: Level,
+        player: Player,
+        normal_state: GhostState
+    ) -> None:
         """Update the ghost."""
         current_time = pygame.time.get_ticks()
-        if (self.state == GhostState.FRIGHTENED
-           and current_time >= self.frightened_until):
+        if (
+            self.state == GhostState.FRIGHTENED
+            and current_time >= self.frightened_until
+        ):
             self.state = normal_state
         self.direction = self._choose_direction(level, player)
         self._move(level)
-        if (self.state == GhostState.RESPAWN
-           and current_time >= self.respawn_until
-           and self.x == self.spawn_x
-           and self.y == self.spawn_y):
+        if (
+            self.state == GhostState.RESPAWN
+            and current_time >= self.respawn_until
+            and self.x == self.spawn_x
+            and self.y == self.spawn_y
+        ):
             self.state = normal_state
 
     def _choose_direction(self, level: Level, player: Player) -> Direction:
@@ -165,10 +173,10 @@ class Ghost:
         """Return the target position."""
         if self.state == GhostState.SCATTER:
             return self.spawn_x, self.spawn_y
-        if self.type == GhostType.BLINKY:
+        if self.ghost_type == GhostType.BLINKY:
             return player.x, player.y
-        if self.type == GhostType.PINKY:
+        if self.ghost_type == GhostType.PINKY:
             return player.x + 2, player.y
-        if self.type == GhostType.INKY:
+        if self.ghost_type == GhostType.INKY:
             return player.x, player.y + 2
         return player.x - 2, player.y

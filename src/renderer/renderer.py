@@ -162,11 +162,11 @@ class Renderer:
         """Return the ghost color."""
         if ghost.state == GhostState.FRIGHTENED:
             return (0, 0, 255)
-        if ghost.type == GhostType.BLINKY:
+        if ghost.ghost_type == GhostType.BLINKY:
             return (255, 0, 0)
-        if ghost.type == GhostType.PINKY:
+        if ghost.ghost_type == GhostType.PINKY:
             return (255, 105, 180)
-        if ghost.type == GhostType.INKY:
+        if ghost.ghost_type == GhostType.INKY:
             return (0, 255, 255)
-        if ghost.type == GhostType.CLYDE:
+        if ghost.ghost_type == GhostType.CLYDE:
             return (255, 128, 0)
