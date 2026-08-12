@@ -156,7 +156,12 @@ class Game:
     def _update_ghosts(self) -> None:
         """Update all ghosts."""
         for ghost in self.ghosts:
-            ghost.update(self.level, self.player, self.ghost_state)
+            ghost.update(
+                self.level,
+                self.player,
+                self.ghosts,
+                self.ghost_state
+            )
 
     def _update_player(self) -> None:
         """Update the player."""
