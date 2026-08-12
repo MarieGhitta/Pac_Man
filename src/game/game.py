@@ -32,11 +32,15 @@ class Game:
         """
         self.config = config
         self.current_level_index = 0
-        self.level = Level(self.config.levels[self.current_level_index],
-                           self.config.seed,
-                           self.config.pacgum)
-        self.player = Player(self.level.start_cell.x,
-                             self.level.start_cell.y)
+        self.level = Level(
+            self.config.levels[self.current_level_index],
+            self.config.seed,
+            self.config.pacgum
+        )
+        self.player = Player(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
         self.score = 0
         self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
@@ -121,9 +125,12 @@ class Game:
         self.level = Level(
             self.config.levels[self.current_level_index],
             random.randint(0, 2**32 - 1),
-            self.config.pacgum)
-        self.player.move_to(self.level.start_cell.x,
-                            self.level.start_cell.y)
+            self.config.pacgum
+        )
+        self.player.move_to(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
         self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
         self.ghost_state = GhostState.CHASE
@@ -207,8 +214,10 @@ class Game:
 
     def _reset_positions(self) -> None:
         """Reset the player and ghosts positions."""
-        self.player.move_to(self.level.start_cell.x,
-                            self.level.start_cell.y)
+        self.player.move_to(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
         self.player.direction = Direction.NONE
         self.player.next_direction = Direction.NONE
         self.ghosts = self._create_ghosts()
