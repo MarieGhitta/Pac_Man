@@ -25,10 +25,7 @@ class Ghost:
         self.ghost_type = ghost_type
 
     def update(
-        self,
-        level: Level,
-        player: Player,
-        normal_state: GhostState
+        self, level: Level, player: Player, normal_state: GhostState
     ) -> None:
         """Update the ghost."""
         current_time = pygame.time.get_ticks()
@@ -89,8 +86,7 @@ class Ghost:
             if not current_cell.west_wall:
                 self.x -= 1
 
-    def _next_position(self,
-                       direction: Direction) -> tuple[int, int]:
+    def _next_position(self, direction: Direction) -> tuple[int, int]:
         """Return the next position for the given direction."""
         if direction == Direction.UP:
             return self.x, self.y - 1
@@ -102,10 +98,9 @@ class Ghost:
             return self.x - 1, self.y
         raise ValueError("Invalid direction.")
 
-    def _choose_target_direction(self,
-                                 directions: list[Direction],
-                                 target_x: int,
-                                 target_y: int) -> Direction:
+    def _choose_target_direction(
+        self, directions: list[Direction], target_x: int, target_y: int
+    ) -> Direction:
         """Choose the direction that gets closest to the target."""
         best_directions = []
         best_distance = float("inf")
@@ -119,30 +114,34 @@ class Ghost:
                 best_directions.append(direction)
         return random.choice(best_directions)
 
-    def _choose_chase_direction(self,
-                                directions: list[Direction],
-                                player: Player) -> Direction:
+    def _choose_chase_direction(
+        self, directions: list[Direction], player: Player
+    ) -> Direction:
         """Choose the direction that gets closest to the player."""
         target_x, target_y = self._target_position(player)
-        return self._choose_target_direction(directions,
-                                             target_x, target_y)
+        return self._choose_target_direction(directions, target_x, target_y)
 
-    def _choose_scatter_direction(self,
-                                  directions: list[Direction]) -> Direction:
+    def _choose_scatter_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose the direction that gets closest to the spawn."""
-        return self._choose_target_direction(directions,
-                                             self.spawn_x, self.spawn_y)
+        return self._choose_target_direction(
+            directions, self.spawn_x, self.spawn_y
+        )
 
-    def _choose_frightened_direction(self,
-                                     directions: list[Direction]) -> Direction:
+    def _choose_frightened_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose a random direction."""
         return random.choice(directions)
 
-    def _choose_respawn_direction(self,
-                                  directions: list[Direction]) -> Direction:
+    def _choose_respawn_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose the direction that gets closest to the spawn."""
-        return self._choose_target_direction(directions,
-                                             self.spawn_x, self.spawn_y)
+        return self._choose_target_direction(
+            directions, self.spawn_x, self.spawn_y
+        )
 
     def _opposite_direction(self) -> Direction:
         if self.direction == Direction.UP:
@@ -155,9 +154,9 @@ class Ghost:
             return Direction.RIGHT
         raise ValueError("Invalid direction.")
 
-    def _remove_opposite_direction(self,
-                                   directions: list[Direction]
-                                   ) -> list[Direction]:
+    def _remove_opposite_direction(
+        self, directions: list[Direction]
+    ) -> list[Direction]:
         """Remove the opposite direction if another direction is available."""
         remaining_directions = []
         if len(directions) == 1:
