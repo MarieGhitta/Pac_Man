@@ -96,7 +96,6 @@ class Ghost:
             return self.x, self.y + 1
         if direction == Direction.LEFT:
             return self.x - 1, self.y
-        raise ValueError("Invalid direction.")
 
     def _choose_target_direction(
         self, directions: list[Direction], target_x: int, target_y: int

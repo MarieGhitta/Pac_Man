@@ -75,7 +75,6 @@ class Game:
             return not current_cell.south_wall
         if direction == Direction.LEFT:
             return not current_cell.west_wall
-        return False
 
     def move_player(self) -> None:
         """Move the player in the given direction."""
