@@ -186,28 +186,25 @@ class Ghost:
             case GhostType.BLINKY:
                 return player.x, player.y
             case GhostType.PINKY:
-                match player.direction:
-                    case Direction.UP:
-                        return player.x - 4, player.y - 4
-                    case Direction.DOWN:
-                        return player.x, player.y + 4
-                    case Direction.LEFT:
-                        return player.x - 4, player.y
-                    case Direction.RIGHT:
-                        return player.x + 4, player.y
+                return self._position_ahead(player, 4)
             case GhostType.INKY:
-                match player.direction:
-                    case Direction.UP:
-                        pivot = player.x - 2, player.y - 2
-                    case Direction.DOWN:
-                        pivot = player.x, player.y + 2
-                    case Direction.LEFT:
-                        pivot = player.x - 2, player.y
-                    case Direction.RIGHT:
-                        pivot = player.x + 2, player.y
+                pivot = self._position_ahead(player, 2)
                 blinky = next(
                     g for g in ghosts if g.ghost_type == GhostType.BLINKY
                 )
                 return pivot[0] * 2 - blinky.x, pivot[1] * 2 - blinky.y
+            # TODO: Implement Clyde chase behavior
             case GhostType.CLYDE:
                 return player.x - 2, player.y
+
+    def _position_ahead(self, player: Player, n: int):
+        """Return the position n cell ahead of the player."""
+        match player.direction:
+            case Direction.UP:
+                return player.x - n, player.y - n
+            case Direction.DOWN:
+                return player.x, player.y + n
+            case Direction.LEFT:
+                return player.x - n, player.y
+            case Direction.RIGHT:
+                return player.x + n, player.y
