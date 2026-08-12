@@ -2,6 +2,7 @@
 
 import pygame
 import random
+import math
 from src.game.ghost_state import GhostState
 from src.game.direction import Direction
 from src.game.player import Player
@@ -193,9 +194,11 @@ class Ghost:
                     g for g in ghosts if g.ghost_type == GhostType.BLINKY
                 )
                 return pivot[0] * 2 - blinky.x, pivot[1] * 2 - blinky.y
-            # TODO: Implement Clyde chase behavior
             case GhostType.CLYDE:
-                return player.x - 2, player.y
+                if math.hypot(self.x - player.x, self.y - player.y) >= 8:
+                    return player.x, player.y
+                else:
+                    return self.spawn_x, self.spawn_y
 
     def _position_ahead(self, player: Player, n: int):
         """Return the position n cell ahead of the player."""
