@@ -98,7 +98,7 @@ class Ghost:
                                  directions: list[Direction],
                                  target_x: int,
                                  target_y: int) -> Direction:
-        """Choose the directino that gets closest to the target."""
+        """Choose the direction that gets closest to the target."""
         best_directions = []
         best_distance = float("inf")
         for direction in directions:
