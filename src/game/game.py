@@ -16,8 +16,8 @@ from src.game.ghost_state import GhostState
 
 _PLAYER_UPDATE_DELAY = 150
 _GHOST_UPDATE_DELAY = 400
-_GHOST_SCATTER_DELAY = 8000
-_GHOST_FRIGHTENED_DELAY = 8000
+_GHOST_SCATTER_DELAY = 7000
+_GHOST_FRIGHTENED_DELAY = 7000
 _GHOST_RESPAWN_DELAY = 5000
 
 
@@ -46,7 +46,7 @@ class Game:
         current_time = pygame.time.get_ticks()
         self.last_player_update = current_time
         self.last_ghost_update = current_time
-        self.ghost_state = GhostState.CHASE
+        self.ghost_state = GhostState.SCATTER
         self.last_state_change = current_time
         self.lives = self.config.lives
         self.game_over = False

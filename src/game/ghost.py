@@ -167,8 +167,7 @@ class Ghost:
                 remaining_directions.append(direction)
         return remaining_directions
 
-    def _target_position(self,
-                         player: Player) -> tuple[int, int]:
+    def _target_position(self, player: Player) -> tuple[int, int]:
         """Return the target position."""
         if self.state == GhostState.SCATTER:
             return self.spawn_x, self.spawn_y
