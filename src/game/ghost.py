@@ -174,7 +174,17 @@ class Ghost:
         if self.ghost_type == GhostType.BLINKY:
             return player.x, player.y
         if self.ghost_type == GhostType.PINKY:
-            return player.x + 2, player.y
+            match player.direction:
+                case Direction.UP:
+                    return player.x - 4, player.y - 4
+                case Direction.DOWN:
+                    return player.x, player.y + 4
+                case Direction.LEFT:
+                    return player.x - 4, player.y
+                case Direction.RIGHT:
+                    return player.x + 4, player.y
+                case Direction.NONE:
+                    return player.x, player.y
         if self.ghost_type == GhostType.INKY:
             return player.x, player.y + 2
         return player.x - 2, player.y
