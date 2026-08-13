@@ -132,7 +132,7 @@ class Game:
         )
         self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
-        self.ghost_state = GhostState.CHASE
+        self.ghost_state = GhostState.SCATTER
         self.last_state_change = current_time
         self.last_player_update = current_time
         self.last_ghost_update = current_time
