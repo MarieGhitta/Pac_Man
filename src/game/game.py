@@ -56,7 +56,7 @@ class Game:
         """Create the ghosts for the current level."""
         cells = self.level.ghost_start_cells
         if len(cells) != 4:
-            raise ValueError("Expected four ghost start cells.")
+            raise ValueError("expected four ghost start cells")
         return [
             Ghost(cells[0].x, cells[0].y, GhostType.BLINKY),
             Ghost(cells[1].x, cells[1].y, GhostType.PINKY),

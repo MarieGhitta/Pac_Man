@@ -47,7 +47,7 @@ class Level:
             cell = self.maze.cells[y][x]
             if cell.walkable:
                 return cell
-        raise ValueError("The player starting cell is not walkable.")
+        raise ValueError("the player starting cell is not walkable")
 
     def _initialize_contents(self, pacgum_count: int) -> None:
         """Initialize the contents of the maze cells."""
@@ -64,7 +64,7 @@ class Level:
                 cell = self.maze.cells[y][x]
                 if cell.walkable:
                     return cell
-        raise ValueError("No walkable cell found.")
+        raise ValueError("no walkable cell found")
 
     def _find_corner_cells(self) -> list[Cell]:
         """Return the four walkable corner cells."""
@@ -87,7 +87,7 @@ class Level:
             )
         ]
         if len(set(cells)) != 4:
-            raise ValueError("Could not determine four distinct corner cells.")
+            raise ValueError("could not determine four distinct corner cells")
         return cells
 
     def _initialize_pacgums(

@@ -161,7 +161,7 @@ class Ghost:
             return Direction.UP
         if self.direction == Direction.LEFT:
             return Direction.RIGHT
-        raise ValueError("Invalid direction.")
+        raise ValueError("invalid direction")
 
     def _remove_opposite_direction(
         self, directions: list[Direction]
