@@ -180,9 +180,6 @@ class Ghost:
         self, player: Player, ghosts: list["Ghost"]
     ) -> tuple[int, int]:
         """Return the target position."""
-        if self.state == GhostState.SCATTER:
-            return self.spawn_x, self.spawn_y
-
         match self.ghost_type:
             case GhostType.BLINKY:
                 return player.x, player.y
