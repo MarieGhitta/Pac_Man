@@ -69,6 +69,8 @@ class ConfigLoader:
                 levels.append(self._build_level(level))
             else:
                 print("Invalid level configuration, skipping level.")
+        if not levels:
+            raise ValueError("configuration must have at least one level")
         return Config(
             highscore_filename=highscore_filename,
             levels=levels,
@@ -89,9 +91,9 @@ class ConfigLoader:
             content = self._remove_comments(content)
             data = json.loads(content)
             if not isinstance(data, dict):
-                raise ValueError("Configuration must be a JSON object.")
+                raise ValueError("configuration must be a JSON object")
             return self._build_config(data)
         except FileNotFoundError as e:
-            raise ValueError("Configuration file not found.") from e
+            raise ValueError("configuration file not found") from e
         except json.JSONDecodeError as e:
-            raise ValueError("Invalid configuration file.") from e
+            raise ValueError("invalid configuration file") from e

@@ -112,7 +112,7 @@ class Ghost:
         best_distance = float("inf")
         for direction in directions:
             next_x, next_y = self._next_position(direction)
-            distance = abs(target_x - next_x) + abs(target_y - next_y)
+            distance = math.hypot(target_x - next_x, target_y - next_y)
             if distance < best_distance:
                 best_distance = distance
                 best_directions = [direction]
@@ -161,7 +161,7 @@ class Ghost:
             return Direction.UP
         if self.direction == Direction.LEFT:
             return Direction.RIGHT
-        raise ValueError("Invalid direction.")
+        raise ValueError("invalid direction")
 
     def _remove_opposite_direction(
         self, directions: list[Direction]

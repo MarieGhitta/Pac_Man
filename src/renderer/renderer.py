@@ -21,7 +21,6 @@ class Renderer:
 
     def __init__(self, level: Level) -> None:
         """Initialize the renderer."""
-        pygame.init()
         window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
         window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
         self.screen = pygame.display.set_mode((window_width, window_height))
@@ -170,4 +169,4 @@ class Renderer:
             return (0, 255, 255)
         if ghost.ghost_type == GhostType.CLYDE:
             return (255, 128, 0)
-        raise ValueError(f"Unknown ghost type: {ghost.ghost_type}")
+        raise ValueError(f"unknown ghost type: {ghost.ghost_type}")
