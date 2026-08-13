@@ -12,6 +12,7 @@ class Player:
         self.y = y
         self.direction = Direction.LEFT
         self.next_direction = Direction.LEFT
+
     def move_to(self, x: int, y: int) -> None:
         """Move the player to the given position."""
         self.x = x
