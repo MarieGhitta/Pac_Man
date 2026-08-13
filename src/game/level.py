@@ -41,7 +41,7 @@ class Level:
             cells_to_test.append((center_x - 1, center_y))
         if self.maze.height % 2 == 0:
             cells_to_test.append((center_x, center_y - 1))
-        if self.maze.width % 2 and self.maze.height % 2 == 0:
+        if self.maze.width % 2 == 0 and self.maze.height % 2 == 0:
             cells_to_test.append((center_x - 1, center_y - 1))
         for x, y in cells_to_test:
             cell = self.maze.cells[y][x]
