@@ -33,8 +33,10 @@ def main() -> None:
             renderer.draw(game)
             clock.tick(60)
         pygame.quit()
-    except Exception as e:
-        print(e)
+    except ValueError as e:
+        print(f"Configuration error: {e}")
+    except pygame.error as e:
+        print(f"Pygame error: {e}")
 
 
 if __name__ == "__main__":
