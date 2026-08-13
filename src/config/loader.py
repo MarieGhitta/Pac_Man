@@ -69,6 +69,8 @@ class ConfigLoader:
                 levels.append(self._build_level(level))
             else:
                 print("Invalid level configuration, skipping level.")
+        if not levels:
+            raise ValueError("Configuration must have at least one level.")
         return Config(
             highscore_filename=highscore_filename,
             levels=levels,
