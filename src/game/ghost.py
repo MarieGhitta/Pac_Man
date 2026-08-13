@@ -2,6 +2,7 @@
 
 import pygame
 import random
+import math
 from src.game.ghost_state import GhostState
 from src.game.direction import Direction
 from src.game.player import Player
@@ -22,29 +23,40 @@ class Ghost:
         self.state = GhostState.SCATTER
         self.frightened_until = 0.0
         self.respawn_until = 0.0
-        self.type = ghost_type
+        self.ghost_type = ghost_type
 
-    def update(self, level: Level, player: Player,
-               normal_state: GhostState) -> None:
+    def update(
+        self,
+        level: Level,
+        player: Player,
+        ghosts: list["Ghost"],
+        normal_state: GhostState
+    ) -> None:
         """Update the ghost."""
         current_time = pygame.time.get_ticks()
-        if (self.state == GhostState.FRIGHTENED
-           and current_time >= self.frightened_until):
+        if (
+            self.state == GhostState.FRIGHTENED
+            and current_time >= self.frightened_until
+        ):
             self.state = normal_state
-        self.direction = self._choose_direction(level, player)
+        self.direction = self._choose_direction(level, player, ghosts)
         self._move(level)
-        if (self.state == GhostState.RESPAWN
-           and current_time >= self.respawn_until
-           and self.x == self.spawn_x
-           and self.y == self.spawn_y):
+        if (
+            self.state == GhostState.RESPAWN
+            and current_time >= self.respawn_until
+            and self.x == self.spawn_x
+            and self.y == self.spawn_y
+        ):
             self.state = normal_state
 
-    def _choose_direction(self, level: Level, player: Player) -> Direction:
+    def _choose_direction(
+        self, level: Level, player: Player, ghosts: list["Ghost"]
+    ) -> Direction:
         """Choose the next direction."""
         directions = self._possible_directions(level)
         directions = self._remove_opposite_direction(directions)
         if self.state == GhostState.CHASE:
-            return self._choose_chase_direction(directions, player)
+            return self._choose_chase_direction(directions, player, ghosts)
         if self.state == GhostState.SCATTER:
             return self._choose_scatter_direction(directions)
         if self.state == GhostState.FRIGHTENED:
@@ -81,8 +93,7 @@ class Ghost:
             if not current_cell.west_wall:
                 self.x -= 1
 
-    def _next_position(self,
-                       direction: Direction) -> tuple[int, int]:
+    def _next_position(self, direction: Direction) -> tuple[int, int]:
         """Return the next position for the given direction."""
         if direction == Direction.UP:
             return self.x, self.y - 1
@@ -92,12 +103,10 @@ class Ghost:
             return self.x, self.y + 1
         if direction == Direction.LEFT:
             return self.x - 1, self.y
-        raise ValueError("Invalid direction.")
 
-    def _choose_target_direction(self,
-                                 directions: list[Direction],
-                                 target_x: int,
-                                 target_y: int) -> Direction:
+    def _choose_target_direction(
+        self, directions: list[Direction], target_x: int, target_y: int
+    ) -> Direction:
         """Choose the direction that gets closest to the target."""
         best_directions = []
         best_distance = float("inf")
@@ -111,30 +120,37 @@ class Ghost:
                 best_directions.append(direction)
         return random.choice(best_directions)
 
-    def _choose_chase_direction(self,
-                                directions: list[Direction],
-                                player: Player) -> Direction:
+    def _choose_chase_direction(
+        self,
+        directions: list[Direction],
+        player: Player,
+        ghosts: list["Ghost"]
+    ) -> Direction:
         """Choose the direction that gets closest to the player."""
-        target_x, target_y = self._target_position(player)
-        return self._choose_target_direction(directions,
-                                             target_x, target_y)
+        target_x, target_y = self._target_position(player, ghosts)
+        return self._choose_target_direction(directions, target_x, target_y)
 
-    def _choose_scatter_direction(self,
-                                  directions: list[Direction]) -> Direction:
+    def _choose_scatter_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose the direction that gets closest to the spawn."""
-        return self._choose_target_direction(directions,
-                                             self.spawn_x, self.spawn_y)
+        return self._choose_target_direction(
+            directions, self.spawn_x, self.spawn_y
+        )
 
-    def _choose_frightened_direction(self,
-                                     directions: list[Direction]) -> Direction:
+    def _choose_frightened_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose a random direction."""
         return random.choice(directions)
 
-    def _choose_respawn_direction(self,
-                                  directions: list[Direction]) -> Direction:
+    def _choose_respawn_direction(
+        self, directions: list[Direction]
+    ) -> Direction:
         """Choose the direction that gets closest to the spawn."""
-        return self._choose_target_direction(directions,
-                                             self.spawn_x, self.spawn_y)
+        return self._choose_target_direction(
+            directions, self.spawn_x, self.spawn_y
+        )
 
     def _opposite_direction(self) -> Direction:
         if self.direction == Direction.UP:
@@ -147,9 +163,9 @@ class Ghost:
             return Direction.RIGHT
         raise ValueError("Invalid direction.")
 
-    def _remove_opposite_direction(self,
-                                   directions: list[Direction]
-                                   ) -> list[Direction]:
+    def _remove_opposite_direction(
+        self, directions: list[Direction]
+    ) -> list[Direction]:
         """Remove the opposite direction if another direction is available."""
         remaining_directions = []
         if len(directions) == 1:
@@ -160,15 +176,38 @@ class Ghost:
                 remaining_directions.append(direction)
         return remaining_directions
 
-    def _target_position(self,
-                         player: Player) -> tuple[int, int]:
+    def _target_position(
+        self, player: Player, ghosts: list["Ghost"]
+    ) -> tuple[int, int]:
         """Return the target position."""
         if self.state == GhostState.SCATTER:
             return self.spawn_x, self.spawn_y
-        if self.type == GhostType.BLINKY:
-            return player.x, player.y
-        if self.type == GhostType.PINKY:
-            return player.x + 2, player.y
-        if self.type == GhostType.INKY:
-            return player.x, player.y + 2
-        return player.x - 2, player.y
+
+        match self.ghost_type:
+            case GhostType.BLINKY:
+                return player.x, player.y
+            case GhostType.PINKY:
+                return self._position_ahead(player, 4)
+            case GhostType.INKY:
+                pivot = self._position_ahead(player, 2)
+                blinky = next(
+                    g for g in ghosts if g.ghost_type == GhostType.BLINKY
+                )
+                return pivot[0] * 2 - blinky.x, pivot[1] * 2 - blinky.y
+            case GhostType.CLYDE:
+                if math.hypot(self.x - player.x, self.y - player.y) >= 8:
+                    return player.x, player.y
+                else:
+                    return self.spawn_x, self.spawn_y
+
+    def _position_ahead(self, player: Player, n: int) -> tuple[int, int]:
+        """Return the position n cell ahead of the player."""
+        match player.direction:
+            case Direction.UP:
+                return player.x - n, player.y - n
+            case Direction.DOWN:
+                return player.x, player.y + n
+            case Direction.LEFT:
+                return player.x - n, player.y
+            case Direction.RIGHT:
+                return player.x + n, player.y

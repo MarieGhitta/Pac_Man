@@ -16,8 +16,8 @@ from src.game.ghost_state import GhostState
 
 _PLAYER_UPDATE_DELAY = 150
 _GHOST_UPDATE_DELAY = 400
-_GHOST_SCATTER_DELAY = 8000
-_GHOST_FRIGHTENED_DELAY = 8000
+_GHOST_SCATTER_DELAY = 7000
+_GHOST_FRIGHTENED_DELAY = 7000
 _GHOST_RESPAWN_DELAY = 5000
 
 
@@ -32,17 +32,21 @@ class Game:
         """
         self.config = config
         self.current_level_index = 0
-        self.level = Level(self.config.levels[self.current_level_index],
-                           self.config.seed,
-                           self.config.pacgum)
-        self.player = Player(self.level.start_cell.x,
-                             self.level.start_cell.y)
+        self.level = Level(
+            self.config.levels[self.current_level_index],
+            self.config.seed,
+            self.config.pacgum
+        )
+        self.player = Player(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
         self.score = 0
         self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
         self.last_player_update = current_time
         self.last_ghost_update = current_time
-        self.ghost_state = GhostState.CHASE
+        self.ghost_state = GhostState.SCATTER
         self.last_state_change = current_time
         self.lives = self.config.lives
         self.game_over = False
@@ -71,7 +75,6 @@ class Game:
             return not current_cell.south_wall
         if direction == Direction.LEFT:
             return not current_cell.west_wall
-        return False
 
     def move_player(self) -> None:
         """Move the player in the given direction."""
@@ -121,17 +124,20 @@ class Game:
         self.level = Level(
             self.config.levels[self.current_level_index],
             random.randint(0, 2**32 - 1),
-            self.config.pacgum)
-        self.player.move_to(self.level.start_cell.x,
-                            self.level.start_cell.y)
+            self.config.pacgum
+        )
+        self.player.move_to(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
         self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
         self.ghost_state = GhostState.CHASE
         self.last_state_change = current_time
         self.last_player_update = current_time
         self.last_ghost_update = current_time
-        self.player.direction = Direction.NONE
-        self.player.next_direction = Direction.NONE
+        self.player.direction = Direction.LEFT
+        self.player.next_direction = Direction.LEFT
 
     def update(self) -> None:
         """Update the game state."""
@@ -150,7 +156,12 @@ class Game:
     def _update_ghosts(self) -> None:
         """Update all ghosts."""
         for ghost in self.ghosts:
-            ghost.update(self.level, self.player, self.ghost_state)
+            ghost.update(
+                self.level,
+                self.player,
+                self.ghosts,
+                self.ghost_state
+            )
 
     def _update_player(self) -> None:
         """Update the player."""
@@ -207,10 +218,12 @@ class Game:
 
     def _reset_positions(self) -> None:
         """Reset the player and ghosts positions."""
-        self.player.move_to(self.level.start_cell.x,
-                            self.level.start_cell.y)
-        self.player.direction = Direction.NONE
-        self.player.next_direction = Direction.NONE
+        self.player.move_to(
+            self.level.start_cell.x,
+            self.level.start_cell.y
+        )
+        self.player.direction = Direction.LEFT
+        self.player.next_direction = Direction.LEFT
         self.ghosts = self._create_ghosts()
 
     def _frighten_ghosts(self) -> None:
