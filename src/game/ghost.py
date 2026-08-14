@@ -21,8 +21,9 @@ class Ghost:
         self.spawn_y = y
         self.direction = Direction.UP
         self.state = GhostState.SCATTER
-        self.frightened_until = 0.0
-        self.respawn_until = 0.0
+        self.frightened_until = 0
+        self.elapsed_before_fightened = 0
+        self.respawn_until = 0
         self.ghost_type = ghost_type
 
     def update(
