@@ -30,7 +30,7 @@ class Ghost:
         level: Level,
         player: Player,
         ghosts: list["Ghost"],
-        normal_state: GhostState
+        current_state: GhostState
     ) -> None:
         """Update the ghost."""
         current_time = pygame.time.get_ticks()
@@ -38,7 +38,7 @@ class Ghost:
             self.state == GhostState.FRIGHTENED
             and current_time >= self.frightened_until
         ):
-            self.state = normal_state
+            self.state = current_state
         self.direction = self._choose_direction(level, player, ghosts)
         self._move(level)
         if (
@@ -47,7 +47,7 @@ class Ghost:
             and self.x == self.spawn_x
             and self.y == self.spawn_y
         ):
-            self.state = normal_state
+            self.state = current_state
 
     def _choose_direction(
         self, level: Level, player: Player, ghosts: list["Ghost"]
