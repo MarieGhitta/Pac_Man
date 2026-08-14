@@ -22,7 +22,6 @@ class Ghost:
         self.direction = Direction.UP
         self.state = GhostState.SCATTER
         self.frightened_until = 0
-        self.elapsed_before_fightened = 0
         self.respawn_until = 0
         self.ghost_type = ghost_type
 
