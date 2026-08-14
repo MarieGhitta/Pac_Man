@@ -14,19 +14,26 @@ from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
 
 
-_PLAYER_UPDATE_DELAY: int = 150
-_GHOST_UPDATE_DELAY: int = 400
+_PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
+_GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
+    GhostState.SCATTER: [160, 141, 126, 126],
+    GhostState.CHASE: [160, 141, 126, 126],
+    GhostState.FRIGHTENED: [240, 218, 200, 200],
+    GhostState.RESPAWN: [80,  80,  80, 80]
+}
 _GHOST_SCATTER_DELAY: list[list[float]] = [
     [7e3, 7e3, 5e3, 5e3],
     [7e3, 7e3, 5e3, 100/6],
+    [5e3, 5e3, 5e3, 100/6],
     [5e3, 5e3, 5e3, 100/6]
 ]
 _GHOST_CHASE_DELAY: list[list[float]] = [
     [2e4, 2e4, 2e4, float("inf")],
     [2e4, 2e4, 1033e3, float("inf")],
+    [2e4, 2e4, 1037e3, float("inf")],
     [2e4, 2e4, 1037e3, float("inf")]
 ]
-_GHOST_FRIGHTENED_DELAY: int = 7000
+_GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
 _GHOST_RESPAWN_DELAY: int = 5000
 
 
@@ -51,10 +58,9 @@ class Game:
             self.level.start_cell.y
         )
         self.score = 0
-        self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
+        self.ghosts = self._create_ghosts(current_time)
         self.last_player_update = current_time
-        self.last_ghost_update = current_time
         self.ghost_state = GhostState.SCATTER
         self.state_phase_index = 0
         self.last_state_change = current_time
@@ -64,16 +70,16 @@ class Game:
         self.elapsed_before_fright = 0
         self.is_frighten = False
 
-    def _create_ghosts(self) -> list[Ghost]:
+    def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
         cells = self.level.ghost_start_cells
         if len(cells) != 4:
             raise ValueError("expected four ghost start cells")
         return [
-            Ghost(cells[0].x, cells[0].y, GhostType.BLINKY),
-            Ghost(cells[1].x, cells[1].y, GhostType.PINKY),
-            Ghost(cells[2].x, cells[2].y, GhostType.INKY),
-            Ghost(cells[3].x, cells[3].y, GhostType.CLYDE)
+            Ghost(cells[0].x, cells[0].y, GhostType.BLINKY, current_time),
+            Ghost(cells[1].x, cells[1].y, GhostType.PINKY, current_time),
+            Ghost(cells[2].x, cells[2].y, GhostType.INKY, current_time),
+            Ghost(cells[3].x, cells[3].y, GhostType.CLYDE, current_time)
         ]
 
     def _can_move(self, direction: Direction) -> bool:
@@ -142,13 +148,12 @@ class Game:
             self.level.start_cell.x,
             self.level.start_cell.y
         )
-        self.ghosts = self._create_ghosts()
         current_time = pygame.time.get_ticks()
+        self.ghosts = self._create_ghosts(current_time)
         self.ghost_state = GhostState.SCATTER
         self.state_phase_index = 0
         self.last_state_change = current_time
         self.last_player_update = current_time
-        self.last_ghost_update = current_time
         self.player.direction = Direction.LEFT
         self.player.next_direction = Direction.LEFT
         self.is_frighten = False
@@ -162,23 +167,26 @@ class Game:
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
-        if current_time - self.last_player_update >= _PLAYER_UPDATE_DELAY:
+        lvl_idx = self._level_interval()
+        if (
+            current_time - self.last_player_update
+            >= _PLAYER_UPDATE_DELAY[lvl_idx]
+        ):
             self.last_player_update = current_time
             self._update_player()
-        if current_time - self.last_ghost_update >= _GHOST_UPDATE_DELAY:
-            self.last_ghost_update = current_time
-            self._update_ghosts()
-        self._check_collision()
-
-    def _update_ghosts(self) -> None:
-        """Update all ghosts."""
         for ghost in self.ghosts:
-            ghost.update(
-                self.level,
-                self.player,
-                self.ghosts,
-                self.ghost_state
-            )
+            if (
+                current_time - ghost.last_update
+                >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
+            ):
+                ghost.last_update = current_time
+                ghost.update(
+                    self.level,
+                    self.player,
+                    self.ghosts,
+                    self.ghost_state
+                )
+        self._check_collision()
 
     def _update_player(self) -> None:
         """Update the player."""
@@ -190,7 +198,9 @@ class Game:
             return 0
         if self.current_level_index < 4:
             return 1
-        return 2
+        if self.current_level_index < 10:
+            return 2
+        return 3
 
     def _update_ghost_state(self, current_time: int) -> None:
         """Update the ghosts state."""
@@ -277,7 +287,7 @@ class Game:
         )
         self.player.direction = Direction.LEFT
         self.player.next_direction = Direction.LEFT
-        self.ghosts = self._create_ghosts()
+        self.ghosts = self._create_ghosts(current_time)
         self.state_phase_index = 0
         self.is_frighten = False
         self.elapsed_before_fright = 0
@@ -285,6 +295,9 @@ class Game:
     def _frighten_ghosts(self) -> None:
         """Put all ghosts in frightened state."""
         current_time = pygame.time.get_ticks()
+        lvl_idx = self._level_interval()
+        if lvl_idx == 3:
+            return
         if not self.is_frighten:
             self.is_frighten = True
             self.elapsed_before_fright = current_time - self.last_state_change
@@ -292,4 +305,6 @@ class Game:
             if ghost.state == GhostState.RESPAWN:
                 continue
             ghost.state = GhostState.FRIGHTENED
-            ghost.frightened_until = current_time + _GHOST_FRIGHTENED_DELAY
+            ghost.frightened_until = (
+                current_time + _GHOST_FRIGHTENED_DELAY[lvl_idx]
+            )

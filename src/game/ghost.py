@@ -13,7 +13,9 @@ from src.game.ghost_type import GhostType
 class Ghost:
     """Represent Ghost."""
 
-    def __init__(self, x: int, y: int, ghost_type: GhostType) -> None:
+    def __init__(
+        self, x: int, y: int, ghost_type: GhostType, last_update: int
+    ) -> None:
         """Initialize Ghost."""
         self.x = x
         self.y = y
@@ -24,6 +26,7 @@ class Ghost:
         self.frightened_until = 0
         self.respawn_until = 0
         self.ghost_type = ghost_type
+        self.last_update = last_update
 
     def update(
         self,
