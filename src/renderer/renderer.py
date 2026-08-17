@@ -11,9 +11,9 @@ from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
 
 
-_TILE_SIZE = 42
-_PADDING = 40
-_FONT_SIZE = 36
+_TILE_SIZE = 84
+_PADDING = 80
+_FONT_SIZE = 72
 
 
 class Renderer:

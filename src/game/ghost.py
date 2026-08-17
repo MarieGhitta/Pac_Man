@@ -24,7 +24,6 @@ class Ghost:
         self.direction = Direction.UP
         self.state = GhostState.SCATTER
         self.frightened_until = 0
-        self.respawn_until = 0
         self.ghost_type = ghost_type
         self.last_update = last_update
 
@@ -46,9 +45,7 @@ class Ghost:
         self._move(level)
         if (
             self.state == GhostState.RESPAWN
-            and current_time >= self.respawn_until
-            and self.x == self.spawn_x
-            and self.y == self.spawn_y
+            and (self.x, self.y) == (self.spawn_x, self.spawn_y)
         ):
             self.state = current_state
 

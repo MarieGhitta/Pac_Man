@@ -185,7 +185,7 @@ class Game:
                     self.level,
                     self.player,
                     self.ghosts,
-                    self.ghost_state
+                    self.ghost_state,
                 )
         self._check_collision()
 
@@ -216,7 +216,7 @@ class Game:
             case GhostState.CHASE:
                 delay = _GHOST_CHASE_DELAY
             case _:
-                return
+                raise ValueError("unknown ghost state")
         if (
             current_time - self.last_state_change
             < delay[lvl_idx][self.state_phase_index]
