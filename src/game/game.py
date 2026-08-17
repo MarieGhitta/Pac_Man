@@ -16,9 +16,9 @@ from src.game.ghost_state import GhostState
 
 _PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
 _GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
-    GhostState.SCATTER: [160, 141, 126, 126],
-    GhostState.CHASE: [160, 141, 126, 126],
-    GhostState.FRIGHTENED: [240, 218, 200, 200],
+    GhostState.SCATTER: [200, 175, 160, 160],
+    GhostState.CHASE: [200, 175, 160, 160],
+    GhostState.FRIGHTENED: [300,275, 250, 250],
     GhostState.RESPAWN: [80,  80,  80, 80]
 }
 _GHOST_SCATTER_DELAY: list[list[float]] = [
@@ -34,7 +34,6 @@ _GHOST_CHASE_DELAY: list[list[float]] = [
     [2e4, 2e4, 1037e3, float("inf")]
 ]
 _GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
-_GHOST_RESPAWN_DELAY: int = 5000
 
 
 class Game:
@@ -62,6 +61,7 @@ class Game:
         self.ghosts = self._create_ghosts(current_time)
         self.last_player_update = current_time
         self.ghost_state = GhostState.SCATTER
+        self.global_ghosts_state = GhostState.SCATTER
         self.state_phase_index = 0
         self.last_state_change = current_time
         self.lives = self.config.lives
@@ -151,6 +151,7 @@ class Game:
         current_time = pygame.time.get_ticks()
         self.ghosts = self._create_ghosts(current_time)
         self.ghost_state = GhostState.SCATTER
+        self.global_ghosts_state = GhostState.SCATTER
         self.state_phase_index = 0
         self.last_state_change = current_time
         self.last_player_update = current_time
@@ -226,8 +227,10 @@ class Game:
 
         if self.ghost_state == GhostState.SCATTER:
             self.ghost_state = GhostState.CHASE
+            self.global_ghosts_state = GhostState.CHASE
         else:
             self.ghost_state = GhostState.SCATTER
+            self.global_ghosts_state = GhostState.SCATTER
             self.state_phase_index += 1
 
         for ghost in self.ghosts:
@@ -263,10 +266,8 @@ class Game:
 
     def _eat_ghost(self, ghost: Ghost) -> None:
         """Eat a frightened ghost."""
-        current_time = pygame.time.get_ticks()
         self.score += self.config.points_per_ghost
         ghost.state = GhostState.RESPAWN
-        ghost.respawn_until = current_time + _GHOST_RESPAWN_DELAY
 
     def _player_hit(self) -> None:
         """Handle the player being hit."""
@@ -285,6 +286,8 @@ class Game:
             self.level.start_cell.x,
             self.level.start_cell.y
         )
+        self.ghost_state = GhostState.SCATTER
+        self.global_ghosts_state = GhostState.SCATTER
         self.player.direction = Direction.LEFT
         self.player.next_direction = Direction.LEFT
         self.ghosts = self._create_ghosts(current_time)
