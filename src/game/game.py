@@ -72,15 +72,31 @@ class Game:
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
-        cells = self.level.ghost_start_cells
+        cells: list[Cell] = self.level.ghost_start_cells
         if len(cells) != 4:
             raise ValueError("expected four ghost start cells")
         return [
-            Ghost(cells[0].x, cells[0].y, GhostType.BLINKY, current_time),
-            Ghost(cells[1].x, cells[1].y, GhostType.PINKY, current_time),
-            Ghost(cells[2].x, cells[2].y, GhostType.INKY, current_time),
-            Ghost(cells[3].x, cells[3].y, GhostType.CLYDE, current_time)
+            self._ghost_factory(cells, 0, GhostType.BLINKY, current_time),
+            self._ghost_factory(cells, 1, GhostType.PINKY, current_time),
+            self._ghost_factory(cells, 2, GhostType.INKY, current_time),
+            self._ghost_factory(cells, 3, GhostType.CLYDE, current_time)
         ]
+
+    def _ghost_factory(
+        self,
+        cells: list[Cell],
+        cell_idx: int,
+        ghost_type: GhostType,
+        current_time: int
+    ) -> Ghost:
+        """Create and return a Ghost from a cell list entry."""
+        return Ghost(
+            cells[cell_idx].x,
+            cells[cell_idx].y,
+            ghost_type,
+            current_time,
+            _GHOST_UPDATE_DELAY[GhostState.SCATTER][0]
+        )
 
     def _can_move(self, direction: Direction) -> bool:
         """Return whether the player can move in the given direction."""
