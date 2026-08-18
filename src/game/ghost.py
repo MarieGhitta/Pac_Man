@@ -11,6 +11,7 @@ from src.game.direction import Direction
 from src.game.player import Player
 from src.game.level import Level
 from src.game.ghost_type import GhostType
+from src.maze.models import Cell
 
 
 class Ghost:
@@ -22,13 +23,13 @@ class Ghost:
         """Initialize Ghost."""
         self.x = x
         self.y = y
-        self.spawn_x = x
-        self.spawn_y = y
-        self.direction = Direction.UP
-        self.state = GhostState.SCATTER
-        self.frightened_until = 0
         self.ghost_type = ghost_type
         self.last_update = last_update
+        self.spawn_x: int = x
+        self.spawn_y: int = y
+        self.direction: Direction = Direction.UP
+        self.state: GhostState = GhostState.SCATTER
+        self.frightened_until: int = 0
 
     def update(
         self,
@@ -38,7 +39,7 @@ class Ghost:
         current_state: GhostState
     ) -> None:
         """Update the ghost."""
-        current_time = pygame.time.get_ticks()
+        current_time: int = pygame.time.get_ticks()
         if (
             self.state == GhostState.FRIGHTENED
             and current_time >= self.frightened_until
@@ -56,7 +57,7 @@ class Ghost:
         self, level: Level, player: Player, ghosts: list["Ghost"]
     ) -> Direction:
         """Choose the next direction."""
-        directions = self._possible_directions(level)
+        directions: list[Direction] = self._possible_directions(level)
         directions = self._remove_opposite_direction(directions)
         match self.state:
             case GhostState.SCATTER:
@@ -70,8 +71,8 @@ class Ghost:
 
     def _possible_directions(self, level: Level) -> list[Direction]:
         """Return all possible movement directions."""
-        current_cell = level.maze.cells[self.y][self.x]
-        directions = []
+        current_cell: Cell = level.maze.cells[self.y][self.x]
+        directions: list[Direction] = []
         if not current_cell.north_wall:
             directions.append(Direction.UP)
         if not current_cell.east_wall:
@@ -84,7 +85,7 @@ class Ghost:
 
     def _move(self, level: Level) -> None:
         """Move the ghost in its current direction."""
-        current_cell = level.maze.cells[self.y][self.x]
+        current_cell: Cell = level.maze.cells[self.y][self.x]
         if self.direction == Direction.UP:
             if not current_cell.north_wall:
                 self.y -= 1
@@ -113,11 +114,11 @@ class Ghost:
         self, directions: list[Direction], target_x: int, target_y: int
     ) -> Direction:
         """Choose the direction that gets closest to the target."""
-        best_directions = []
-        best_distance = float("inf")
+        best_directions: list[Direction] = []
+        best_distance: float = float("inf")
         for direction in directions:
             next_x, next_y = self._next_position(direction)
-            distance = math.hypot(target_x - next_x, target_y - next_y)
+            distance: float = math.hypot(target_x - next_x, target_y - next_y)
             if distance < best_distance:
                 best_distance = distance
                 best_directions = [direction]
@@ -172,10 +173,10 @@ class Ghost:
         self, directions: list[Direction]
     ) -> list[Direction]:
         """Remove the opposite direction if another direction is available."""
-        remaining_directions = []
+        remaining_directions: list[Direction] = []
         if len(directions) == 1:
             return directions
-        opposite = self._opposite_direction()
+        opposite: Direction = self._opposite_direction()
         for direction in directions:
             if direction != opposite:
                 remaining_directions.append(direction)
@@ -191,8 +192,8 @@ class Ghost:
             case GhostType.PINKY:
                 return self._position_ahead(player, 4)
             case GhostType.INKY:
-                pivot = self._position_ahead(player, 2)
-                blinky = next(
+                pivot: tuple[int, int] = self._position_ahead(player, 2)
+                blinky: Ghost = next(
                     g for g in ghosts if g.ghost_type == GhostType.BLINKY
                 )
                 return pivot[0] * 2 - blinky.x, pivot[1] * 2 - blinky.y
