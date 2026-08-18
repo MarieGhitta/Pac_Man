@@ -1,5 +1,6 @@
 """Manage Pac-Man."""
 
+
 from src.game.direction import Direction
 
 
@@ -10,10 +11,14 @@ class Player:
         """Initialize Pac-Man."""
         self.x = x
         self.y = y
-        self.direction = Direction.LEFT
-        self.next_direction = Direction.LEFT
+        self.prev_x: int = x
+        self.prev_y: int = y
+        self.direction: Direction = Direction.LEFT
+        self.next_direction: Direction = Direction.LEFT
 
     def move_to(self, x: int, y: int) -> None:
         """Move the player to the given position."""
         self.x = x
         self.y = y
+        self.prev_x = x
+        self.prev_y = y
