@@ -13,7 +13,9 @@ from src.game.ghost_type import GhostType
 class Ghost:
     """Represent Ghost."""
 
-    def __init__(self, x: int, y: int, ghost_type: GhostType) -> None:
+    def __init__(
+        self, x: int, y: int, ghost_type: GhostType, last_update: int
+    ) -> None:
         """Initialize Ghost."""
         self.x = x
         self.y = y
@@ -22,8 +24,8 @@ class Ghost:
         self.direction = Direction.UP
         self.state = GhostState.SCATTER
         self.frightened_until = 0
-        self.respawn_until = 0
         self.ghost_type = ghost_type
+        self.last_update = last_update
 
     def update(
         self,
@@ -43,9 +45,7 @@ class Ghost:
         self._move(level)
         if (
             self.state == GhostState.RESPAWN
-            and current_time >= self.respawn_until
-            and self.x == self.spawn_x
-            and self.y == self.spawn_y
+            and (self.x, self.y) == (level.start_cell.x, level.start_cell.y)
         ):
             self.state = current_state
 
@@ -55,13 +55,15 @@ class Ghost:
         """Choose the next direction."""
         directions = self._possible_directions(level)
         directions = self._remove_opposite_direction(directions)
-        if self.state == GhostState.CHASE:
-            return self._choose_chase_direction(directions, player, ghosts)
-        if self.state == GhostState.SCATTER:
-            return self._choose_scatter_direction(directions)
-        if self.state == GhostState.FRIGHTENED:
-            return self._choose_frightened_direction(directions)
-        return self._choose_respawn_direction(directions)
+        match self.state:
+            case GhostState.SCATTER:
+                return self._choose_scatter_direction(directions)
+            case GhostState.CHASE:
+                return self._choose_chase_direction(directions, player, ghosts)
+            case GhostState.FRIGHTENED:
+                return self._choose_frightened_direction(directions)
+            case GhostState.RESPAWN:
+                return self._choose_respawn_direction(directions, level)
 
     def _possible_directions(self, level: Level) -> list[Direction]:
         """Return all possible movement directions."""
@@ -145,11 +147,11 @@ class Ghost:
         return random.choice(directions)
 
     def _choose_respawn_direction(
-        self, directions: list[Direction]
+        self, directions: list[Direction], level: Level
     ) -> Direction:
         """Choose the direction that gets closest to the spawn."""
         return self._choose_target_direction(
-            directions, self.spawn_x, self.spawn_y
+            directions, level.start_cell.x, level.start_cell.y
         )
 
     def _opposite_direction(self) -> Direction:

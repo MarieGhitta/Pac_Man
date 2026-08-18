@@ -11,9 +11,9 @@ from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
 
 
-_TILE_SIZE = 168
-_PADDING = 160
-_FONT_SIZE = 144
+_TILE_SIZE = 84
+_PADDING = 80
+_FONT_SIZE = 72
 
 
 class Renderer:
@@ -161,6 +161,8 @@ class Renderer:
         """Return the ghost color."""
         if ghost.state == GhostState.FRIGHTENED:
             return (0, 0, 255)
+        if ghost.state == GhostState.RESPAWN:
+            return (255, 255, 255)
         if ghost.ghost_type == GhostType.BLINKY:
             return (255, 0, 0)
         if ghost.ghost_type == GhostType.PINKY:
