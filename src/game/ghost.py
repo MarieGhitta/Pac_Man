@@ -6,10 +6,10 @@ import math
 
 import pygame
 
-from src.game.ghost_state import GhostState
 from src.game.direction import Direction
-from src.game.player import Player
 from src.game.level import Level
+from src.game.player import Player
+from src.game.ghost_state import GhostState
 from src.game.ghost_type import GhostType
 from src.maze.models import Cell
 
