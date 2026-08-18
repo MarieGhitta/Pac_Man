@@ -48,29 +48,29 @@ class Game:
             config (Config): The game configuration
         """
         self.config = config
-        self.current_level_index = 0
-        self.level = Level(
+        self.current_level_index: int = 0
+        self.level: Level = Level(
             self.config.levels[self.current_level_index],
             self.config.seed,
             self.config.pacgum
         )
-        self.player = Player(
+        self.player: Player = Player(
             self.level.start_cell.x,
             self.level.start_cell.y
         )
-        self.score = 0
-        current_time = pygame.time.get_ticks()
-        self.ghosts = self._create_ghosts(current_time)
-        self.last_player_update = current_time
-        self.ghost_state = GhostState.SCATTER
-        self.global_ghosts_state = GhostState.SCATTER
-        self.state_phase_index = 0
-        self.last_state_change = current_time
-        self.lives = self.config.lives
-        self.game_over = False
-        self.victory = False
-        self.elapsed_before_fright = 0
-        self.is_frighten = False
+        self.score: int = 0
+        current_time: int = pygame.time.get_ticks()
+        self.ghosts: list[Ghost] = self._create_ghosts(current_time)
+        self.last_player_update: int = current_time
+        self.ghost_state: GhostState = GhostState.SCATTER
+        self.global_ghosts_state: GhostState = GhostState.SCATTER
+        self.state_phase_index: int = 0
+        self.last_state_change: int = current_time
+        self.lives: int = self.config.lives
+        self.game_over: bool = False
+        self.victory: bool = False
+        self.elapsed_before_fright: int = 0
+        self.is_frighten: bool = False
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
