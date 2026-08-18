@@ -1,8 +1,11 @@
 """Manage Ghost."""
 
-import pygame
+
 import random
 import math
+
+import pygame
+
 from src.game.ghost_state import GhostState
 from src.game.direction import Direction
 from src.game.player import Player
@@ -11,7 +14,7 @@ from src.game.ghost_type import GhostType
 
 
 class Ghost:
-    """Represent Ghost."""
+    """Represent a Ghost."""
 
     def __init__(
         self, x: int, y: int, ghost_type: GhostType, last_update: int
