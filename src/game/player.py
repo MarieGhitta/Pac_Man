@@ -23,6 +23,7 @@ class Player:
 
     def move_to(self, x: int, y: int) -> None:
         """Move the player to the given tile position.
+
         Resets prev_x and prev_y to the new position to prevent
         interpolation across the jump.
 

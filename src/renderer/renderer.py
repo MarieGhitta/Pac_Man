@@ -35,7 +35,10 @@ class Renderer:
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
-        player_alpha = min(1.0, (current_time - game.last_player_update) / game.player_update_delay)
+        player_alpha = min(
+            1.0,
+            (current_time - game.last_player_update) / game.player_update_delay
+        )
         self._draw_player(game.player, player_alpha)
         self._draw_ghosts(game.ghosts, current_time)
         self._draw_score(game)

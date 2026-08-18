@@ -20,7 +20,7 @@ _PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
 _GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
     GhostState.SCATTER: [200, 175, 160, 160],
     GhostState.CHASE: [200, 175, 160, 160],
-    GhostState.FRIGHTENED: [300,275, 250, 250],
+    GhostState.FRIGHTENED: [300, 275, 250, 250],
     GhostState.RESPAWN: [80,  80,  80, 80]
 }
 _GHOST_SCATTER_DELAY: list[list[float]] = [
