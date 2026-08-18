@@ -164,7 +164,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 - [ ] Respawn : **yeux seuls** se déplaçant vers le spawn.
 - [ ] Couleurs par type : Blinky rouge, Pinky rose, Inky cyan, Clyde orange.
 
-#### Maze & éléments
+#### Maze & élémentsBrother DCP-L2627DWE
 - [ ] Murs style bleu néon (coins arrondis si possible).
 - [ ] Pacgums : petits points blancs centrés.
 - [ ] Super-pacgums : gros points blancs **clignotants**.
@@ -182,7 +182,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 - [ ] Musique de fond (thème arcade).
 - [ ] Bruitages : manger pacgum, manger super-pacgum, manger fantôme, mort, niveau suivant, victoire.
 - [ ] Contrôle volume / mute.
-
+Brother DCP-L2627DWE
 ### 4.2 Tunnel wraparound
 - [ ] `game.py` — `move_player()` : si le joueur sort par le bord gauche/droit, téléporter au bord opposé.
 - [ ] Même logique pour `ghost.py` — `_move()`.
@@ -203,7 +203,7 @@ Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale ty
 - [ ] (Optionnel) Mode graphique "moderne" vs "arcade 1980".
 
 ### 4.5 Blinky "Cruise Elroy"
-- [ ] Quand le nombre de pacgums restants passe sous un seuil, Blinky ignore le Scatter et accélère.
+- [ ] Quand le nombre de pacgums restants passe sous un seuil, Blinky ignore le Scatter et accélère.Brother DCP-L2627DWE
 
 ---
 
@@ -215,7 +215,7 @@ Premier état des lieux post-analyse initiale du codebase. Projet repris en l'é
 ### #2 — 2026-08-10 — Clarifications et arbitrages
 Décisions actées : pacgum = 0 ou > max → remplissage complet, sinon aléatoire selon valeur. Overflow historique de Pinky/Inky conservé. Vitesses calées sur les valeurs originales par état et par niveau (tableau § 2.4). Wraparound déplacé en bonus. Highscore = top 10. Title screen avec logo statique + animation ghosts/pacman en boucle + menu (Play, Highscores, Cheat Mode, Quit). Cheat mode configurable depuis title screen et pause menu (invincibility, level skip, ghost freeze, extra life, increased speed). Multijoueur bonus = modèle client/serveur TCP avec connexion par IP locale. Ordre d'attaque confirmé : bugs → ghost behaviors → menus & highscore → renderer → bonus.
 
-### #3 — 2026-08-11 — Bug §1.2 corrigé
+### #3 — 2026-08-11 — Bug §1.2 corrigéBrother DCP-L2627DWE
 Bug pacgums résolu et testé. `level.py` — `_initialize_pacgums()` : condition `pacgum_count == 0 or pacgum_count > len(available_cells)` → remplissage complet de toutes les cellules walkables disponibles. `loader.py` : default `pacgum` passé à `0`. `config.json` : `"pacgum"` mis à `0`. §1.1 (seed) et §1.2 (pacgums) entièrement soldés.
 Prochain chantier : comportements des fantômes (§2).
 
