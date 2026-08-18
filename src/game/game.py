@@ -1,24 +1,26 @@
 """Manage the game."""
 
 
-import pygame
 import random
+
+import pygame
+
 from src.config.models import Config
+from src.game.cell_content import CellContent
+from src.game.direction import Direction
 from src.game.level import Level
 from src.game.player import Player
-from src.game.direction import Direction
-from src.game.cell_content import CellContent
-from src.maze.models import Cell
 from src.game.ghost import Ghost
-from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
+from src.game.ghost_type import GhostType
+from src.maze.models import Cell
 
 
 _PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
 _GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
     GhostState.SCATTER: [200, 175, 160, 160],
     GhostState.CHASE: [200, 175, 160, 160],
-    GhostState.FRIGHTENED: [300,275, 250, 250],
+    GhostState.FRIGHTENED: [300, 275, 250, 250],
     GhostState.RESPAWN: [80,  80,  80, 80]
 }
 _GHOST_SCATTER_DELAY: list[list[float]] = [
@@ -46,41 +48,58 @@ class Game:
             config (Config): The game configuration
         """
         self.config = config
-        self.current_level_index = 0
-        self.level = Level(
+        self.current_level_index: int = 0
+        self.level: Level = Level(
             self.config.levels[self.current_level_index],
             self.config.seed,
             self.config.pacgum
         )
-        self.player = Player(
+        self.player: Player = Player(
             self.level.start_cell.x,
             self.level.start_cell.y
         )
-        self.score = 0
-        current_time = pygame.time.get_ticks()
-        self.ghosts = self._create_ghosts(current_time)
-        self.last_player_update = current_time
-        self.ghost_state = GhostState.SCATTER
-        self.global_ghosts_state = GhostState.SCATTER
-        self.state_phase_index = 0
-        self.last_state_change = current_time
-        self.lives = self.config.lives
-        self.game_over = False
-        self.victory = False
-        self.elapsed_before_fright = 0
-        self.is_frighten = False
+        self.score: int = 0
+        current_time: int = pygame.time.get_ticks()
+        self.ghosts: list[Ghost] = self._create_ghosts(current_time)
+        self.last_player_update: int = current_time
+        self.ghost_state: GhostState = GhostState.SCATTER
+        self.global_ghosts_state: GhostState = GhostState.SCATTER
+        self.state_phase_index: int = 0
+        self.last_state_change: int = current_time
+        self.lives: int = self.config.lives
+        self.game_over: bool = False
+        self.victory: bool = False
+        self.elapsed_before_fright: int = 0
+        self.is_frighten: bool = False
+        self.player_update_delay = _PLAYER_UPDATE_DELAY[0]
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
-        cells = self.level.ghost_start_cells
+        cells: list[Cell] = self.level.ghost_start_cells
         if len(cells) != 4:
             raise ValueError("expected four ghost start cells")
         return [
-            Ghost(cells[0].x, cells[0].y, GhostType.BLINKY, current_time),
-            Ghost(cells[1].x, cells[1].y, GhostType.PINKY, current_time),
-            Ghost(cells[2].x, cells[2].y, GhostType.INKY, current_time),
-            Ghost(cells[3].x, cells[3].y, GhostType.CLYDE, current_time)
+            self._ghost_factory(cells, 0, GhostType.BLINKY, current_time),
+            self._ghost_factory(cells, 1, GhostType.PINKY, current_time),
+            self._ghost_factory(cells, 2, GhostType.INKY, current_time),
+            self._ghost_factory(cells, 3, GhostType.CLYDE, current_time)
         ]
+
+    def _ghost_factory(
+        self,
+        cells: list[Cell],
+        cell_idx: int,
+        ghost_type: GhostType,
+        current_time: int
+    ) -> Ghost:
+        """Create and return a Ghost from a cell list entry."""
+        return Ghost(
+            cells[cell_idx].x,
+            cells[cell_idx].y,
+            ghost_type,
+            current_time,
+            _GHOST_UPDATE_DELAY[GhostState.SCATTER][0]
+        )
 
     def _can_move(self, direction: Direction) -> bool:
         """Return whether the player can move in the given direction."""
@@ -174,18 +193,26 @@ class Game:
             >= _PLAYER_UPDATE_DELAY[lvl_idx]
         ):
             self.last_player_update = current_time
+            self.player.prev_x = self.player.x
+            self.player.prev_y = self.player.y
             self._update_player()
+            self.player_update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         for ghost in self.ghosts:
             if (
                 current_time - ghost.last_update
                 >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
             ):
                 ghost.last_update = current_time
+                ghost.prev_x = ghost.x
+                ghost.prev_y = ghost.y
                 ghost.update(
                     self.level,
                     self.player,
                     self.ghosts,
                     self.ghost_state,
+                )
+                self.ghost_update_delay = (
+                    _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
                 )
         self._check_collision()
 

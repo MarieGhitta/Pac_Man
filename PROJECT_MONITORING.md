@@ -116,6 +116,19 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 
 #### End Screen (Game Over / Victory)
 - [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
+### #9 — 2026-08-18 — §3.6 Interpolation de frame (rendu fluide)
+ 
+Check-up en début de session : bugs RESPAWN et `ghost_state` reset (identifiés en #6) déjà corrigés dans le code. §2.3 et §2.4 soldés (implantés entre les sessions). Ambiguïté visuelle Chase/Scatter toujours ouverte.
+ 
+Analyse comparative d'un projet camarade (terminal, tile-based avec drift sub-tile continu via `speed` float par tick `sleep(0.05s)`). Décision confirmée : interpolation alpha sur l'architecture tile-based existante plutôt que refonte pixel-based — ratio effort/bénéfice favorable, logique de jeu intacte.
+ 
+Implémentation en 4 étapes. `player.py` : ajout de `prev_x/prev_y` dans `__init__` et `move_to()` (reset sur téléportation). `ghost.py` : idem + `update_delay: int` initialisé à 200ms (valeur SCATTER niveau 0, guard contre AttributeError au premier rendu) ; ordre des imports corrigé (stdlib → third-party → local). `game.py` : `self.player_update_delay` ajouté (initialisé à `_PLAYER_UPDATE_DELAY[0]`, mis à jour à chaque frame) ; `prev_x/prev_y` sauvegardés juste avant chaque move player et ghost ; `ghost.update_delay` assigné au moment du déclenchement du step ; `_ghost_factory()` extrait de `_create_ghosts()` pour centraliser la construction avec `update_delay` initial. `renderer.py` : `draw()` calcule `current_time` une fois, `player_alpha` via `min(1.0, elapsed / delay)`, et passe l'alpha à `_draw_player()` et `current_time` à `_draw_ghosts()` ; chaque entité interpole sa position pixel entre `prev` et `x/y` courant.
+ 
+Correctif annexe : `pyrightconfig.json` créé à la racine pour résoudre le faux positif LSP sur `import pygame` (interpréteur pointé sur `.venv`).
+ 
+Observation : les fantômes en mode FRIGHTENED restent visuellement saccadés case-à-case malgré l'interpolation, conséquence du délai long (300ms) et du mouvement tile-based. Identifié comme limitation acceptable — à traiter via sprites animés en §3.6.
+ 
+Prochain chantier : menus et highscore (§3.2, §3.3).
 - [ ] Afficher le score final.
 - [ ] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
 - [ ] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
@@ -173,6 +186,9 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 #### UI & typographie
 - [ ] Police arcade (ex. Press Start 2P ou équivalent libre).
 - [ ] Disposition HUD cohérente avec le style visuel général.
+
+#### Animation
+- [x] Frame interpolation
 
 ---
 
@@ -244,3 +260,11 @@ Refonte complète du système de timing. _PLAYER_UPDATE_DELAY devient une liste 
 ### #8 — 2026-08-18 — Fix respawn center + §2.5 localisé
 
 Bug corrigé : le ghost en état RESPAWN n'en sortait jamais quand la cible était le centre du maze. Deux causes distinctes. (1) spawn_x/y pointait vers le coin d'origine, mais _choose_respawn_direction naviguait vers level.start_cell — les deux références étaient désynchronisées, le ghost arrivait au centre mais la condition de sortie dans update() comparait avec spawn_x/y. Correction : aligner la condition de sortie sur level.start_cell.x/y. (2) Erreur d'ordre des arguments à l'appel de _choose_respawn_direction(directions, level) — level était reçu en position directions, causant un AttributeError. Correction : inverser les arguments à l'appel.
+
+### #9 — 2026-08-18 — §3.6 Interpolation de frame (rendu fluide)
+ 
+Interpolation alpha sur l'architecture tile-based existante plutôt que refonte pixel-based — ratio effort/bénéfice favorable, logique de jeu intacte.
+Implémentation en 4 étapes. `player.py` : ajout de `prev_x/prev_y` dans `__init__` et `move_to()` (reset sur téléportation). `ghost.py` : idem + `update_delay: int` initialisé à 200ms (valeur SCATTER niveau 0, guard contre AttributeError au premier rendu) ; ordre des imports corrigé (stdlib → third-party → local). `game.py` : `self.player_update_delay` ajouté (initialisé à `_PLAYER_UPDATE_DELAY[0]`, mis à jour à chaque frame) ; `prev_x/prev_y` sauvegardés juste avant chaque move player et ghost ; `ghost.update_delay` assigné au moment du déclenchement du step ; `_ghost_factory()` extrait de `_create_ghosts()` pour centraliser la construction avec `update_delay` initial. `renderer.py` : `draw()` calcule `current_time` une fois, `player_alpha` via `min(1.0, elapsed / delay)`, et passe l'alpha à `_draw_player()` et `current_time` à `_draw_ghosts()` ; chaque entité interpole sa position pixel entre `prev` et `x/y` courant.
+Correctif annexe : `pyrightconfig.json` créé à la racine pour résoudre le faux positif LSP sur `import pygame` (interpréteur pointé sur `.venv`).
+Observation : les fantômes en mode FRIGHTENED restent visuellement saccadés case-à-case malgré l'interpolation, conséquence du délai long (300ms) et du mouvement tile-based. Identifié comme limitation acceptable — à traiter via sprites animés en §3.6.
+Prochain chantier : menus et highscore (§3.2, §3.3).

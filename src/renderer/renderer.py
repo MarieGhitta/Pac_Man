@@ -34,8 +34,13 @@ class Renderer:
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
-        self._draw_ghosts(game.ghosts)
-        self._draw_player(game.player)
+        current_time = pygame.time.get_ticks()
+        player_alpha = min(
+            1.0,
+            (current_time - game.last_player_update) / game.player_update_delay
+        )
+        self._draw_player(game.player, player_alpha)
+        self._draw_ghosts(game.ghosts, current_time)
         self._draw_score(game)
         pygame.display.flip()
 
@@ -103,10 +108,17 @@ class Renderer:
                 _TILE_SIZE // 4,
             )
 
-    def _draw_player(self, player: Player) -> None:
-        """Draw the player."""
-        center_x = (_PADDING + player.x * _TILE_SIZE + _TILE_SIZE // 2)
-        center_y = (_PADDING + player.y * _TILE_SIZE + _TILE_SIZE // 2)
+    def _draw_player(self, player: Player, alpha: float) -> None:
+        """Draw the player.
+
+        Args:
+            player: The player to draw.
+            alpha: Interpolation factor between previous and current position.
+        """
+        render_x = player.prev_x + (player.x - player.prev_x) * alpha
+        render_y = player.prev_y + (player.y - player.prev_y) * alpha
+        center_x = int(_PADDING + render_x * _TILE_SIZE + _TILE_SIZE // 2)
+        center_y = int(_PADDING + render_y * _TILE_SIZE + _TILE_SIZE // 2)
         pygame.draw.circle(
             self.screen,
             (255, 255, 0),
@@ -141,14 +153,25 @@ class Renderer:
         height = self.maze_height * _TILE_SIZE + 2 * _PADDING
         self.screen = pygame.display.set_mode((width, height))
 
-    def _draw_ghosts(self, ghosts: list[Ghost]) -> None:
+    def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts."""
         for ghost in ghosts:
-            self._draw_ghost(ghost)
+            self._draw_ghost(ghost, current_time)
 
-    def _draw_ghost(self, ghost: Ghost) -> None:
-        screen_x = _PADDING + ghost.x * _TILE_SIZE
-        screen_y = _PADDING + ghost.y * _TILE_SIZE
+    def _draw_ghost(self, ghost: Ghost, current_time: int) -> None:
+        """Draw a ghost.
+
+        Args:
+            ghost: The ghost to draw.
+            current_time: Current time in milliseconds for alpha computation.
+        """
+        alpha = min(
+            1.0, (current_time - ghost.last_update) / ghost.update_delay
+        )
+        render_x = ghost.prev_x + (ghost.x - ghost.prev_x) * alpha
+        render_y = ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
+        screen_x = int(_PADDING + render_x * _TILE_SIZE)
+        screen_y = int(_PADDING + render_y * _TILE_SIZE)
         margin = _TILE_SIZE // 4
         points = [
             (screen_x + _TILE_SIZE // 2, screen_y + margin),
