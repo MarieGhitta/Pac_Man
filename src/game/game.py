@@ -71,6 +71,7 @@ class Game:
         self.victory: bool = False
         self.elapsed_before_fright: int = 0
         self.is_frighten: bool = False
+        self.player_update_delay = _PLAYER_UPDATE_DELAY[0]
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -192,18 +193,26 @@ class Game:
             >= _PLAYER_UPDATE_DELAY[lvl_idx]
         ):
             self.last_player_update = current_time
+            self.player.prev_x = self.player.x
+            self.player.prev_y = self.player.y
             self._update_player()
+            self.player_update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         for ghost in self.ghosts:
             if (
                 current_time - ghost.last_update
                 >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
             ):
                 ghost.last_update = current_time
+                ghost.prev_x = ghost.x
+                ghost.prev_y = ghost.y
                 ghost.update(
                     self.level,
                     self.player,
                     self.ghosts,
                     self.ghost_state,
+                )
+                self.ghost_update_delay = (
+                    _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
                 )
         self._check_collision()
 
