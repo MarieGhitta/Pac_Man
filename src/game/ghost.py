@@ -18,18 +18,26 @@ class Ghost:
     """Represent a Ghost."""
 
     def __init__(
-        self, x: int, y: int, ghost_type: GhostType, last_update: int
+        self,
+        x: int,
+        y: int,
+        ghost_type: GhostType,
+        last_update: int,
+        update_delay: int
     ) -> None:
         """Initialize Ghost."""
         self.x = x
         self.y = y
         self.ghost_type = ghost_type
         self.last_update = last_update
+        self.update_delay = update_delay
         self.spawn_x: int = x
         self.spawn_y: int = y
         self.direction: Direction = Direction.UP
         self.state: GhostState = GhostState.SCATTER
         self.frightened_until: int = 0
+        self.prev_x: int = x
+        self.prev_y: int = y
 
     def update(
         self,
