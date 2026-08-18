@@ -1,8 +1,8 @@
 """Manage Ghost."""
 
 
-import random
 import math
+import random
 
 import pygame
 
