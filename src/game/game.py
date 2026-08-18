@@ -1,17 +1,19 @@
 """Manage the game."""
 
 
-import pygame
 import random
+
+import pygame
+
 from src.config.models import Config
+from src.game.cell_content import CellContent
+from src.game.direction import Direction
 from src.game.level import Level
 from src.game.player import Player
-from src.game.direction import Direction
-from src.game.cell_content import CellContent
-from src.maze.models import Cell
 from src.game.ghost import Ghost
-from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
+from src.game.ghost_type import GhostType
+from src.maze.models import Cell
 
 
 _PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
