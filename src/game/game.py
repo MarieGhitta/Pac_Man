@@ -211,7 +211,7 @@ class Game:
                     self.ghosts,
                     self.ghost_state,
                 )
-                self.ghost_update_delay = (
+                ghost.update_delay = (
                     _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
                 )
         self._check_collision()
