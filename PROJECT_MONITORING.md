@@ -263,3 +263,11 @@ Prochain chantier : menus et highscore (§3.2, §3.3).
 Bug corrigé : `game.py` ligne 214 — `self.ghost_update_delay` remplacé par `ghost.update_delay`. En l'état précédent, `ghost.update_delay` restait bloqué à 200 ms pour tous les fantômes pendant toute la partie ; le renderer interpolait donc toujours sur 200 ms quelle que soit la vitesse réelle du fantôme (artefacts notables en FRIGHTENED et RESPAWN). Correction validée — mouvement FRIGHTENED nettement plus fluide.
 Implémentation du multiplicateur de score pour les fantômes mangés. Ajout de `eat_ghost_combo: int` dans `Game.__init__`. Remis à 0 dans `_frighten_ghosts()` à chaque super-pacgum mangé. Dans `_eat_ghost()` : score de base doublé `combo` fois (`×2^combo`), puis `combo` incrémenté. Séquence résultante : 200 → 400 → 800 → 1600 points, conforme à Pittman. `config.json` : `points_per_ghost` passé de 20 000 à 200.
 Prochain chantier : menus (§3.3 — title screen, end screen, pause menu) et highscores (§3.2).
+
+### #11 — 2026-08-19 — Implémentation du système de highscores
+ 
+Création du module **`src/ui/`** avec `highscore.py`.
+- **`PlayerScore`** : valide le nom d'utilisateur (alphanumérique, 3–10 caractères) et le score (non-négatif) via deux méthodes privées ; lève des `ValueError` explicites catchées au niveau de la saisie.
+- **`Highscore`** : prend le path du fichier JSON en paramètre (issu de `config.highscore_filename`) ; charge les scores existants en mémoire à l'init via `_check_file()` ; crée le fichier avec `[]` s'il est absent ; lève `ValueError` s'il est corrompu. `add_score()` appende, trie par score décroissant, tronque à 10 et réécrit le fichier entier.
+- `highscores.json` ajouté au `.gitignore`.
+Prochain chantier : Recuperer le vrai score.
