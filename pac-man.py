@@ -35,7 +35,7 @@ def main() -> None:
             game.update()
             renderer.draw(game)
             clock.tick(60)
-        highscore.add_score(game.username, game.score)
+        highscore.add_score("", game.score)
         pygame.quit()
     except ValueError as e:
         print(f"Configuration error: {e}")

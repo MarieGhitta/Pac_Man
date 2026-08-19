@@ -98,7 +98,8 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Combo score si plusieurs fantomes manges en un pacgum
 - [x] Créer `src/ui/` (manager + modèle).
 - [x] Charger au démarrage depuis `config.highscore_filename`.
-- [ ] Sauvegarder après chaque fin de partie (game over ou victoire).
+- [x] Sauvegarder score après chaque fin de partie (game over ou victoire).
+- [ ] Recuperer le nom du joueur
 - [x] Valider les noms : max 10 caractères, alphanumérique + espaces.
 - [x] Conserver le **top 10** des scores, triés par ordre décroissant.
 - [x] Robuste aux erreurs : fichier absent, JSON invalide, permissions.

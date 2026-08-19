@@ -58,7 +58,6 @@ class Game:
             self.level.start_cell.x,
             self.level.start_cell.y
         )
-        self.username: str = ""
         self.score: int = 0
         current_time: int = pygame.time.get_ticks()
         self.ghosts: list[Ghost] = self._create_ghosts(current_time)
