@@ -95,6 +95,7 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [ ] Afficher le compte à rebours dans le HUD.
 
 ### 3.2 Highscore — système persistant
+- [x] Combo score si plusieurs fantomes manges en un pacgum
 - [ ] Créer `src/highscore/` (manager + modèle).
 - [ ] Charger au démarrage depuis `config.highscore_filename`.
 - [ ] Sauvegarder après chaque fin de partie (game over ou victoire).
@@ -116,19 +117,6 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 
 #### End Screen (Game Over / Victory)
 - [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
-### #9 — 2026-08-18 — §3.6 Interpolation de frame (rendu fluide)
- 
-Check-up en début de session : bugs RESPAWN et `ghost_state` reset (identifiés en #6) déjà corrigés dans le code. §2.3 et §2.4 soldés (implantés entre les sessions). Ambiguïté visuelle Chase/Scatter toujours ouverte.
- 
-Analyse comparative d'un projet camarade (terminal, tile-based avec drift sub-tile continu via `speed` float par tick `sleep(0.05s)`). Décision confirmée : interpolation alpha sur l'architecture tile-based existante plutôt que refonte pixel-based — ratio effort/bénéfice favorable, logique de jeu intacte.
- 
-Implémentation en 4 étapes. `player.py` : ajout de `prev_x/prev_y` dans `__init__` et `move_to()` (reset sur téléportation). `ghost.py` : idem + `update_delay: int` initialisé à 200ms (valeur SCATTER niveau 0, guard contre AttributeError au premier rendu) ; ordre des imports corrigé (stdlib → third-party → local). `game.py` : `self.player_update_delay` ajouté (initialisé à `_PLAYER_UPDATE_DELAY[0]`, mis à jour à chaque frame) ; `prev_x/prev_y` sauvegardés juste avant chaque move player et ghost ; `ghost.update_delay` assigné au moment du déclenchement du step ; `_ghost_factory()` extrait de `_create_ghosts()` pour centraliser la construction avec `update_delay` initial. `renderer.py` : `draw()` calcule `current_time` une fois, `player_alpha` via `min(1.0, elapsed / delay)`, et passe l'alpha à `_draw_player()` et `current_time` à `_draw_ghosts()` ; chaque entité interpole sa position pixel entre `prev` et `x/y` courant.
- 
-Correctif annexe : `pyrightconfig.json` créé à la racine pour résoudre le faux positif LSP sur `import pygame` (interpréteur pointé sur `.venv`).
- 
-Observation : les fantômes en mode FRIGHTENED restent visuellement saccadés case-à-case malgré l'interpolation, conséquence du délai long (300ms) et du mouvement tile-based. Identifié comme limitation acceptable — à traiter via sprites animés en §3.6.
- 
-Prochain chantier : menus et highscore (§3.2, §3.3).
 - [ ] Afficher le score final.
 - [ ] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
 - [ ] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
@@ -199,6 +187,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 - [ ] Bruitages : manger pacgum, manger super-pacgum, manger fantôme, mort, niveau suivant, victoire.
 - [ ] Contrôle volume / mute.
 Brother DCP-L2627DWE
+
 ### 4.2 Tunnel wraparound
 - [ ] `game.py` — `move_player()` : si le joueur sort par le bord gauche/droit, téléporter au bord opposé.
 - [ ] Même logique pour `ghost.py` — `_move()`.
@@ -223,7 +212,7 @@ Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale ty
 
 ---
 
-## État des lieux
+## Logs
 
 ### #1 — 2026-08-10 — Analyse initiale
 Premier état des lieux post-analyse initiale du codebase. Projet repris en l'état après 3 semaines d'absence, sans modification. Le socle est fonctionnel : chargement config, génération et adaptation du maze, boucle de jeu principale (player, ghosts, collisions, score, vies, enchaînement de niveaux), renderer basique en pygame (murs en lignes, pacgums en cercles, player en cercle jaune, ghosts en triangles colorés). Bugs identifiés : seed identique pour tous les niveaux (doit être aléatoire dès le niveau 2), pacgums en nombre arbitraire limité, `level_max_time` configuré mais non implémenté. Comportements des fantômes approximatifs (Pinky/Inky/Clyde non fidèles à l'original, cycle Chase/Scatter simplifié, vitesses uniformes). Aucun menu, aucun système de highscore, aucun cheat mode, HUD incomplet, pas d'animations. Document de suivi créé.
@@ -268,3 +257,9 @@ Implémentation en 4 étapes. `player.py` : ajout de `prev_x/prev_y` dans `__ini
 Correctif annexe : `pyrightconfig.json` créé à la racine pour résoudre le faux positif LSP sur `import pygame` (interpréteur pointé sur `.venv`).
 Observation : les fantômes en mode FRIGHTENED restent visuellement saccadés case-à-case malgré l'interpolation, conséquence du délai long (300ms) et du mouvement tile-based. Identifié comme limitation acceptable — à traiter via sprites animés en §3.6.
 Prochain chantier : menus et highscore (§3.2, §3.3).
+
+### #10 — 2026-08-19 — Fix interpolation fantômes + combo manger-fantôme
+
+Bug corrigé : `game.py` ligne 214 — `self.ghost_update_delay` remplacé par `ghost.update_delay`. En l'état précédent, `ghost.update_delay` restait bloqué à 200 ms pour tous les fantômes pendant toute la partie ; le renderer interpolait donc toujours sur 200 ms quelle que soit la vitesse réelle du fantôme (artefacts notables en FRIGHTENED et RESPAWN). Correction validée — mouvement FRIGHTENED nettement plus fluide.
+Implémentation du multiplicateur de score pour les fantômes mangés. Ajout de `eat_ghost_combo: int` dans `Game.__init__`. Remis à 0 dans `_frighten_ghosts()` à chaque super-pacgum mangé. Dans `_eat_ghost()` : score de base doublé `combo` fois (`×2^combo`), puis `combo` incrémenté. Séquence résultante : 200 → 400 → 800 → 1600 points, conforme à Pittman. `config.json` : `points_per_ghost` passé de 20 000 à 200.
+Prochain chantier : menus (§3.3 — title screen, end screen, pause menu) et highscores (§3.2).
