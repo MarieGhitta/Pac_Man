@@ -5,6 +5,8 @@ import json
 
 from pathlib import Path
 
+from src.ui.models import PlayerScore
+
 
 class Highscore():
     """Top 10 highscore system backed by a JSON file."""
@@ -34,14 +36,16 @@ class Highscore():
             with open(self.path, 'w') as f:
                 json.dump([], f)
 
-    def add_score(self, username: str, score: int) -> None:
+    def add_score(self, player: PlayerScore) -> None:
         """Add a score, keep the top 10, and persist to disk.
 
         Args:
             username: player name.
             score: player score.
         """
-        self.scores.append({"username": username, "score": score})
+        self.scores.append(
+            {"username": player.username, "score": player.score}
+        )
         sorted_scores = sorted(
             self.scores,
             key=lambda n: n["score"],

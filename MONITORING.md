@@ -272,3 +272,10 @@ Création du module **`src/ui/`** avec `highscore.py`.
 - **`Highscore`** : prend le path du fichier JSON en paramètre (issu de `config.highscore_filename`) ; charge les scores existants en mémoire à l'init via `_check_file()` ; crée le fichier avec `[]` s'il est absent ; lève `ValueError` s'il est corrompu. `add_score()` appende, trie par score décroissant, tronque à 10 et réécrit le fichier entier.
 - `highscores.json` ajouté au `.gitignore`.
 Prochain chantier : menus (§3.3 — title screen, pause, game over/victory).
+
+### #12 — 2026-08-19 — Clôture de deux bugs monitoring
+ 
+Deux bugs listés comme ouverts dans le monitoring étaient déjà corrigés dans la version actuelle du code.
+- `ghost_state` non réinitialisé dans `_reset_positions()` → **corrigé** : ligne 322 de `game.py`, `self.ghost_state = GhostState.SCATTER` est bien présent.
+- RESPAWN oscillation → **corrigé** : `ghost.py` lignes 58–62, la sortie du mode RESPAWN est bien conditionnée à la position (`(self.x, self.y) == (level.start_cell.x, level.start_cell.y)`), sans timer.
+Aucune modification de code requise.

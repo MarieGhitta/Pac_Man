@@ -7,6 +7,7 @@ from src.game.direction import Direction
 from src.game.game import Game
 from src.renderer.renderer import Renderer
 from src.ui.highscore import Highscore
+from src.ui.models import PlayerScore
 
 
 def main() -> None:
@@ -35,7 +36,8 @@ def main() -> None:
             game.update()
             renderer.draw(game)
             clock.tick(60)
-        highscore.add_score("", game.score)
+        player = PlayerScore("AAA", game.score)
+        highscore.add_score(player)
         pygame.quit()
     except ValueError as e:
         print(f"Configuration error: {e}")
