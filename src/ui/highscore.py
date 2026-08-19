@@ -34,13 +34,14 @@ class Highscore():
             with open(self.path, 'w') as f:
                 json.dump([], f)
 
-    def add_score(self, new_score: dict[str, str | int]) -> None:
+    def add_score(self, username: str, score: int) -> None:
         """Add a score, keep the top 10, and persist to disk.
 
         Args:
-            new_score: Dict with 'username' (str) and 'score' (int) keys.
+            username: player name.
+            score: player score.
         """
-        self.scores.append(new_score)
+        self.scores.append({"username": username, "score": score})
         sorted_scores = sorted(
             self.scores,
             key=lambda n: n["score"],
