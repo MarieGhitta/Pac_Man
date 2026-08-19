@@ -96,12 +96,12 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 
 ### 3.2 Highscore — système persistant
 - [x] Combo score si plusieurs fantomes manges en un pacgum
-- [ ] Créer `src/highscore/` (manager + modèle).
-- [ ] Charger au démarrage depuis `config.highscore_filename`.
+- [x] Créer `src/ui/` (manager + modèle).
+- [x] Charger au démarrage depuis `config.highscore_filename`.
 - [ ] Sauvegarder après chaque fin de partie (game over ou victoire).
-- [ ] Valider les noms : max 10 caractères, alphanumérique + espaces.
-- [ ] Conserver le **top 10** des scores, triés par ordre décroissant.
-- [ ] Robuste aux erreurs : fichier absent, JSON invalide, permissions.
+- [x] Valider les noms : max 10 caractères, alphanumérique + espaces.
+- [x] Conserver le **top 10** des scores, triés par ordre décroissant.
+- [x] Robuste aux erreurs : fichier absent, JSON invalide, permissions.
 
 ### 3.3 Écrans de menu
 
