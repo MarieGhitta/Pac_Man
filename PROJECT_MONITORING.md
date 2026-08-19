@@ -271,4 +271,4 @@ Création du module **`src/ui/`** avec `highscore.py`.
 - **`PlayerScore`** : valide le nom d'utilisateur (alphanumérique, 3–10 caractères) et le score (non-négatif) via deux méthodes privées ; lève des `ValueError` explicites catchées au niveau de la saisie.
 - **`Highscore`** : prend le path du fichier JSON en paramètre (issu de `config.highscore_filename`) ; charge les scores existants en mémoire à l'init via `_check_file()` ; crée le fichier avec `[]` s'il est absent ; lève `ValueError` s'il est corrompu. `add_score()` appende, trie par score décroissant, tronque à 10 et réécrit le fichier entier.
 - `highscores.json` ajouté au `.gitignore`.
-Prochain chantier : Recuperer le vrai score.
+Prochain chantier : menus (§3.3 — title screen, pause, game over/victory).
