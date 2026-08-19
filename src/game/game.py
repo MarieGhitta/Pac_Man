@@ -71,7 +71,8 @@ class Game:
         self.victory: bool = False
         self.elapsed_before_fright: int = 0
         self.is_frighten: bool = False
-        self.player_update_delay = _PLAYER_UPDATE_DELAY[0]
+        self.player_update_delay: int = _PLAYER_UPDATE_DELAY[0]
+        self.eat_ghost_combo: int = 0
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -293,7 +294,12 @@ class Game:
 
     def _eat_ghost(self, ghost: Ghost) -> None:
         """Eat a frightened ghost."""
-        self.score += self.config.points_per_ghost
+        score = self.config.points_per_ghost
+        if self.eat_ghost_combo > 0:
+            for _ in range(self.eat_ghost_combo):
+                score *= 2
+        self.eat_ghost_combo += 1
+        self.score += score
         ghost.state = GhostState.RESPAWN
 
     def _player_hit(self) -> None:
@@ -325,6 +331,7 @@ class Game:
     def _frighten_ghosts(self) -> None:
         """Put all ghosts in frightened state."""
         current_time = pygame.time.get_ticks()
+        self.eat_ghost_combo = 0
         lvl_idx = self._level_interval()
         if lvl_idx == 3:
             return
