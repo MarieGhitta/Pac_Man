@@ -14,7 +14,7 @@ from src.maze.models import Maze, Cell
 
 
 _TILE_SIZE = 84
-_PADDING = 80
+# _PADDING = 80
 _FONT_SIZE = 72
 
 
@@ -203,8 +203,8 @@ class Renderer:
         )
         render_x = ghost.prev_x + (ghost.x - ghost.prev_x) * alpha
         render_y = ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
-        screen_x = int(_PADDING + render_x * _TILE_SIZE)
-        screen_y = int(_PADDING + render_y * _TILE_SIZE)
+        screen_x = int(self.offset_x + render_x * _TILE_SIZE)
+        screen_y = int(self.offset_y + render_y * _TILE_SIZE)
         margin = _TILE_SIZE // 4
         points = [
             (screen_x + _TILE_SIZE // 2, screen_y + margin),
