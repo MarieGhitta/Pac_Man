@@ -19,12 +19,12 @@ class Renderer:
     def __init__(self, level: Level) -> None:
         """Initialize the renderer."""
         info = pygame.display.Info()
-        self.screen = pygame.display.set_mode(
-            (info.current_w, info.current_h),
-            pygame.FULLSCREEN | pygame.SCALED
-        )
         self.screen_width = info.current_w
         self.screen_height = info.current_h
+        self.screen = pygame.display.set_mode(
+            (self.screen_width, self.screen_height),
+            pygame.FULLSCREEN | pygame.SCALED
+        )
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size = min(
