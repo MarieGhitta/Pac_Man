@@ -21,21 +21,22 @@ class Renderer:
 
         Args:
             level: The initial game level.
+            surface: The pygame surface to draw onto.
         """
-        self.screen = surface
-        self.screen_width = surface.get_width()
-        self.screen_height = surface.get_height()
+        self.surface = surface
+        self.surface_width = surface.get_width()
+        self.surface_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size: int = min(
-            int(self.screen_width * 0.8) // self.maze_width,
-            int(self.screen_height * 0.8) // self.maze_height
+            int(self.surface_width * 0.8) // self.maze_width,
+            int(self.surface_height * 0.8) // self.maze_height
         )
         self.offset_x = (
-            (self.screen_width - self.maze_width * self.tile_size) // 2
+            (self.surface_width - self.maze_width * self.tile_size) // 2
         )
         self.offset_y = (
-            (self.screen_height - self.maze_height * self.tile_size) // 2
+            (self.surface_height - self.maze_height * self.tile_size) // 2
         )
         pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, self.tile_size)
@@ -47,7 +48,7 @@ class Renderer:
             game: The current game state.
         """
         self._update_window(game.level)
-        self.screen.fill((0, 0, 0))
+        self.surface.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
         self._draw_player(game.player, current_time)
@@ -106,7 +107,7 @@ class Renderer:
             start_pos: Screen coordinates of the wall's start point.
             end_pos: Screen coordinates of the wall's end point.
         """
-        pygame.draw.line(self.screen, (0, 0, 255), start_pos, end_pos, 3)
+        pygame.draw.line(self.surface, (0, 0, 255), start_pos, end_pos, 3)
 
     def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
@@ -118,14 +119,14 @@ class Renderer:
         match cell.content:
             case CellContent.PACGUM:
                 pygame.draw.circle(
-                    self.screen,
+                    self.surface,
                     (255, 255, 255),
                     (center_x, center_y),
                     self.tile_size // 8,
                 )
             case CellContent.SUPER_PACGUM:
                 pygame.draw.circle(
-                    self.screen,
+                    self.surface,
                     (255, 255, 255),
                     (center_x, center_y),
                     self.tile_size // 4,
@@ -141,7 +142,7 @@ class Renderer:
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y, centered=True)
         pygame.draw.circle(
-            self.screen,
+            self.surface,
             (255, 255, 0),
             (center_x, center_y),
             self.tile_size // 3,
@@ -202,14 +203,14 @@ class Renderer:
             True,
             (255, 255, 255)
         )
-        self.screen.blit(
+        self.surface.blit(
             score_text,
             (self.offset_x, self.offset_y - self.tile_size)
         )
-        self.screen.blit(
+        self.surface.blit(
             lives_text,
             (
-                self.screen_width - lives_text.get_width() - self.offset_x,
+                self.surface_width - lives_text.get_width() - self.offset_x,
                 self.offset_y - self.tile_size
             )
         )
@@ -228,14 +229,14 @@ class Renderer:
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size: int = min(
-            int(self.screen_width * 0.8) // self.maze_width,
-            int(self.screen_height * 0.8) // self.maze_height
+            int(self.surface_width * 0.8) // self.maze_width,
+            int(self.surface_height * 0.8) // self.maze_height
         )
         self.offset_x = (
-            (self.screen_width - self.maze_width * self.tile_size) // 2
+            (self.surface_width - self.maze_width * self.tile_size) // 2
         )
         self.offset_y = (
-            (self.screen_height - self.maze_height * self.tile_size) // 2
+            (self.surface_height - self.maze_height * self.tile_size) // 2
         )
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
@@ -257,7 +258,7 @@ class Renderer:
                 ),
                 (corner_x + margin, corner_y + self.tile_size - margin)
             ]
-            pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
+            pygame.draw.polygon(self.surface, self._ghost_color(ghost), points)
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the display color of a ghost based on its state and type.
