@@ -31,8 +31,12 @@ class Renderer:
             int(self.screen_width * 0.8) // self.maze_width,
             int(self.screen_height * 0.8) // self.maze_height
         )
-        self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
-        self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
+        self.offset_x = (
+            (self.screen_width - self.maze_width * self.tile_size) // 2
+        )
+        self.offset_y = (
+            (self.screen_height - self.maze_height * self.tile_size) // 2
+        )
         pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, self.tile_size)
 
@@ -42,11 +46,7 @@ class Renderer:
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
-        player_alpha = min(
-            1.0,
-            (current_time - game.last_player_update) / game.player_update_delay
-        )
-        self._draw_player(game.player, player_alpha)
+        self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
         self._draw_hud(game)
         pygame.display.flip()
@@ -110,7 +110,9 @@ class Renderer:
             screen_x: Pixel x-coordinate of the cell's top-left corner.
             screen_y: Pixel y-coordinate of the cell's top-left corner.
         """
-        center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
+        center = (
+            screen_x + self.tile_size // 2, screen_y + self.tile_size // 2
+        )
         match cell.content:
             case CellContent.PACGUM:
                 self._draw_circle(center, 8)
@@ -131,15 +133,19 @@ class Renderer:
             self.tile_size // size,
         )
 
-    def _draw_player(self, player: Player, alpha: float) -> None:
+    def _draw_player(self, player: Player, current_time: int) -> None:
         """Draw the player.
 
         Args:
             player: The player to draw.
             alpha: Interpolation factor between previous and current position.
         """
-        render_x = player.prev_x + (player.x - player.prev_x) * alpha
-        render_y = player.prev_y + (player.y - player.prev_y) * alpha
+        alpha = self._compute_alpha(
+            current_time, player.last_update, player.update_delay
+        )
+        render_x, render_y = self._interpolate(
+            player.prev_x, player.prev_y, player.x, player.y, alpha
+        )
         center_x = int(self.offset_x + render_x * self.tile_size + self.tile_size // 2)
         center_y = int(self.offset_y + render_y * self.tile_size + self.tile_size // 2)
         pygame.draw.circle(
@@ -147,6 +153,24 @@ class Renderer:
             (255, 255, 0),
             (center_x, center_y),
             self.tile_size // 3,
+        )
+
+    def _compute_alpha(
+        self, current_time: int, last_update: int, update_delay: int
+    ) -> float:
+        return min(1.0, (current_time - last_update) / update_delay)
+
+    def _interpolate(
+            self,
+            prev_x: int,
+            prev_y: int,
+            current_x: int,
+            current_y: int,
+            alpha: float
+    ) -> tuple[float, float]:
+        return (
+            prev_x + (current_x - prev_x) * alpha,
+            prev_y + (current_y - prev_y) * alpha
         )
 
     def _draw_hud(self, game: Game) -> None:
@@ -185,7 +209,6 @@ class Renderer:
         self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
         self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
 
-
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts."""
         for ghost in ghosts:
@@ -198,11 +221,12 @@ class Renderer:
             ghost: The ghost to draw.
             current_time: Current time in milliseconds for alpha computation.
         """
-        alpha = min(
-            1.0, (current_time - ghost.last_update) / ghost.update_delay
+        alpha = self._compute_alpha(
+            current_time, ghost.last_update, ghost.update_delay
         )
-        render_x = ghost.prev_x + (ghost.x - ghost.prev_x) * alpha
-        render_y = ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
+        render_x, render_y = self._interpolate(
+            ghost.prev_x, ghost.prev_y, ghost.x, ghost.y, alpha
+        )
         screen_x = int(self.offset_x + render_x * self.tile_size)
         screen_y = int(self.offset_y + render_y * self.tile_size)
         margin = self.tile_size // 4
