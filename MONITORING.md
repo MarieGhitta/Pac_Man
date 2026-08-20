@@ -119,14 +119,15 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [ ] Is dynamic font relevant? See later in the project
 
 #### Title Screen
-- [ ] **Logo** : "PAC-MAN" style original (logo pixel-art statique).
+- [x] **Logo** : "PAC-MAN" style original (logo pixel-art statique).
 - [ ] **Animation** : une ligne sous le logo — les 4 fantômes poursuivent Pac-Man de droite à gauche → Pac-Man mange un super-pacgum → se retourne → mange les fantômes un par un (séquence en boucle).
-- [ ] **Menu** en dessous de l'animation :
+- [x] **Menu** en dessous de l'animation :
   - **Play**
   - **Highscores**
   - **Cheat Mode** (accès à la configuration des cheats)
   - **Quit**
-- [ ] Navigation clavier (flèches + Entrée).
+- [x] Navigation clavier (flèches + Entrée).
+- [x] Import real fonts
 
 #### End Screen (Game Over / Victory)
 - [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
@@ -317,3 +318,13 @@ Refactors et améliorations de `renderer.py`.
 - `_compute_alpha()` fusionné dans `_interpolate()`.
 - Uniformisation player/ghost : `last_update` et `update_delay` déplacés dans `Player` (étaient dans `Game`). `_draw_player()` reçoit désormais `current_time` et calcule l'alpha en interne, comme `_draw_ghost()`.
 - Docstrings complètes sur toutes les méthodes.
+
+### #14 — 2026-08-20 — Title screen
+
+Création de `src/ui/screen.py` : classe abstraite `Screen(ABC)` avec `handle_event(event)`, `update(current_time)`, `draw(surface)` et attribut `next_screen: str | None`.
+Création de `src/ui/title_screen.py` : `TitleScreen(Screen)` avec logo "Pac-Man" centré (font CrackMan), menu 4 items (Play / Highscores / Cheat Mode / Quit) en PressStart2P, navigation clavier (flèches + Entrée + Escape), highlight de l'item sélectionné, wrap-around via modulo, `next_screen` assigné selon sélection.
+Refactor `renderer.py` : surface pygame reçue en paramètre au lieu d'être créée dans `__init__`. `self.screen` renommé `self.surface`. `pygame.display.set_caption` déplacé dans `pac-man.py`.
+Refactor `pac-man.py` : surface créée en tête de `main()`. Machine à états `screen_state` ("title" / "game") routant events, update et draw. `pygame.display.flip()` sorti du branchement.
+`pyrightconfig.json` : ajout de `"reportArgumentType": "none"` pour supprimer le faux positif Pyright sur `pygame.Surface`.
+`assets/fonts/` : CrackMan.TTF et PressStart2P-Regular.ttf ajoutés.
+Prochain chantier : animation title screen et transition vers le jeu.
