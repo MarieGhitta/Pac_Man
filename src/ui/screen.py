@@ -77,14 +77,24 @@ class TitleScreen(Screen):
         """
         if event.type == pygame.KEYDOWN:
             match event.key:
-                # case pygame.K_UP:
-                #     game.player.next_direction = Direction.UP
-                # case pygame.K_RIGHT:
-                #     game.player.next_direction = Direction.RIGHT
-                # case pygame.K_DOWN:
-                #     game.player.next_direction = Direction.DOWN
-                # case pygame.K_LEFT:
-                #     game.player.next_direction = Direction.LEFT
+                case pygame.K_UP:
+                    self.menu_index = (
+                        (self.menu_index - 1) % len(self.menu_items)
+                    )
+                case pygame.K_DOWN:
+                    self.menu_index = (
+                        (self.menu_index + 1) % len(self.menu_items)
+                    )
+                case pygame.K_RETURN:
+                    match self.menu_index:
+                        case 0:
+                            self.next_screen = "game"
+                        case 1:
+                            self.next_screen = "highscores"
+                        case 2:
+                            self.next_screen = "cheat"
+                        case 3:
+                            self.next_screen = "quit"
                 case pygame.K_ESCAPE:
                     self.next_screen = "quit"
 
@@ -97,7 +107,7 @@ class TitleScreen(Screen):
         """
         pass
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw(self, surface: pygame.surface.Surface) -> None:
         """Render the screen onto the given surface.
 
         Args:
@@ -109,11 +119,13 @@ class TitleScreen(Screen):
         logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
         surface.blit(logo, logo_rect)
 
-        line_height = self.font.get_height() * 1.5
+        line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height * 3 // 4 - total_height // 2
+
         for i, el in enumerate(self.menu_items):
-            sub = self.font.render(el, True, (255, 255, 255))
+            color = (255, 0, 0) if i == self.menu_index else (255, 255, 255)
+            sub = self.font.render(el, True, color)
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)
             )
