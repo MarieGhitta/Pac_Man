@@ -54,14 +54,15 @@ class Game:
             self.config.seed,
             self.config.pacgum
         )
+        current_time: int = pygame.time.get_ticks()
         self.player: Player = Player(
             self.level.start_cell.x,
-            self.level.start_cell.y
+            self.level.start_cell.y,
+            current_time,
+            _PLAYER_UPDATE_DELAY[0]
         )
         self.score: int = 0
-        current_time: int = pygame.time.get_ticks()
         self.ghosts: list[Ghost] = self._create_ghosts(current_time)
-        self.last_player_update: int = current_time
         self.ghost_state: GhostState = GhostState.SCATTER
         self.global_ghosts_state: GhostState = GhostState.SCATTER
         self.state_phase_index: int = 0
@@ -71,7 +72,6 @@ class Game:
         self.victory: bool = False
         self.elapsed_before_fright: int = 0
         self.is_frighten: bool = False
-        self.player_update_delay: int = _PLAYER_UPDATE_DELAY[0]
         self.eat_ghost_combo: int = 0
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
