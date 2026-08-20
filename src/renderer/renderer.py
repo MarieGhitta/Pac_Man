@@ -13,9 +13,6 @@ from src.game.player import Player
 from src.maze.models import Maze, Cell
 
 
-_FONT_SIZE = 72
-
-
 class Renderer:
     """Draw the game."""
 
@@ -28,8 +25,6 @@ class Renderer:
         )
         self.screen_width = info.current_w
         self.screen_height = info.current_h
-        pygame.display.set_caption("Pac-Man")
-        self.font = pygame.font.Font(None, _FONT_SIZE)
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size = min(
@@ -38,6 +33,8 @@ class Renderer:
         )
         self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
         self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
+        pygame.display.set_caption("Pac-Man")
+        self.font = pygame.font.Font(None, self.tile_size)
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
@@ -164,12 +161,15 @@ class Renderer:
             True,
             (255, 255, 255)
         )
-        self.screen.blit(score_text, (self.offset_x, self.offset_y - 80))
+        self.screen.blit(
+            score_text,
+            (self.offset_x, self.offset_y - self.tile_size)
+        )
         self.screen.blit(
             lives_text,
             (
                 self.screen_width - lives_text.get_width() - self.offset_x,
-                self.offset_y - 80
+                self.offset_y - self.tile_size
             )
         )
 
