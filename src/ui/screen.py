@@ -43,3 +43,26 @@ class Screen(ABC):
             surface: The pygame surface to draw onto.
         """
         pass
+
+
+class TitleScreen(Screen):
+    def __init__(self, surface: pygame.Surface) -> None:
+        super().__init__()
+        self.width: int = surface.get_width()
+        self.height: int = surface.get_height()
+        self.title_font: pygame.font.Font = pygame.font.Font(None, 96)
+        self.font: pygame.font.Font = pygame.font.Font(None, 48)
+        self.menu_items: list[str] = [
+            "Play", "Highscores", "Cheat Mode", "Quit"
+        ]
+        self.menu_index: int = 0
+
+
+    def handle_event(self, event: pygame.event.Event) -> None:
+        pass
+
+    def update(self, current_time: int) -> None:
+        pass
+
+    def draw(self, surface: pygame.Surface) -> None:
+        pass
