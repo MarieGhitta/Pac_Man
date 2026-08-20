@@ -174,7 +174,7 @@ class Game:
         self.global_ghosts_state = GhostState.SCATTER
         self.state_phase_index = 0
         self.last_state_change = current_time
-        self.last_player_update = current_time
+        self.player.last_update = current_time
         self.player.direction = Direction.LEFT
         self.player.next_direction = Direction.LEFT
         self.is_frighten = False
@@ -190,14 +190,14 @@ class Game:
             self._check_if_frighten(current_time)
         lvl_idx = self._level_interval()
         if (
-            current_time - self.last_player_update
+            current_time - self.player.last_update
             >= _PLAYER_UPDATE_DELAY[lvl_idx]
         ):
-            self.last_player_update = current_time
+            self.player.last_update = current_time
             self.player.prev_x = self.player.x
             self.player.prev_y = self.player.y
             self._update_player()
-            self.player_update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
+            self.player.update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         for ghost in self.ghosts:
             if (
                 current_time - ghost.last_update
