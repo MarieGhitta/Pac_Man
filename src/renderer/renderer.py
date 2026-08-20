@@ -13,8 +13,6 @@ from src.game.player import Player
 from src.maze.models import Maze, Cell
 
 
-_TILE_SIZE = 84
-# _PADDING = 80
 _FONT_SIZE = 72
 
 
@@ -34,14 +32,15 @@ class Renderer:
         self.font = pygame.font.Font(None, _FONT_SIZE)
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.offset_x = (self.screen_width - self.maze_width * _TILE_SIZE) // 2
-        self.offset_y = (self.screen_height - self.maze_height * _TILE_SIZE) // 2
+        self.tile_size = min(
+            int(self.screen_width * 0.8) // self.maze_width,
+            int(self.screen_height * 0.8) // self.maze_height
+        )
+        self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
+        self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
-        sw, sh = self.screen.get_size()
-        self.offset_x = (sw - self.maze_width * _TILE_SIZE) // 2
-        self.offset_y = (sh - self.maze_height * _TILE_SIZE) // 2
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
@@ -59,8 +58,8 @@ class Renderer:
         """Draw the maze."""
         for row in maze.cells:
             for cell in row:
-                screen_x = self.offset_x + cell.x * _TILE_SIZE
-                screen_y = self.offset_y + cell.y * _TILE_SIZE
+                screen_x = self.offset_x + cell.x * self.tile_size
+                screen_y = self.offset_y + cell.y * self.tile_size
                 self._draw_walls(cell, screen_x, screen_y)
                 self._draw_cell_content(cell, screen_x, screen_y)
 
@@ -75,22 +74,22 @@ class Renderer:
         if cell.north_wall:
             self._draw_wall(
                 (screen_x, screen_y),
-                (screen_x + _TILE_SIZE, screen_y)
+                (screen_x + self.tile_size, screen_y)
             )
         if cell.east_wall:
             self._draw_wall(
-                (screen_x + _TILE_SIZE, screen_y),
-                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE)
+                (screen_x + self.tile_size, screen_y),
+                (screen_x + self.tile_size, screen_y + self.tile_size)
             )
         if cell.south_wall:
             self._draw_wall(
-                (screen_x, screen_y + _TILE_SIZE),
-                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
+                (screen_x, screen_y + self.tile_size),
+                (screen_x + self.tile_size, screen_y + self.tile_size),
             )
         if cell.west_wall:
             self._draw_wall(
                 (screen_x, screen_y),
-                (screen_x, screen_y + _TILE_SIZE),
+                (screen_x, screen_y + self.tile_size),
             )
 
     def _draw_wall(
@@ -114,7 +113,7 @@ class Renderer:
             screen_x: Pixel x-coordinate of the cell's top-left corner.
             screen_y: Pixel y-coordinate of the cell's top-left corner.
         """
-        center = (screen_x + _TILE_SIZE // 2, screen_y + _TILE_SIZE // 2)
+        center = (screen_x + self.tile_size // 2, screen_y + self.tile_size // 2)
         match cell.content:
             case CellContent.PACGUM:
                 self._draw_circle(center, 8)
@@ -126,13 +125,13 @@ class Renderer:
 
         Args:
             center: Pixel coordinates of the circle's center.
-            size: Divisor applied to _TILE_SIZE to compute the radius.
+            size: Divisor applied to self.tile_size to compute the radius.
         """
         pygame.draw.circle(
             self.screen,
             (255, 255, 255),
             center,
-            _TILE_SIZE // size,
+            self.tile_size // size,
         )
 
     def _draw_player(self, player: Player, alpha: float) -> None:
@@ -144,13 +143,13 @@ class Renderer:
         """
         render_x = player.prev_x + (player.x - player.prev_x) * alpha
         render_y = player.prev_y + (player.y - player.prev_y) * alpha
-        center_x = int(self.offset_x + render_x * _TILE_SIZE + _TILE_SIZE // 2)
-        center_y = int(self.offset_y + render_y * _TILE_SIZE + _TILE_SIZE // 2)
+        center_x = int(self.offset_x + render_x * self.tile_size + self.tile_size // 2)
+        center_y = int(self.offset_y + render_y * self.tile_size + self.tile_size // 2)
         pygame.draw.circle(
             self.screen,
             (255, 255, 0),
             (center_x, center_y),
-            _TILE_SIZE // 3,
+            self.tile_size // 3,
         )
 
     def _draw_hud(self, game: Game) -> None:
@@ -183,8 +182,8 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.offset_x = (self.screen_width - self.maze_width * _TILE_SIZE) // 2
-        self.offset_y = (self.screen_height - self.maze_height * _TILE_SIZE) // 2
+        self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
+        self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
 
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
@@ -204,13 +203,13 @@ class Renderer:
         )
         render_x = ghost.prev_x + (ghost.x - ghost.prev_x) * alpha
         render_y = ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
-        screen_x = int(self.offset_x + render_x * _TILE_SIZE)
-        screen_y = int(self.offset_y + render_y * _TILE_SIZE)
-        margin = _TILE_SIZE // 4
+        screen_x = int(self.offset_x + render_x * self.tile_size)
+        screen_y = int(self.offset_y + render_y * self.tile_size)
+        margin = self.tile_size // 4
         points = [
-            (screen_x + _TILE_SIZE // 2, screen_y + margin),
-            (screen_x + _TILE_SIZE - margin, screen_y + _TILE_SIZE - margin),
-            (screen_x + margin, screen_y + _TILE_SIZE - margin)
+            (screen_x + self.tile_size // 2, screen_y + margin),
+            (screen_x + self.tile_size - margin, screen_y + self.tile_size - margin),
+            (screen_x + margin, screen_y + self.tile_size - margin)
         ]
         pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
 
