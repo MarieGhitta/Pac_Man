@@ -16,19 +16,15 @@ from src.maze.models import Maze, Cell
 class Renderer:
     """Draw the game."""
 
-    def __init__(self, level: Level) -> None:
+    def __init__(self, level: Level, surface: pygame.Surface) -> None:
         """Initialize the renderer and create the fullscreen window.
 
         Args:
             level: The initial game level.
         """
-        info = pygame.display.Info()
-        self.screen_width = info.current_w
-        self.screen_height = info.current_h
-        self.screen = pygame.display.set_mode(
-            (self.screen_width, self.screen_height),
-            pygame.FULLSCREEN | pygame.SCALED
-        )
+        self.screen = surface
+        self.screen_width = surface.get_width()
+        self.screen_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size: int = min(

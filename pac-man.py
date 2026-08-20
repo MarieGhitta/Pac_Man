@@ -9,16 +9,23 @@ from src.game.game import Game
 from src.renderer.renderer import Renderer
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
+from src.ui.screen import TitleScreen
 
 
 def main() -> None:
     """Run the game."""
     try:
         pygame.init()
+        info = pygame.display.Info()
+        surface = pygame.display.set_mode(
+            (info.current_w, info.current_h),
+            pygame.FULLSCREEN | pygame.SCALED
+        )
         config = ConfigLoader().load("config.json")
         highscore = Highscore(config.highscore_filename)
         game = Game(config)
-        renderer = Renderer(game.level)
+        title_screen = TitleScreen(surface)
+        renderer = Renderer(game.level, surface)
         clock = pygame.time.Clock()
         running = True
         while running:
