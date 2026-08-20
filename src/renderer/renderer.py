@@ -64,38 +64,38 @@ class Renderer:
         """
         for row in maze.cells:
             for cell in row:
-                screen_x = self.offset_x + cell.x * self.tile_size
-                screen_y = self.offset_y + cell.y * self.tile_size
-                self._draw_walls(cell, screen_x, screen_y)
+                surface_x = self.offset_x + cell.x * self.tile_size
+                surface_y = self.offset_y + cell.y * self.tile_size
+                self._draw_walls(cell, surface_x, surface_y)
                 self._draw_cell_content(cell)
 
-    def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
+    def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
 
         Args:
             cell: The maze cell whose walls are drawn.
-            screen_x: Pixel x-coordinate of the cell's top-left corner.
-            screen_y: Pixel y-coordinate of the cell's top-left corner.
+            x: Pixel x-coordinate of the cell's top-left corner.
+            y: Pixel y-coordinate of the cell's top-left corner.
         """
         if cell.north_wall:
             self._draw_wall(
-                (screen_x, screen_y),
-                (screen_x + self.tile_size, screen_y)
+                (x, y),
+                (x + self.tile_size, y)
             )
         if cell.east_wall:
             self._draw_wall(
-                (screen_x + self.tile_size, screen_y),
-                (screen_x + self.tile_size, screen_y + self.tile_size)
+                (x + self.tile_size, y),
+                (x + self.tile_size, y + self.tile_size)
             )
         if cell.south_wall:
             self._draw_wall(
-                (screen_x, screen_y + self.tile_size),
-                (screen_x + self.tile_size, screen_y + self.tile_size),
+                (x, y + self.tile_size),
+                (x + self.tile_size, y + self.tile_size),
             )
         if cell.west_wall:
             self._draw_wall(
-                (screen_x, screen_y),
-                (screen_x, screen_y + self.tile_size),
+                (x, y),
+                (x, y + self.tile_size),
             )
 
     def _draw_wall(
@@ -193,24 +193,24 @@ class Renderer:
         Args:
             game: The current game state.
         """
-        score_text = self.font.render(
+        score_txt = self.font.render(
             f'Score: {game.score}',
             True,
             (255, 255, 255)
         )
-        lives_text = self.font.render(
+        lives_txt = self.font.render(
             f"Lives: {game.lives}",
             True,
             (255, 255, 255)
         )
         self.surface.blit(
-            score_text,
+            score_txt,
             (self.offset_x, self.offset_y - self.tile_size)
         )
         self.surface.blit(
-            lives_text,
+            lives_txt,
             (
-                self.surface_width - lives_text.get_width() - self.offset_x,
+                self.surface_width - lives_txt.get_width() - self.offset_x,
                 self.offset_y - self.tile_size
             )
         )
