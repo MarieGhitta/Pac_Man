@@ -1,5 +1,6 @@
 """Player score model with input validation."""
 
+
 class PlayerScore():
     """Validated player score entry."""
 

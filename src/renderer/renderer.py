@@ -1,197 +1,285 @@
 """Render the game."""
 
+
 import pygame
-from src.game.game import Game
-from src.game.level import Level
-from src.game.player import Player
-from src.maze.models import Maze, Cell
+
 from src.game.cell_content import CellContent
+from src.game.game import Game
 from src.game.ghost import Ghost
 from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
-
-
-_TILE_SIZE = 84
-_PADDING = 80
-_FONT_SIZE = 72
+from src.game.level import Level
+from src.game.player import Player
+from src.maze.models import Maze, Cell
 
 
 class Renderer:
     """Draw the game."""
 
     def __init__(self, level: Level) -> None:
-        """Initialize the renderer."""
-        window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
-        window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((window_width, window_height))
-        pygame.display.set_caption("Pac-Man")
-        self.font = pygame.font.Font(None, _FONT_SIZE)
+        """Initialize the renderer and create the fullscreen window.
+
+        Args:
+            level: The initial game level.
+        """
+        info = pygame.display.Info()
+        self.screen_width = info.current_w
+        self.screen_height = info.current_h
+        self.screen = pygame.display.set_mode(
+            (self.screen_width, self.screen_height),
+            pygame.FULLSCREEN | pygame.SCALED
+        )
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
+        self.tile_size: int = min(
+            int(self.screen_width * 0.8) // self.maze_width,
+            int(self.screen_height * 0.8) // self.maze_height
+        )
+        self.offset_x = (
+            (self.screen_width - self.maze_width * self.tile_size) // 2
+        )
+        self.offset_y = (
+            (self.screen_height - self.maze_height * self.tile_size) // 2
+        )
+        pygame.display.set_caption("Pac-Man")
+        self.font = pygame.font.Font(None, self.tile_size)
 
     def draw(self, game: Game) -> None:
-        """Draw the current game state."""
+        """Draw the current game state: maze, player, ghosts, and HUD.
+
+        Args:
+            game: The current game state.
+        """
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
-        player_alpha = min(
-            1.0,
-            (current_time - game.last_player_update) / game.player_update_delay
-        )
-        self._draw_player(game.player, player_alpha)
+        self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
-        self._draw_score(game)
+        self._draw_hud(game)
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
-        """Draw the maze."""
+        """Draw all maze cells, including walls and cell contents.
+
+        Args:
+            maze: The maze to draw.
+        """
         for row in maze.cells:
             for cell in row:
-                screen_x = _PADDING + cell.x * _TILE_SIZE
-                screen_y = _PADDING + cell.y * _TILE_SIZE
+                screen_x = self.offset_x + cell.x * self.tile_size
+                screen_y = self.offset_y + cell.y * self.tile_size
                 self._draw_walls(cell, screen_x, screen_y)
-                self._draw_cell_content(cell, screen_x, screen_y)
+                self._draw_cell_content(cell)
 
     def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
-        """Draw the walls of a maze cell."""
+        """Draw the walls of a maze cell.
+
+        Args:
+            cell: The maze cell whose walls are drawn.
+            screen_x: Pixel x-coordinate of the cell's top-left corner.
+            screen_y: Pixel y-coordinate of the cell's top-left corner.
+        """
         if cell.north_wall:
-            pygame.draw.line(
-                self.screen,
-                (0, 0, 255),
+            self._draw_wall(
                 (screen_x, screen_y),
-                (screen_x + _TILE_SIZE, screen_y),
-                3,
+                (screen_x + self.tile_size, screen_y)
             )
         if cell.east_wall:
-            pygame.draw.line(
-                self.screen,
-                (0, 0, 255),
-                (screen_x + _TILE_SIZE, screen_y),
-                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
-                3,
+            self._draw_wall(
+                (screen_x + self.tile_size, screen_y),
+                (screen_x + self.tile_size, screen_y + self.tile_size)
             )
         if cell.south_wall:
-            pygame.draw.line(
-                self.screen,
-                (0, 0, 255),
-                (screen_x, screen_y + _TILE_SIZE),
-                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE),
-                3,
+            self._draw_wall(
+                (screen_x, screen_y + self.tile_size),
+                (screen_x + self.tile_size, screen_y + self.tile_size),
             )
         if cell.west_wall:
-            pygame.draw.line(
-                self.screen,
-                (0, 0, 255),
+            self._draw_wall(
                 (screen_x, screen_y),
-                (screen_x, screen_y + _TILE_SIZE),
-                3,
+                (screen_x, screen_y + self.tile_size),
             )
 
-    def _draw_cell_content(self, cell: Cell,
-                           screen_x: int, screen_y: int) -> None:
-        """Draw the content of a maze cell."""
-        center = (screen_x + _TILE_SIZE // 2,
-                  screen_y + _TILE_SIZE // 2)
-        if cell.content == CellContent.PACGUM:
-            pygame.draw.circle(
-                self.screen,
-                (255, 255, 255),
-                center,
-                _TILE_SIZE // 8,
-            )
-        elif cell.content == CellContent.SUPER_PACGUM:
-            pygame.draw.circle(
-                self.screen,
-                (255, 255, 255),
-                center,
-                _TILE_SIZE // 4,
-            )
+    def _draw_wall(
+        self, start_pos: tuple[int, int], end_pos: tuple[int, int]
+    ) -> None:
+        """Draw a single wall segment as a blue line.
 
-    def _draw_player(self, player: Player, alpha: float) -> None:
-        """Draw the player.
+        Args:
+            start_pos: Screen coordinates of the wall's start point.
+            end_pos: Screen coordinates of the wall's end point.
+        """
+        pygame.draw.line(self.screen, (0, 0, 255), start_pos, end_pos, 3)
+
+    def _draw_cell_content(self, cell: Cell) -> None:
+        """Draw the content of a maze cell.
+
+        Args:
+            cell: The maze cell whose content is drawn.
+        """
+        center_x, center_y = self._to_screen(cell.x, cell.y, centered=True)
+        match cell.content:
+            case CellContent.PACGUM:
+                pygame.draw.circle(
+                    self.screen,
+                    (255, 255, 255),
+                    (center_x, center_y),
+                    self.tile_size // 8,
+                )
+            case CellContent.SUPER_PACGUM:
+                pygame.draw.circle(
+                    self.screen,
+                    (255, 255, 255),
+                    (center_x, center_y),
+                    self.tile_size // 4,
+                )
+
+    def _draw_player(self, player: Player, current_time: int) -> None:
+        """Draw the player at its interpolated position.
 
         Args:
             player: The player to draw.
-            alpha: Interpolation factor between previous and current position.
+            current_time: Current time in milliseconds for interpolation.
         """
-        render_x = player.prev_x + (player.x - player.prev_x) * alpha
-        render_y = player.prev_y + (player.y - player.prev_y) * alpha
-        center_x = int(_PADDING + render_x * _TILE_SIZE + _TILE_SIZE // 2)
-        center_y = int(_PADDING + render_y * _TILE_SIZE + _TILE_SIZE // 2)
+        render_x, render_y = self._interpolate(player, current_time)
+        center_x, center_y = self._to_screen(render_x, render_y, centered=True)
         pygame.draw.circle(
             self.screen,
             (255, 255, 0),
             (center_x, center_y),
-            _TILE_SIZE // 3,
+            self.tile_size // 3,
         )
 
-    def _draw_score(self, game: Game) -> None:
-        """Draw the current score."""
+    def _to_screen(
+        self, x: float, y: float, centered: bool = False
+    ) -> tuple[int, int]:
+        """Convert grid coordinates to screen pixel coordinates.
+
+        Args:
+            x: Horizontal grid coordinate.
+            y: Vertical grid coordinate.
+            centered: If True, offset by half a tile to target the tile center.
+
+        Returns:
+            Pixel coordinates on screen.
+        """
+        half = self.tile_size // 2 if centered else 0
+        return (
+            int(self.offset_x + x * self.tile_size + half),
+            int(self.offset_y + y * self.tile_size + half)
+        )
+
+    def _interpolate(
+        self, sprite: Player | Ghost, current_time: int
+    ) -> tuple[float, float]:
+        """Compute the interpolated grid position of a sprite.
+
+        Args:
+            sprite: The player or ghost to interpolate.
+            current_time: Current time in milliseconds.
+
+        Returns:
+            Interpolated (x, y) grid coordinates as floats.
+        """
+        alpha = min(
+            1.0, (current_time - sprite.last_update) / sprite.update_delay
+        )
+        return (
+            sprite.prev_x + (sprite.x - sprite.prev_x) * alpha,
+            sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
+        )
+
+    def _draw_hud(self, game: Game) -> None:
+        """Draw the HUD: score on the left, lives on the right.
+
+        Args:
+            game: The current game state.
+        """
         score_text = self.font.render(
             f'Score: {game.score}',
             True,
             (255, 255, 255)
         )
-        self.screen.blit(score_text, (_PADDING, 10))
         lives_text = self.font.render(
             f"Lives: {game.lives}",
             True,
             (255, 255, 255)
         )
-        self.screen.blit(lives_text, (self.screen.get_width() -
-                                      lives_text.get_width() - _PADDING, 10))
+        self.screen.blit(
+            score_text,
+            (self.offset_x, self.offset_y - self.tile_size)
+        )
+        self.screen.blit(
+            lives_text,
+            (
+                self.screen_width - lives_text.get_width() - self.offset_x,
+                self.offset_y - self.tile_size
+            )
+        )
 
     def _update_window(self, level: Level) -> None:
-        """Resize the window if the level dimensions changed."""
-        if (level.maze.width == self.maze_width
-           and level.maze.height == self.maze_height):
+        """Recalculate offsets if the level dimensions changed.
+
+        Args:
+            level: The current game level.
+        """
+        if (
+            level.maze.width == self.maze_width
+            and level.maze.height == self.maze_height
+        ):
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        width = self.maze_width * _TILE_SIZE + 2 * _PADDING
-        height = self.maze_height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((width, height))
+        self.offset_x = (
+            (self.screen_width - self.maze_width * self.tile_size) // 2
+        )
+        self.offset_y = (
+            (self.screen_height - self.maze_height * self.tile_size) // 2
+        )
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
-        """Draw all ghosts."""
-        for ghost in ghosts:
-            self._draw_ghost(ghost, current_time)
-
-    def _draw_ghost(self, ghost: Ghost, current_time: int) -> None:
-        """Draw a ghost.
+        """Draw all ghosts.
 
         Args:
-            ghost: The ghost to draw.
-            current_time: Current time in milliseconds for alpha computation.
+            ghosts: List of ghosts to draw.
+            current_time: Current time in milliseconds for interpolation.
         """
-        alpha = min(
-            1.0, (current_time - ghost.last_update) / ghost.update_delay
-        )
-        render_x = ghost.prev_x + (ghost.x - ghost.prev_x) * alpha
-        render_y = ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
-        screen_x = int(_PADDING + render_x * _TILE_SIZE)
-        screen_y = int(_PADDING + render_y * _TILE_SIZE)
-        margin = _TILE_SIZE // 4
-        points = [
-            (screen_x + _TILE_SIZE // 2, screen_y + margin),
-            (screen_x + _TILE_SIZE - margin, screen_y + _TILE_SIZE - margin),
-            (screen_x + margin, screen_y + _TILE_SIZE - margin)
-        ]
-        pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
+        for ghost in ghosts:
+            render_x, render_y = self._interpolate(ghost, current_time)
+            corner_x, corner_y = self._to_screen(render_x, render_y)
+            margin = self.tile_size // 4
+            points = [
+                (corner_x + self.tile_size // 2, corner_y + margin),
+                (
+                    corner_x + self.tile_size - margin,
+                    corner_y + self.tile_size - margin
+                ),
+                (corner_x + margin, corner_y + self.tile_size - margin)
+            ]
+            pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
-        """Return the ghost color."""
-        if ghost.state == GhostState.FRIGHTENED:
-            return (0, 0, 255)
-        if ghost.state == GhostState.RESPAWN:
-            return (255, 255, 255)
-        if ghost.ghost_type == GhostType.BLINKY:
-            return (255, 0, 0)
-        if ghost.ghost_type == GhostType.PINKY:
-            return (255, 105, 180)
-        if ghost.ghost_type == GhostType.INKY:
-            return (0, 255, 255)
-        if ghost.ghost_type == GhostType.CLYDE:
-            return (255, 128, 0)
-        raise ValueError(f"unknown ghost type: {ghost.ghost_type}")
+        """Return the display color of a ghost based on its state and type.
+
+        Args:
+            ghost: The ghost whose color is determined.
+
+        Returns:
+            RGB color tuple.
+        """
+        match ghost.state:
+            case GhostState.FRIGHTENED:
+                return (0, 0, 255)
+            case GhostState.RESPAWN:
+                return (255, 255, 255)
+
+        match ghost.ghost_type:
+            case GhostType.BLINKY:
+                return (255, 0, 0)
+            case GhostType.PINKY:
+                return (255, 105, 180)
+            case GhostType.INKY:
+                return (0, 255, 255)
+            case GhostType.CLYDE:
+                return (255, 128, 0)

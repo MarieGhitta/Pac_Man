@@ -34,9 +34,11 @@ exploration/mazegenerator/  → MODULE EXTERNE — NE PAS MODIFIER
 ## 1. Corrections de bugs
 
 ### 1.1 Seed des niveaux suivants
+
 - [x] `game.py` — `_next_level()` : le seed fixe (`config.seed`) s'applique **uniquement au niveau 1**. Pour les niveaux suivants, passer `None` ou un seed aléatoire.
 
 ### 1.2 Pacgums — logique de remplissage
+
 - [x] `level.py` — `_initialize_pacgums()` : si `pacgum_count < 1` **ou** `pacgum_count > max_disponible`, remplir **toutes** les cellules walkables (sauf coins réservés aux super-pacgums et cellule de départ joueur).
 - [x] Sinon, placer `pacgum_count` pacgums de manière aléatoire parmi les cellules disponibles (comportement actuel conservé).
 - [x] `loader.py` : valeur par défaut `pacgum = 0` (= remplissage complet).
@@ -49,6 +51,7 @@ exploration/mazegenerator/  → MODULE EXTERNE — NE PAS MODIFIER
 > Référence : reverse-engineering de Jamey Pittman (2011) — version 1980 retenue comme référence canonique.
 
 ### 2.1 Ciblage en mode Chase
+
 - [x] **Blinky** (rouge) : cible directe sur la position actuelle de Pac-Man. ✓ à vérifier seulement.
 - [x] **Pinky** (rose) : cible 4 cases dans la direction de déplacement de Pac-Man.
   Overflow historique **conservé** : direction UP → cible (player.x − 4, player.y − 4) au lieu de (player.x, player.y − 4).
@@ -59,11 +62,13 @@ exploration/mazegenerator/  → MODULE EXTERNE — NE PAS MODIFIER
 - [x] **Clyde** (orange) : si distance euclidienne à Pac-Man > 8 cases → cible Pac-Man comme Blinky ; si ≤ 8 → cible son coin scatter.
 
 ### 2.2 Cycle Chase/Scatter (timing original niveau 1)
+
 - [x] Remplacer l'alternance simplifiée par la séquence originale indexée :
   `Scatter 7s → Chase 20s → Scatter 7s → Chase 20s → Scatter 5s → Chase 20s → Scatter 5s → Chase ∞`
 - [x] Implémenter un index de phase (0 à 7) qui avance dans cette séquence.
 
 ### 2.3 Vitesses par état (valeurs originales)
+
 Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles se traduisent en délai entre mouvements dans l'implémentation tile-based actuelle.
 
 | État                  | Niveau 1 | Niveaux 2–4 | Niveaux 5+ |
@@ -79,22 +84,23 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Vitesses adaptees pout fit l'implementation actuelle
 
 ### 2.4 Clarifier `_choose_scatter_direction` vs `_choose_respawn_direction`
+
 - [x] Les deux fonctions sont actuellement identiques dans `ghost.py`. Les différencier :
   - Scatter → cible le coin fixe du fantôme (§ 2.2).
   - Respawn → cible `Level.start_cell.x/Level.start_cell.y` (ghost house de substitution, acceptable sans ghost house dédiée).
-
-
 
 ---
 
 ## 3. Implémentations manquantes
 
 ### 3.1 Timer de niveau (`level_max_time`)
+
 - [ ] `game.py` : tracker le temps écoulé depuis le début du niveau.
 - [ ] Déclencher une mort du joueur si `level_max_time` (secondes) est atteint — une vie perdue, positions réinitialisées.
 - [ ] Afficher le compte à rebours dans le HUD.
 
 ### 3.2 Highscore — système persistant
+
 - [x] Combo score si plusieurs fantomes manges en un pacgum
 - [x] Créer `src/ui/` (manager + modèle).
 - [x] Charger au démarrage depuis `config.highscore_filename`.
@@ -104,7 +110,13 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Conserver le **top 10** des scores, triés par ordre décroissant.
 - [x] Robuste aux erreurs : fichier absent, JSON invalide, permissions.
 
-### 3.3 Écrans de menu
+### 3.3 Écrans de jeu
+
+#### Screen resolution
+- [x] Game starts in fullscreen
+- [x] Mazes fit the screen (80/20 ratio)
+- [x] Dynamic tile, font and padding (this may change later on)
+- [ ] Is dynamic font relevant? See later in the project
 
 #### Title Screen
 - [ ] **Logo** : "PAC-MAN" style original (logo pixel-art statique).
@@ -133,6 +145,7 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [ ] Options : **Reprendre** / **Cheat Mode** / **Menu principal** / **Quitter**.
 
 ### 3.4 Cheat Mode
+
 Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque option est un toggle ou une action :
 
 - [ ] **Invincibility** : toggle — collisions avec ghosts non-frightened désactivées.
@@ -144,6 +157,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 - [ ] Indicateur visuel discret en HUD quand au moins un cheat est actif (ex. "CHEAT" en coin).
 
 ### 3.5 HUD en jeu (refonte renderer)
+
 - [ ] Score.
 - [ ] Vies (icônes Pac-Man miniatures ou chiffre).
 - [ ] Compte à rebours `level_max_time`.
@@ -184,17 +198,20 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 ## 4. Bonus (si temps disponible)
 
 ### 4.1 Son
+
 - [ ] Musique de fond (thème arcade).
 - [ ] Bruitages : manger pacgum, manger super-pacgum, manger fantôme, mort, niveau suivant, victoire.
 - [ ] Contrôle volume / mute.
 Brother DCP-L2627DWE
 
 ### 4.2 Tunnel wraparound
+
 - [ ] `game.py` — `move_player()` : si le joueur sort par le bord gauche/droit, téléporter au bord opposé.
 - [ ] Même logique pour `ghost.py` — `_move()`.
 - [ ] Vérifier la compatibilité avec la structure des bords des mazes générées aléatoirement.
 
 ### 4.3 Multijoueur réseau local
+
 Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale type `192.168.x.x` + port), les autres se connectent en entrant cette adresse.
 
 - [ ] Module réseau à créer (`src/network/`).
@@ -204,11 +221,13 @@ Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale ty
 - [ ] Gestion des déconnexions (joueur fantôme qui quitte → ghost repasse en IA).
 
 ### 4.4 Reskin de sprites
+
 - [ ] Pac-Woman (sprite alternatif).
 - [ ] Sélection de skin depuis le menu principal.
 - [ ] (Optionnel) Mode graphique "moderne" vs "arcade 1980".
 
 ### 4.5 Blinky "Cruise Elroy"
+
 - [ ] Quand le nombre de pacgums restants passe sous un seuil, Blinky ignore le Scatter et accélère.Brother DCP-L2627DWE
 
 ---
@@ -216,16 +235,20 @@ Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale ty
 ## Logs
 
 ### #1 — 2026-08-10 — Analyse initiale
+
 Premier état des lieux post-analyse initiale du codebase. Projet repris en l'état après 3 semaines d'absence, sans modification. Le socle est fonctionnel : chargement config, génération et adaptation du maze, boucle de jeu principale (player, ghosts, collisions, score, vies, enchaînement de niveaux), renderer basique en pygame (murs en lignes, pacgums en cercles, player en cercle jaune, ghosts en triangles colorés). Bugs identifiés : seed identique pour tous les niveaux (doit être aléatoire dès le niveau 2), pacgums en nombre arbitraire limité, `level_max_time` configuré mais non implémenté. Comportements des fantômes approximatifs (Pinky/Inky/Clyde non fidèles à l'original, cycle Chase/Scatter simplifié, vitesses uniformes). Aucun menu, aucun système de highscore, aucun cheat mode, HUD incomplet, pas d'animations. Document de suivi créé.
 
 ### #2 — 2026-08-10 — Clarifications et arbitrages
+
 Décisions actées : pacgum = 0 ou > max → remplissage complet, sinon aléatoire selon valeur. Overflow historique de Pinky/Inky conservé. Vitesses calées sur les valeurs originales par état et par niveau (tableau § 2.4). Wraparound déplacé en bonus. Highscore = top 10. Title screen avec logo statique + animation ghosts/pacman en boucle + menu (Play, Highscores, Cheat Mode, Quit). Cheat mode configurable depuis title screen et pause menu (invincibility, level skip, ghost freeze, extra life, increased speed). Multijoueur bonus = modèle client/serveur TCP avec connexion par IP locale. Ordre d'attaque confirmé : bugs → ghost behaviors → menus & highscore → renderer → bonus.
 
 ### #3 — 2026-08-11 — Bug §1.2 corrigéBrother DCP-L2627DWE
+
 Bug pacgums résolu et testé. `level.py` — `_initialize_pacgums()` : condition `pacgum_count == 0 or pacgum_count > len(available_cells)` → remplissage complet de toutes les cellules walkables disponibles. `loader.py` : default `pacgum` passé à `0`. `config.json` : `"pacgum"` mis à `0`. §1.1 (seed) et §1.2 (pacgums) entièrement soldés.
 Prochain chantier : comportements des fantômes (§2).
 
 ### #4 — 2026-08-13 — §2.1 Chase implémenté, §2.2 soldé, refactors ghost.py
+
 §2.1 entièrement implémenté. Blinky confirmé correct (cible directe). Pinky : 4 cases devant Pac-Man avec overflow UP conservé (player.x − 4, player.y − 4). Inky : calcul vectoriel via _position_ahead(player, 2) doublé depuis Blinky ; helper _position_ahead(n) extrait. Clyde : math.hypot pour distance euclidienne, cible Pac-Man si > 8 cases sinon spawn_x/spawn_y. §2.2 soldé sans modification : _find_corner_cells assigne les coins de manière déterministe par fantôme, spawn_x/spawn_y est déjà correct par construction.
 Refactors et corrections : self.type → self.ghost_type (shadowing builtin). Direction.NONE retiré de direction.py, player.py, game.py. Guard SCATTER en tête de _target_position retiré (court-circuitait le mode CHASE). game.ghost_state init CHASE → SCATTER (désync corrigée). numpy remplacé par math.hypot pour Clyde. _update_ghosts propage la liste ghosts jusqu'à _target_position (requis pour Inky). _ghost_color : dernier if → else.
 Prochain chantier : §2.3 (cycle Chase/Scatter original) et §2.4 (vitesses par état/niveau).
@@ -279,3 +302,18 @@ Deux bugs listés comme ouverts dans le monitoring étaient déjà corrigés dan
 - `ghost_state` non réinitialisé dans `_reset_positions()` → **corrigé** : ligne 322 de `game.py`, `self.ghost_state = GhostState.SCATTER` est bien présent.
 - RESPAWN oscillation → **corrigé** : `ghost.py` lignes 58–62, la sortie du mode RESPAWN est bien conditionnée à la position (`(self.x, self.y) == (level.start_cell.x, level.start_cell.y)`), sans timer.
 Aucune modification de code requise.
+
+### #13 — 2026-08-20 — Refactor renderer + fullscreen
+
+Refactors et améliorations de `renderer.py`.
+**Fullscreen** : passage en `pygame.FULLSCREEN | pygame.SCALED` avec résolution native récupérée via `pygame.display.Info()`. Résolution GNOME mise à 100% (était 125%) — élimine le clignotement au démarrage.
+**Tile size dynamique** : `_TILE_SIZE` cesse d'être une constante globale. Calculé dans `__init__` comme `min(sw * 0.8 // maze_w, sh * 0.8 // maze_h)` pour occuper 80% de l'écran en conservant les proportions. Recalculé dans `_update_window()` si les dimensions du maze changent entre niveaux.
+**Centrage dynamique** : `_PADDING` remplacé par `offset_x`/`offset_y` calculés depuis `screen_width`/`screen_height` et `tile_size`. Le maze est centré à l'écran quelle que soit la résolution.
+**Font dynamique** : `pygame.font.Font(None, self.tile_size)` — taille proportionnelle à la tile.
+**Refactors internes** :
+- `_draw_score()` renommé `_draw_hud()`.
+- `_draw_cell_content()` passe de coordonnées pixel à coordonnées grille — utilise `_to_screen()` comme les autres méthodes.
+- Helpers extraits : `_to_screen(x, y, centered)`, `_interpolate(sprite, current_time)`.
+- `_compute_alpha()` fusionné dans `_interpolate()`.
+- Uniformisation player/ghost : `last_update` et `update_delay` déplacés dans `Player` (étaient dans `Game`). `_draw_player()` reçoit désormais `current_time` et calcule l'alpha en interne, comme `_draw_ghost()`.
+- Docstrings complètes sur toutes les méthodes.

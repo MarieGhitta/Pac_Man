@@ -1,5 +1,6 @@
 """Entry point for the Pac-Man game."""
 
+
 import pygame
 
 from src.config.loader import ConfigLoader
@@ -25,14 +26,17 @@ def main() -> None:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        game.player.next_direction = Direction.UP
-                    elif event.key == pygame.K_RIGHT:
-                        game.player.next_direction = Direction.RIGHT
-                    elif event.key == pygame.K_DOWN:
-                        game.player.next_direction = Direction.DOWN
-                    elif event.key == pygame.K_LEFT:
-                        game.player.next_direction = Direction.LEFT
+                    match event.key:
+                        case pygame.K_UP:
+                            game.player.next_direction = Direction.UP
+                        case pygame.K_RIGHT:
+                            game.player.next_direction = Direction.RIGHT
+                        case pygame.K_DOWN:
+                            game.player.next_direction = Direction.DOWN
+                        case pygame.K_LEFT:
+                            game.player.next_direction = Direction.LEFT
+                        case pygame.K_ESCAPE:
+                            running = False
             game.update()
             renderer.draw(game)
             clock.tick(60)

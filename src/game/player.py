@@ -7,7 +7,9 @@ from src.game.direction import Direction
 class Player:
     """Represent Pac-Man."""
 
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(
+        self, x: int, y: int, last_update: int, update_delay: int
+    ) -> None:
         """Initialize Pac-Man.
 
         Args:
@@ -16,6 +18,8 @@ class Player:
         """
         self.x = x
         self.y = y
+        self.last_update = last_update
+        self.update_delay = update_delay
         self.prev_x: int = x
         self.prev_y: int = y
         self.direction: Direction = Direction.LEFT
