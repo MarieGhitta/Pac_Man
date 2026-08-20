@@ -1,14 +1,16 @@
 """Render the game."""
 
+
 import pygame
-from src.game.game import Game
-from src.game.level import Level
-from src.game.player import Player
-from src.maze.models import Maze, Cell
+
 from src.game.cell_content import CellContent
+from src.game.game import Game
 from src.game.ghost import Ghost
 from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
+from src.game.level import Level
+from src.game.player import Player
+from src.maze.models import Maze, Cell
 
 
 _TILE_SIZE = 84
@@ -54,7 +56,13 @@ class Renderer:
                 self._draw_cell_content(cell, screen_x, screen_y)
 
     def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
-        """Draw the walls of a maze cell."""
+        """Draw the walls of a maze cell.
+
+        Args:
+            cell: The maze cell whose walls are drawn.
+            screen_x: Pixel x-coordinate of the cell's top-left corner.
+            screen_y: Pixel y-coordinate of the cell's top-left corner.
+        """
         if cell.north_wall:
             self._draw_wall(
                 (screen_x, screen_y),
@@ -79,6 +87,12 @@ class Renderer:
     def _draw_wall(
         self, start_pos: tuple[int, int], end_pos: tuple[int, int]
     ) -> None:
+        """Draw a single wall segment as a blue line.
+
+        Args:
+            start_pos: Screen coordinates of the wall's start point.
+            end_pos: Screen coordinates of the wall's end point.
+        """
         pygame.draw.line(self.screen, (0, 0, 255), start_pos, end_pos, 3)
 
     def _draw_cell_content(self, cell: Cell,
