@@ -1,8 +1,9 @@
 """Abstract base class for game screens."""
 
 
-import pygame
 from abc import ABC, abstractmethod
+
+import pygame
 
 
 class Screen(ABC):
