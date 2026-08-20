@@ -39,6 +39,8 @@ def main() -> None:
             if screen_state == "title":
                 title_screen.update(current_time)
                 title_screen.draw(surface)
+                if title_screen.next_screen == "quit":
+                    running = False
                 # elif event.type == pygame.KEYDOWN:
                 #     match event.key:
                 #         case pygame.K_UP:

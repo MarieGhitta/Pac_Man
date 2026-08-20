@@ -62,7 +62,7 @@ class TitleScreen(Screen):
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
         self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.height // 16
+            "assets/fonts/PressStart2P-Regular.ttf", self.height // 32
         )
         self.menu_items: list[str] = [
             "Play", "Highscores", "Cheat Mode", "Quit"
@@ -75,7 +75,19 @@ class TitleScreen(Screen):
         Args:
             event: The pygame event to handle (key press, QUIT, etc.).
         """
-        pass
+        if event.type == pygame.KEYDOWN:
+            match event.key:
+                # case pygame.K_UP:
+                #     game.player.next_direction = Direction.UP
+                # case pygame.K_RIGHT:
+                #     game.player.next_direction = Direction.RIGHT
+                # case pygame.K_DOWN:
+                #     game.player.next_direction = Direction.DOWN
+                # case pygame.K_LEFT:
+                #     game.player.next_direction = Direction.LEFT
+                case pygame.K_ESCAPE:
+                    self.next_screen = "quit"
+
 
     def update(self, current_time: int) -> None:
         """Advance the screen's internal state.
@@ -92,6 +104,17 @@ class TitleScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         self.surface.fill((0, 0, 0))
+
         logo = self.title_font.render("Pac-Man", True, (255, 191, 0))
         logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
         surface.blit(logo, logo_rect)
+
+        line_height = self.font.get_height() * 1.5
+        total_height = len(self.menu_items) * line_height
+        menu_start_y = self.height * 3 // 4 - total_height // 2
+        for i, el in enumerate(self.menu_items):
+            sub = self.font.render(el, True, (255, 255, 255))
+            sub_rect = sub.get_rect(
+                center=(self.width // 2, menu_start_y + i * line_height)
+            )
+            surface.blit(sub, sub_rect)
