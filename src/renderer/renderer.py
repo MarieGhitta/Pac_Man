@@ -23,13 +23,21 @@ class Renderer:
 
     def __init__(self, level: Level) -> None:
         """Initialize the renderer."""
-        window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
-        window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((window_width, window_height))
-        pygame.display.set_caption("Pac-Man")
-        self.font = pygame.font.Font(None, _FONT_SIZE)
+        # window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
+        # window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.screen_width = self.screen.get_width()
+        self.screen_height = self.screen.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
+        self.offset_x = (
+            (self.screen_width - self.maze_width * _TILE_SIZE) // 2
+        )
+        self.offset_y = (
+            (self.screen_height - self.maze_height * _TILE_SIZE) // 2
+        )
+        pygame.display.set_caption("Pac-Man")
+        self.font = pygame.font.Font(None, _FONT_SIZE)
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
