@@ -58,8 +58,8 @@ class Renderer:
         """Draw the maze."""
         for row in maze.cells:
             for cell in row:
-                screen_x = _PADDING + cell.x * _TILE_SIZE
-                screen_y = _PADDING + cell.y * _TILE_SIZE
+                screen_x = self.offset_x + cell.x * _TILE_SIZE
+                screen_y = self.offset_y + cell.y * _TILE_SIZE
                 self._draw_walls(cell, screen_x, screen_y)
                 self._draw_cell_content(cell, screen_x, screen_y)
 
@@ -103,25 +103,36 @@ class Renderer:
         """
         pygame.draw.line(self.screen, (0, 0, 255), start_pos, end_pos, 3)
 
-    def _draw_cell_content(self, cell: Cell,
-                           screen_x: int, screen_y: int) -> None:
-        """Draw the content of a maze cell."""
-        center = (screen_x + _TILE_SIZE // 2,
-                  screen_y + _TILE_SIZE // 2)
-        if cell.content == CellContent.PACGUM:
-            pygame.draw.circle(
-                self.screen,
-                (255, 255, 255),
-                center,
-                _TILE_SIZE // 8,
-            )
-        elif cell.content == CellContent.SUPER_PACGUM:
-            pygame.draw.circle(
-                self.screen,
-                (255, 255, 255),
-                center,
-                _TILE_SIZE // 4,
-            )
+    def _draw_cell_content(
+        self, cell: Cell, screen_x: int, screen_y: int
+    ) -> None:
+        """Draw the content of a maze cell.
+ 
+        Args:
+            cell: The maze cell whose content is drawn.
+            screen_x: Pixel x-coordinate of the cell's top-left corner.
+            screen_y: Pixel y-coordinate of the cell's top-left corner.
+        """
+        center = (screen_x + _TILE_SIZE // 2, screen_y + _TILE_SIZE // 2)
+        match cell.content:
+            case CellContent.PACGUM:
+                self._draw_circle(center, 8)
+            case CellContent.SUPER_PACGUM:
+                self._draw_circle(center, 4)
+
+    def _draw_circle(self, center: tuple[int, int], size: int) -> None:
+        """Draw a white filled circle on the screen.
+ 
+        Args:
+            center: Pixel coordinates of the circle's center.
+            size: Divisor applied to _TILE_SIZE to compute the radius.
+        """
+        pygame.draw.circle(
+            self.screen,
+            (255, 255, 255),
+            center,
+            _TILE_SIZE // size,
+        )
 
     def _draw_player(self, player: Player, alpha: float) -> None:
         """Draw the player.
@@ -132,8 +143,8 @@ class Renderer:
         """
         render_x = player.prev_x + (player.x - player.prev_x) * alpha
         render_y = player.prev_y + (player.y - player.prev_y) * alpha
-        center_x = int(_PADDING + render_x * _TILE_SIZE + _TILE_SIZE // 2)
-        center_y = int(_PADDING + render_y * _TILE_SIZE + _TILE_SIZE // 2)
+        center_x = int(self.offset_x + render_x * _TILE_SIZE + _TILE_SIZE // 2)
+        center_y = int(self.offset_y + render_y * _TILE_SIZE + _TILE_SIZE // 2)
         pygame.draw.circle(
             self.screen,
             (255, 255, 0),
@@ -148,25 +159,32 @@ class Renderer:
             True,
             (255, 255, 255)
         )
-        self.screen.blit(score_text, (_PADDING, 10))
+        self.screen.blit(score_text, (self.offset_x, 10))
         lives_text = self.font.render(
             f"Lives: {game.lives}",
             True,
             (255, 255, 255)
         )
-        self.screen.blit(lives_text, (self.screen.get_width() -
-                                      lives_text.get_width() - _PADDING, 10))
+        self.screen.blit(
+            lives_text,
+            (
+                self.screen_width - lives_text.get_width() - self.offset_x,
+                10
+            )
+        )
 
     def _update_window(self, level: Level) -> None:
         """Resize the window if the level dimensions changed."""
-        if (level.maze.width == self.maze_width
-           and level.maze.height == self.maze_height):
+        if (
+            level.maze.width == self.maze_width
+            and level.maze.height == self.maze_height
+        ):
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        width = self.maze_width * _TILE_SIZE + 2 * _PADDING
-        height = self.maze_height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((width, height))
+        # width = self.maze_width * _TILE_SIZE + 2 * self.offset_x
+        # height = self.maze_height * _TILE_SIZE + 2 * self.offset_y
+        # self.screen = pygame.display.set_mode((width, height))
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts."""
@@ -197,16 +215,18 @@ class Renderer:
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the ghost color."""
-        if ghost.state == GhostState.FRIGHTENED:
-            return (0, 0, 255)
-        if ghost.state == GhostState.RESPAWN:
-            return (255, 255, 255)
-        if ghost.ghost_type == GhostType.BLINKY:
-            return (255, 0, 0)
-        if ghost.ghost_type == GhostType.PINKY:
-            return (255, 105, 180)
-        if ghost.ghost_type == GhostType.INKY:
-            return (0, 255, 255)
-        if ghost.ghost_type == GhostType.CLYDE:
-            return (255, 128, 0)
-        raise ValueError(f"unknown ghost type: {ghost.ghost_type}")
+        match ghost.state:
+            case GhostState.FRIGHTENED:
+                return (0, 0, 255)
+            case GhostState.RESPAWN:
+                return (255, 255, 255)
+
+        match ghost.ghost_type: 
+            case GhostType.BLINKY:
+                return (255, 0, 0)
+            case GhostType.PINKY:
+                return (255, 105, 180)
+            case GhostType.INKY:
+                return (0, 255, 255)
+            case GhostType.CLYDE:
+                return (255, 128, 0)
