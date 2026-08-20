@@ -1,5 +1,6 @@
 """Entry point for the Pac-Man game."""
 
+
 import pygame
 
 from src.config.loader import ConfigLoader
