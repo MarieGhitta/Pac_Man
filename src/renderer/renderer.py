@@ -159,22 +159,23 @@ class Renderer:
             True,
             (255, 255, 255)
         )
-        self.screen.blit(score_text, (self.offset_x, 10))
         lives_text = self.font.render(
             f"Lives: {game.lives}",
             True,
             (255, 255, 255)
         )
+        self.screen.blit(score_text, (self.offset_x, self.offset_y - 80))
         self.screen.blit(
             lives_text,
             (
                 self.screen_width - lives_text.get_width() - self.offset_x,
-                10
+                self.offset_y - 80
             )
         )
 
     def _update_window(self, level: Level) -> None:
         """Resize the window if the level dimensions changed."""
+        print(f"maze: {level.maze.width}x{level.maze.height} | stored: {self.maze_width}x{self.maze_height}")
         if (
             level.maze.width == self.maze_width
             and level.maze.height == self.maze_height
@@ -182,9 +183,9 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        # width = self.maze_width * _TILE_SIZE + 2 * self.offset_x
-        # height = self.maze_height * _TILE_SIZE + 2 * self.offset_y
-        # self.screen = pygame.display.set_mode((width, height))
+        self.offset_x = (self.screen_width - self.maze_width * _TILE_SIZE) // 2
+        self.offset_y = (self.screen_height - self.maze_height * _TILE_SIZE) // 2
+
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts."""
