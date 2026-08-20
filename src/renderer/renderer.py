@@ -231,6 +231,10 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
+        self.tile_size: int = min(
+            int(self.screen_width * 0.8) // self.maze_width,
+            int(self.screen_height * 0.8) // self.maze_height
+        )
         self.offset_x = (
             (self.screen_width - self.maze_width * self.tile_size) // 2
         )
