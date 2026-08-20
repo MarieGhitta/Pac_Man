@@ -18,7 +18,7 @@ class Renderer:
 
     def __init__(self, level: Level) -> None:
         """Initialize the renderer and create the fullscreen window.
- 
+
         Args:
             level: The initial game level.
         """
@@ -46,7 +46,7 @@ class Renderer:
 
     def draw(self, game: Game) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
- 
+
         Args:
             game: The current game state.
         """
@@ -61,7 +61,7 @@ class Renderer:
 
     def _draw_maze(self, maze: Maze) -> None:
         """Draw all maze cells, including walls and cell contents.
- 
+
         Args:
             maze: The maze to draw.
         """
@@ -74,7 +74,7 @@ class Renderer:
 
     def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
         """Draw the walls of a maze cell.
- 
+
         Args:
             cell: The maze cell whose walls are drawn.
             screen_x: Pixel x-coordinate of the cell's top-left corner.
@@ -134,9 +134,10 @@ class Renderer:
                     (center_x, center_y),
                     self.tile_size // 4,
                 )
+
     def _draw_player(self, player: Player, current_time: int) -> None:
         """Draw the player at its interpolated position.
- 
+
         Args:
             player: The player to draw.
             current_time: Current time in milliseconds for interpolation.
@@ -154,12 +155,12 @@ class Renderer:
         self, x: float, y: float, centered: bool = False
     ) -> tuple[int, int]:
         """Convert grid coordinates to screen pixel coordinates.
- 
+
         Args:
             x: Horizontal grid coordinate.
             y: Vertical grid coordinate.
             centered: If True, offset by half a tile to target the tile center.
- 
+
         Returns:
             Pixel coordinates on screen.
         """
@@ -173,11 +174,11 @@ class Renderer:
         self, sprite: Player | Ghost, current_time: int
     ) -> tuple[float, float]:
         """Compute the interpolated grid position of a sprite.
- 
+
         Args:
             sprite: The player or ghost to interpolate.
             current_time: Current time in milliseconds.
- 
+
         Returns:
             Interpolated (x, y) grid coordinates as floats.
         """
@@ -191,7 +192,7 @@ class Renderer:
 
     def _draw_hud(self, game: Game) -> None:
         """Draw the HUD: score on the left, lives on the right.
- 
+
         Args:
             game: The current game state.
         """
@@ -219,7 +220,7 @@ class Renderer:
 
     def _update_window(self, level: Level) -> None:
         """Recalculate offsets if the level dimensions changed.
- 
+
         Args:
             level: The current game level.
         """
@@ -230,12 +231,16 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.offset_x = (self.screen_width - self.maze_width * self.tile_size) // 2
-        self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
+        self.offset_x = (
+            (self.screen_width - self.maze_width * self.tile_size) // 2
+        )
+        self.offset_y = (
+            (self.screen_height - self.maze_height * self.tile_size) // 2
+        )
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts.
- 
+
         Args:
             ghosts: List of ghosts to draw.
             current_time: Current time in milliseconds for interpolation.
@@ -256,10 +261,10 @@ class Renderer:
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the display color of a ghost based on its state and type.
- 
+
         Args:
             ghost: The ghost whose color is determined.
- 
+
         Returns:
             RGB color tuple.
         """
