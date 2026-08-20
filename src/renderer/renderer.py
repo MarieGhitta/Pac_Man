@@ -16,7 +16,7 @@ from src.maze.models import Maze, Cell
 class Renderer:
     """Draw the game."""
 
-    def __init__(self, level: Level, surface: pygame.Surface) -> None:
+    def __init__(self, level: Level, surface: pygame.surface.Surface) -> None:
         """Initialize the renderer and create the fullscreen window.
 
         Args:
