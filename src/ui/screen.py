@@ -58,8 +58,12 @@ class TitleScreen(Screen):
         self.surface = surface
         self.width: int = surface.get_width()
         self.height: int = surface.get_height()
-        self.title_font: pygame.font.Font = pygame.font.Font(None, 96)
-        self.font: pygame.font.Font = pygame.font.Font(None, 48)
+        self.title_font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/CrackMan.ttf", self.height // 8
+        )
+        self.font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.height // 16
+        )
         self.menu_items: list[str] = [
             "Play", "Highscores", "Cheat Mode", "Quit"
         ]
@@ -88,6 +92,6 @@ class TitleScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         self.surface.fill((0, 0, 0))
-        logo = self.title_font.render("Pac-Man", True, (255, 255, 255))
+        logo = self.title_font.render("Pac-Man", True, (255, 191, 0))
         logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
         surface.blit(logo, logo_rect)
