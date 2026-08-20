@@ -79,7 +79,7 @@ class Renderer:
         if cell.east_wall:
             self._draw_wall(
                 (screen_x + _TILE_SIZE, screen_y),
-                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE) 
+                (screen_x + _TILE_SIZE, screen_y + _TILE_SIZE)
             )
         if cell.south_wall:
             self._draw_wall(
@@ -107,7 +107,7 @@ class Renderer:
         self, cell: Cell, screen_x: int, screen_y: int
     ) -> None:
         """Draw the content of a maze cell.
- 
+
         Args:
             cell: The maze cell whose content is drawn.
             screen_x: Pixel x-coordinate of the cell's top-left corner.
@@ -122,7 +122,7 @@ class Renderer:
 
     def _draw_circle(self, center: tuple[int, int], size: int) -> None:
         """Draw a white filled circle on the screen.
- 
+
         Args:
             center: Pixel coordinates of the circle's center.
             size: Divisor applied to _TILE_SIZE to compute the radius.
@@ -221,7 +221,7 @@ class Renderer:
             case GhostState.RESPAWN:
                 return (255, 255, 255)
 
-        match ghost.ghost_type: 
+        match ghost.ghost_type:
             case GhostType.BLINKY:
                 return (255, 0, 0)
             case GhostType.PINKY:
