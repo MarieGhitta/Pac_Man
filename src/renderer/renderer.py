@@ -17,7 +17,11 @@ class Renderer:
     """Draw the game."""
 
     def __init__(self, level: Level) -> None:
-        """Initialize the renderer."""
+        """Initialize the renderer and create the fullscreen window.
+ 
+        Args:
+            level: The initial game level.
+        """
         info = pygame.display.Info()
         self.screen_width = info.current_w
         self.screen_height = info.current_h
@@ -41,7 +45,11 @@ class Renderer:
         self.font = pygame.font.Font(None, self.tile_size)
 
     def draw(self, game: Game) -> None:
-        """Draw the current game state."""
+        """Draw the current game state: maze, player, ghosts, and HUD.
+ 
+        Args:
+            game: The current game state.
+        """
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
@@ -52,7 +60,11 @@ class Renderer:
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
-        """Draw the maze."""
+        """Draw all maze cells, including walls and cell contents.
+ 
+        Args:
+            maze: The maze to draw.
+        """
         for row in maze.cells:
             for cell in row:
                 screen_x = self.offset_x + cell.x * self.tile_size
@@ -62,7 +74,7 @@ class Renderer:
 
     def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
         """Draw the walls of a maze cell.
-
+ 
         Args:
             cell: The maze cell whose walls are drawn.
             screen_x: Pixel x-coordinate of the cell's top-left corner.
@@ -123,11 +135,11 @@ class Renderer:
                     self.tile_size // 4,
                 )
     def _draw_player(self, player: Player, current_time: int) -> None:
-        """Draw the player.
-
+        """Draw the player at its interpolated position.
+ 
         Args:
             player: The player to draw.
-            alpha: Interpolation factor between previous and current position.
+            current_time: Current time in milliseconds for interpolation.
         """
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y, centered=True)
@@ -141,6 +153,16 @@ class Renderer:
     def _to_screen(
         self, x: float, y: float, centered: bool = False
     ) -> tuple[int, int]:
+        """Convert grid coordinates to screen pixel coordinates.
+ 
+        Args:
+            x: Horizontal grid coordinate.
+            y: Vertical grid coordinate.
+            centered: If True, offset by half a tile to target the tile center.
+ 
+        Returns:
+            Pixel coordinates on screen.
+        """
         half = self.tile_size // 2 if centered else 0
         return (
             int(self.offset_x + x * self.tile_size + half),
@@ -150,6 +172,15 @@ class Renderer:
     def _interpolate(
         self, sprite: Player | Ghost, current_time: int
     ) -> tuple[float, float]:
+        """Compute the interpolated grid position of a sprite.
+ 
+        Args:
+            sprite: The player or ghost to interpolate.
+            current_time: Current time in milliseconds.
+ 
+        Returns:
+            Interpolated (x, y) grid coordinates as floats.
+        """
         alpha = min(
             1.0, (current_time - sprite.last_update) / sprite.update_delay
         )
@@ -159,7 +190,11 @@ class Renderer:
         )
 
     def _draw_hud(self, game: Game) -> None:
-        """Draw the current score."""
+        """Draw the HUD: score on the left, lives on the right.
+ 
+        Args:
+            game: The current game state.
+        """
         score_text = self.font.render(
             f'Score: {game.score}',
             True,
@@ -183,7 +218,11 @@ class Renderer:
         )
 
     def _update_window(self, level: Level) -> None:
-        """Resize the window if the level dimensions changed."""
+        """Recalculate offsets if the level dimensions changed.
+ 
+        Args:
+            level: The current game level.
+        """
         if (
             level.maze.width == self.maze_width
             and level.maze.height == self.maze_height
@@ -195,29 +234,35 @@ class Renderer:
         self.offset_y = (self.screen_height - self.maze_height * self.tile_size) // 2
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
-        """Draw all ghosts."""
-        for ghost in ghosts:
-            self._draw_ghost(ghost, current_time)
-
-    def _draw_ghost(self, ghost: Ghost, current_time: int) -> None:
-        """Draw a ghost.
-
+        """Draw all ghosts.
+ 
         Args:
-            ghost: The ghost to draw.
-            current_time: Current time in milliseconds for alpha computation.
+            ghosts: List of ghosts to draw.
+            current_time: Current time in milliseconds for interpolation.
         """
-        render_x, render_y = self._interpolate(ghost, current_time)
-        corner_x, corner_y = self._to_screen(render_x, render_y)
-        margin = self.tile_size // 4
-        points = [
-            (corner_x + self.tile_size // 2, corner_y + margin),
-            (corner_x + self.tile_size - margin, corner_y + self.tile_size - margin),
-            (corner_x + margin, corner_y + self.tile_size - margin)
-        ]
-        pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
+        for ghost in ghosts:
+            render_x, render_y = self._interpolate(ghost, current_time)
+            corner_x, corner_y = self._to_screen(render_x, render_y)
+            margin = self.tile_size // 4
+            points = [
+                (corner_x + self.tile_size // 2, corner_y + margin),
+                (
+                    corner_x + self.tile_size - margin,
+                    corner_y + self.tile_size - margin
+                ),
+                (corner_x + margin, corner_y + self.tile_size - margin)
+            ]
+            pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
-        """Return the ghost color."""
+        """Return the display color of a ghost based on its state and type.
+ 
+        Args:
+            ghost: The ghost whose color is determined.
+ 
+        Returns:
+            RGB color tuple.
+        """
         match ghost.state:
             case GhostState.FRIGHTENED:
                 return (0, 0, 255)
