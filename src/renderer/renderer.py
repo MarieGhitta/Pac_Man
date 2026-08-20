@@ -23,24 +23,25 @@ class Renderer:
 
     def __init__(self, level: Level) -> None:
         """Initialize the renderer."""
-        # window_width = level.maze.width * _TILE_SIZE + 2 * _PADDING
-        # window_height = level.maze.height * _TILE_SIZE + 2 * _PADDING
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        self.screen_width = self.screen.get_width()
-        self.screen_height = self.screen.get_height()
-        self.maze_width = level.maze.width
-        self.maze_height = level.maze.height
-        self.offset_x = (
-            (self.screen_width - self.maze_width * _TILE_SIZE) // 2
+        info = pygame.display.Info()
+        self.screen = pygame.display.set_mode(
+            (info.current_w, info.current_h),
+            pygame.FULLSCREEN | pygame.SCALED
         )
-        self.offset_y = (
-            (self.screen_height - self.maze_height * _TILE_SIZE) // 2
-        )
+        self.screen_width = info.current_w
+        self.screen_height = info.current_h
         pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, _FONT_SIZE)
+        self.maze_width = level.maze.width
+        self.maze_height = level.maze.height
+        self.offset_x = (self.screen_width - self.maze_width * _TILE_SIZE) // 2
+        self.offset_y = (self.screen_height - self.maze_height * _TILE_SIZE) // 2
 
     def draw(self, game: Game) -> None:
         """Draw the current game state."""
+        sw, sh = self.screen.get_size()
+        self.offset_x = (sw - self.maze_width * _TILE_SIZE) // 2
+        self.offset_y = (sh - self.maze_height * _TILE_SIZE) // 2
         self._update_window(game.level)
         self.screen.fill((0, 0, 0))
         self._draw_maze(game.level.maze)
@@ -175,7 +176,6 @@ class Renderer:
 
     def _update_window(self, level: Level) -> None:
         """Resize the window if the level dimensions changed."""
-        print(f"maze: {level.maze.width}x{level.maze.height} | stored: {self.maze_width}x{self.maze_height}")
         if (
             level.maze.width == self.maze_width
             and level.maze.height == self.maze_height
