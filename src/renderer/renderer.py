@@ -27,7 +27,7 @@ class Renderer:
         )
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size = min(
+        self.tile_size: int = min(
             int(self.screen_width * 0.8) // self.maze_width,
             int(self.screen_height * 0.8) // self.maze_height
         )
@@ -58,7 +58,7 @@ class Renderer:
                 screen_x = self.offset_x + cell.x * self.tile_size
                 screen_y = self.offset_y + cell.y * self.tile_size
                 self._draw_walls(cell, screen_x, screen_y)
-                self._draw_cell_content(cell, screen_x, screen_y)
+                self._draw_cell_content(cell)
 
     def _draw_walls(self, cell: Cell, screen_x: int, screen_y: int) -> None:
         """Draw the walls of a maze cell.
@@ -100,39 +100,28 @@ class Renderer:
         """
         pygame.draw.line(self.screen, (0, 0, 255), start_pos, end_pos, 3)
 
-    def _draw_cell_content(
-        self, cell: Cell, screen_x: int, screen_y: int
-    ) -> None:
+    def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
 
         Args:
             cell: The maze cell whose content is drawn.
-            screen_x: Pixel x-coordinate of the cell's top-left corner.
-            screen_y: Pixel y-coordinate of the cell's top-left corner.
         """
-        center = (
-            screen_x + self.tile_size // 2, screen_y + self.tile_size // 2
-        )
+        center_x, center_y = self._to_screen(cell.x, cell.y, centered=True)
         match cell.content:
             case CellContent.PACGUM:
-                self._draw_circle(center, 8)
+                pygame.draw.circle(
+                    self.screen,
+                    (255, 255, 255),
+                    (center_x, center_y),
+                    self.tile_size // 8,
+                )
             case CellContent.SUPER_PACGUM:
-                self._draw_circle(center, 4)
-
-    def _draw_circle(self, center: tuple[int, int], size: int) -> None:
-        """Draw a white filled circle on the screen.
-
-        Args:
-            center: Pixel coordinates of the circle's center.
-            size: Divisor applied to self.tile_size to compute the radius.
-        """
-        pygame.draw.circle(
-            self.screen,
-            (255, 255, 255),
-            center,
-            self.tile_size // size,
-        )
-
+                pygame.draw.circle(
+                    self.screen,
+                    (255, 255, 255),
+                    (center_x, center_y),
+                    self.tile_size // 4,
+                )
     def _draw_player(self, player: Player, current_time: int) -> None:
         """Draw the player.
 
@@ -140,14 +129,8 @@ class Renderer:
             player: The player to draw.
             alpha: Interpolation factor between previous and current position.
         """
-        alpha = self._compute_alpha(
-            current_time, player.last_update, player.update_delay
-        )
-        render_x, render_y = self._interpolate(
-            player.prev_x, player.prev_y, player.x, player.y, alpha
-        )
-        center_x = int(self.offset_x + render_x * self.tile_size + self.tile_size // 2)
-        center_y = int(self.offset_y + render_y * self.tile_size + self.tile_size // 2)
+        render_x, render_y = self._interpolate(player, current_time)
+        center_x, center_y = self._to_screen(render_x, render_y, centered=True)
         pygame.draw.circle(
             self.screen,
             (255, 255, 0),
@@ -155,22 +138,24 @@ class Renderer:
             self.tile_size // 3,
         )
 
-    def _compute_alpha(
-        self, current_time: int, last_update: int, update_delay: int
-    ) -> float:
-        return min(1.0, (current_time - last_update) / update_delay)
+    def _to_screen(
+        self, x: float, y: float, centered: bool = False
+    ) -> tuple[int, int]:
+        half = self.tile_size // 2 if centered else 0
+        return (
+            int(self.offset_x + x * self.tile_size + half),
+            int(self.offset_y + y * self.tile_size + half)
+        )
 
     def _interpolate(
-            self,
-            prev_x: int,
-            prev_y: int,
-            current_x: int,
-            current_y: int,
-            alpha: float
+        self, sprite: Player | Ghost, current_time: int
     ) -> tuple[float, float]:
+        alpha = min(
+            1.0, (current_time - sprite.last_update) / sprite.update_delay
+        )
         return (
-            prev_x + (current_x - prev_x) * alpha,
-            prev_y + (current_y - prev_y) * alpha
+            sprite.prev_x + (sprite.x - sprite.prev_x) * alpha,
+            sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
         )
 
     def _draw_hud(self, game: Game) -> None:
@@ -221,19 +206,13 @@ class Renderer:
             ghost: The ghost to draw.
             current_time: Current time in milliseconds for alpha computation.
         """
-        alpha = self._compute_alpha(
-            current_time, ghost.last_update, ghost.update_delay
-        )
-        render_x, render_y = self._interpolate(
-            ghost.prev_x, ghost.prev_y, ghost.x, ghost.y, alpha
-        )
-        screen_x = int(self.offset_x + render_x * self.tile_size)
-        screen_y = int(self.offset_y + render_y * self.tile_size)
+        render_x, render_y = self._interpolate(ghost, current_time)
+        corner_x, corner_y = self._to_screen(render_x, render_y)
         margin = self.tile_size // 4
         points = [
-            (screen_x + self.tile_size // 2, screen_y + margin),
-            (screen_x + self.tile_size - margin, screen_y + self.tile_size - margin),
-            (screen_x + margin, screen_y + self.tile_size - margin)
+            (corner_x + self.tile_size // 2, corner_y + margin),
+            (corner_x + self.tile_size - margin, corner_y + self.tile_size - margin),
+            (corner_x + margin, corner_y + self.tile_size - margin)
         ]
         pygame.draw.polygon(self.screen, self._ghost_color(ghost), points)
 
