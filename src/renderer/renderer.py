@@ -51,7 +51,7 @@ class Renderer:
         )
         self._draw_player(game.player, player_alpha)
         self._draw_ghosts(game.ghosts, current_time)
-        self._draw_score(game)
+        self._draw_hud(game)
         pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
@@ -152,7 +152,7 @@ class Renderer:
             _TILE_SIZE // 3,
         )
 
-    def _draw_score(self, game: Game) -> None:
+    def _draw_hud(self, game: Game) -> None:
         """Draw the current score."""
         score_text = self.font.render(
             f'Score: {game.score}',
