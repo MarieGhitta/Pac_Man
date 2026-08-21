@@ -7,6 +7,7 @@ from src.config.loader import ConfigLoader
 from src.game.direction import Direction
 from src.game.game import Game
 from src.renderer.renderer import Renderer
+from src.ui.end_screen import EndScreen
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.pause_menu import PauseMenu
@@ -27,6 +28,7 @@ def main() -> None:
         game = Game(config)
         screen_state = "title"
         title_screen = TitleScreen(surface)
+        end_screen = EndScreen(surface)
         pause_menu = PauseMenu(surface)
         renderer = Renderer(game.level, surface)
         clock = pygame.time.Clock()
@@ -60,6 +62,8 @@ def main() -> None:
                                     running = False
                     case "pause":
                         pause_menu.handle_event(event)
+                    case "lose":
+                        end_screen.handle_event(event)
 
             match screen_state:
                 case "title":
@@ -80,6 +84,8 @@ def main() -> None:
                             running = False
                 case "game":
                     game.update()
+                    if game.game_over:
+                        screen_state = "lose"
                     renderer.draw(game)
                 case "pause":
                     pause_menu.update(current_time)
@@ -97,6 +103,9 @@ def main() -> None:
                             case "quit":
                                 running = False
                         pause_menu.next_screen = None
+                case "lose":
+                    end_screen.update(current_time)
+                    end_screen.draw()
 
             pygame.display.flip()
             clock.tick(60)
