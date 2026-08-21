@@ -345,3 +345,13 @@ class Game:
             ghost.frightened_until = (
                 current_time + _GHOST_FRIGHTENED_DELAY[lvl_idx]
             )
+
+    def on_pause(self, current_time: int) -> None:
+        self._pause_start = current_time
+
+    def on_resume(self, current_time: int) -> None:
+        duration = current_time - self._pause_start
+        self.last_state_change += duration
+        self.player.last_update += duration
+        for ghost in self.ghosts:
+            ghost.last_update += duration

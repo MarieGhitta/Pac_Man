@@ -52,8 +52,8 @@ def main() -> None:
                                 case pygame.K_LEFT:
                                     game.player.next_direction = Direction.LEFT
                                 case pygame.K_ESCAPE:
-                                    pause_menu.next_screen = None
                                     screen_state = "pause"
+                                    game.on_pause(current_time)
                                 case pygame.K_Q:
                                     running = False
                     case "pause":
@@ -80,6 +80,8 @@ def main() -> None:
                     pause_menu.draw(surface)
                     match pause_menu.next_screen:
                         case "game":
+                            game.on_resume(current_time)
+                            pause_menu.next_screen = None
                             screen_state = "game"
                         case "title":
                             screen_state = "title"
