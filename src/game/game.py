@@ -347,9 +347,22 @@ class Game:
             )
 
     def on_pause(self, current_time: int) -> None:
+        """Record the time at which the game was paused.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         self._pause_start = current_time
 
     def on_resume(self, current_time: int) -> None:
+        """Shift all timestamps forward by the pause duration.
+
+        Prevents the game loop from treating the pause as elapsed
+        play time, ensuring timers and interpolation resume seamlessly.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         duration = current_time - self._pause_start
         self.last_state_change += duration
         self.player.last_update += duration

@@ -56,7 +56,7 @@ class PauseMenu(Screen):
         Args:
             current_time: Current time in milliseconds (unused).
         """
-        pass
+        return super().update(current_time)
 
     def draw(self) -> None:
         """Render the overlay and menu items onto the surface."""
@@ -65,7 +65,7 @@ class PauseMenu(Screen):
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height // 2 - total_height // 3
-        self._draw_menu(line_height, menu_start_y)
+        self._draw_menu(self.font, line_height, menu_start_y)
 
     def _draw_overlay(self) -> pygame.surface.Surface:
         """Create a semi-transparent black overlay covering the full surface.

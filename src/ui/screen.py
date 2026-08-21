@@ -21,10 +21,6 @@ class Screen(ABC):
         self.surface = surface
         self.width: int = surface.get_width()
         self.height: int = surface.get_height()
-        self.font_size: int = self.height // 32
-        self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
-        )
         self.menu_items: list[str] = []
         self.menu_index: int = 0
 
@@ -67,16 +63,34 @@ class Screen(ABC):
         """
         pass
 
-    def _draw_menu(self, line_height: int, menu_start_y: int) -> None:
-        """Render all menu items centered horizontally, highlighting the selected one.
+    def _draw_logo(
+        self,
+        text: str,
+        title_font: pygame.font.Font,
+        color: tuple[int, int, int] | tuple[int, int, int, int],
+        pos: tuple[int, int],
+        alpha: int = 255
+    ) -> None:
+        logo = title_font.render(text, True, color)
+        logo_rect = logo.get_rect(
+            center=(self.width // pos[0], self.height // pos[1])
+        )
+        logo.set_alpha(alpha)
+        self.surface.blit(logo, logo_rect)
+
+    def _draw_menu(
+        self, font: pygame.font.Font, line_height: int, menu_start_y: int
+    ) -> None:
+        """Render menu items centered horizontally, highlight the selected one.
 
         Args:
+            font: The font used for the menu.
             line_height: Vertical spacing between items in pixels.
             menu_start_y: Y coordinate of the first menu item center.
         """
         for i, el in enumerate(self.menu_items):
             color = Color.RED if i == self.menu_index else Color.WHITE
-            sub = self.font.render(el, True, color)
+            sub = font.render(el, True, color)
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)
             )

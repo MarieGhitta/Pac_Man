@@ -7,6 +7,7 @@ from src.config.loader import ConfigLoader
 from src.game.direction import Direction
 from src.game.game import Game
 from src.renderer.renderer import Renderer
+from src.ui.end_screen import EndScreen
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.pause_menu import PauseMenu
@@ -27,6 +28,7 @@ def main() -> None:
         game = Game(config)
         screen_state = "title"
         title_screen = TitleScreen(surface)
+        end_screen: EndScreen | None = None
         pause_menu = PauseMenu(surface)
         renderer = Renderer(game.level, surface)
         clock = pygame.time.Clock()
@@ -60,6 +62,9 @@ def main() -> None:
                                     running = False
                     case "pause":
                         pause_menu.handle_event(event)
+                    case "lose":
+                        if end_screen is not None:
+                            end_screen.handle_event(event)
 
             match screen_state:
                 case "title":
@@ -80,6 +85,9 @@ def main() -> None:
                             running = False
                 case "game":
                     game.update()
+                    if game.game_over:
+                        end_screen = EndScreen(surface, current_time)
+                        screen_state = "lose"
                     renderer.draw(game)
                 case "pause":
                     pause_menu.update(current_time)
@@ -97,6 +105,15 @@ def main() -> None:
                             case "quit":
                                 running = False
                         pause_menu.next_screen = None
+                case "lose":
+                    if end_screen is not None:
+                        end_screen.update(current_time)
+                        end_screen.draw()
+                        if end_screen.next_screen is not None:
+                            match end_screen.next_screen:
+                                case "quit":
+                                    running = False
+                            end_screen.next_screen = None
 
             pygame.display.flip()
             clock.tick(60)
