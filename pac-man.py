@@ -50,7 +50,7 @@ def main() -> None:
                                 case pygame.K_LEFT:
                                     game.player.next_direction = Direction.LEFT
                                 case pygame.K_ESCAPE:
-                                    running = False
+                                    screen_state = "pause"
 
             match screen_state:
                 case "title":
@@ -68,6 +68,8 @@ def main() -> None:
                 case "game":
                     game.update()
                     renderer.draw(game)
+                case "pause":
+                    pass
 
             pygame.display.flip()
             clock.tick(60)
