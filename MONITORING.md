@@ -328,3 +328,7 @@ Refactor `pac-man.py` : surface créée en tête de `main()`. Machine à états 
 `pyrightconfig.json` : ajout de `"reportArgumentType": "none"` pour supprimer le faux positif Pyright sur `pygame.Surface`.
 `assets/fonts/` : CrackMan.TTF et PressStart2P-Regular.ttf ajoutés.
 Prochain chantier : animation title screen et transition vers le jeu.
+
+### #15 — 2026-08-21 — Colors
+
+Ajout de `src/utils/colors.py` : classe `Color` avec attributs de classe pour les couleurs partagées entre `TitleScreen` et `Renderer`. Pas d'`__init__`, usage direct via `Color.RED`.
