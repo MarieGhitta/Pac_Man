@@ -141,9 +141,9 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [ ] Mettre en évidence le score qui vient d'être enregistré.
 
 #### Pause Menu
-- [ ] Déclenché par `ESC` ou `P` pendant le jeu.
-- [ ] Jeu entièrement gelé (timer, ghosts, player).
-- [ ] Options : **Reprendre** / **Cheat Mode** / **Menu principal** / **Quitter**.
+- [x] Déclenché par `ESC` ou `P` pendant le jeu.
+- [x] Jeu entièrement gelé (timer, ghosts, player).
+- [x] Options : **Resume** / **Menu principal** / **Quitter**.
 
 ### 3.4 Cheat Mode
 
@@ -332,3 +332,12 @@ Prochain chantier : animation title screen et transition vers le jeu.
 ### #15 — 2026-08-21 — Colors
 
 Ajout de `src/utils/colors.py` : classe `Color` avec attributs de classe pour les couleurs partagées entre `TitleScreen` et `Renderer`. Pas d'`__init__`, usage direct via `Color.RED`.
+
+### #16 — 2026-08-21 — Pause menu
+ 
+Implémentation du menu pause en jeu.
+`pac-man.py` : `K_ESCAPE` en mode `"game"` capture une copie statique de la surface (`frozen_frame = surface.copy()`), passe `screen_state = "pause"` et appelle `game.on_pause(current_time)`. Le case `"pause"` blitte `frozen_frame`, puis `pause_menu.draw()` par-dessus. `pause_menu.next_screen` est reset à `None` après chaque transition. Retour au title screen via pause : `game` et `renderer` sont réinstanciés pour garantir une partie fraîche. `menu_index` remis à 0 sur `TitleScreen` et `PauseMenu` à chaque transition entrante.
+`game.py` : ajout de `on_pause(current_time)` (stocke `_pause_start`) et `on_resume(current_time)` (calcule `duration = current_time - _pause_start`, applique `+= duration` sur `last_state_change`, `player.last_update` et `ghost.last_update` pour chaque fantôme). Décalage des timestamps plutôt que reset — l'interpolation reprend exactement là où elle en était avant la pause.
+`src/ui/` : création de `pause_menu.py` (`PauseMenu(Screen)`) et `title_screen.py` (`TitleScreen(Screen)`) comme fichiers autonomes. `Screen(ABC)` toujours dans `src/ui/screen.py`. `src/utils/__init__.py` créé (docstring `"""Shared utilities for the Pac-Man project."""`).
+`Screen(ABC)` refactorisé : `surface`, `width`, `height`, `font`, `menu_items`, `menu_index` déplacés dans `__init__`. Helpers communs extraits : `_navigate(key)` (navigation haut/bas avec modulo), `_draw_menu(line_height, menu_start_y)` (rendu centré avec highlight). `draw()` perd son paramètre `surface` — toutes les sous-classes utilisent `self.surface`. `PauseMenu` surcharge `font_size` et `font` après `super().__init__()` pour une taille adaptée.
+Overlay pause : `pygame.Surface` avec `pygame.SRCALPHA` + `Color.ALPHA_BLACK` créé une fois dans `__init__`, réutilisé à chaque frame (évite le flickering).
