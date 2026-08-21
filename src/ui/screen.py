@@ -38,6 +38,11 @@ class Screen(ABC):
         pass
 
     def _navigate(self, key: int) -> None:
+        """Update menu_index based on vertical navigation keys.
+
+        Args:
+            key: The pygame key constant (K_UP or K_DOWN).
+        """
         match key:
             case pygame.K_UP:
                 self.menu_index = (self.menu_index - 1) % len(self.menu_items)
@@ -63,6 +68,12 @@ class Screen(ABC):
         pass
 
     def _draw_menu(self, line_height: int, menu_start_y: int) -> None:
+        """Render all menu items centered horizontally, highlighting the selected one.
+
+        Args:
+            line_height: Vertical spacing between items in pixels.
+            menu_start_y: Y coordinate of the first menu item center.
+        """
         for i, el in enumerate(self.menu_items):
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = self.font.render(el, True, color)
