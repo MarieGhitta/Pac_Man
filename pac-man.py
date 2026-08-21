@@ -28,7 +28,7 @@ def main() -> None:
         game = Game(config)
         screen_state = "title"
         title_screen = TitleScreen(surface)
-        end_screen = EndScreen(surface)
+        end_screen: EndScreen | None = None
         pause_menu = PauseMenu(surface)
         renderer = Renderer(game.level, surface)
         clock = pygame.time.Clock()
@@ -63,7 +63,8 @@ def main() -> None:
                     case "pause":
                         pause_menu.handle_event(event)
                     case "lose":
-                        end_screen.handle_event(event)
+                        if end_screen is not None:
+                            end_screen.handle_event(event)
 
             match screen_state:
                 case "title":
@@ -85,6 +86,7 @@ def main() -> None:
                 case "game":
                     game.update()
                     if game.game_over:
+                        end_screen = EndScreen(surface, current_time)
                         screen_state = "lose"
                     renderer.draw(game)
                 case "pause":
@@ -104,8 +106,14 @@ def main() -> None:
                                 running = False
                         pause_menu.next_screen = None
                 case "lose":
-                    end_screen.update(current_time)
-                    end_screen.draw()
+                    if end_screen is not None:
+                        end_screen.update(current_time)
+                        end_screen.draw()
+                        if end_screen.next_screen is not None:
+                            match end_screen.next_screen:
+                                case "quit":
+                                    running = False
+                            end_screen.next_screen = None
 
             pygame.display.flip()
             clock.tick(60)

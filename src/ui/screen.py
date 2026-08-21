@@ -67,13 +67,15 @@ class Screen(ABC):
         self,
         text: str,
         title_font: pygame.font.Font,
-        color: tuple[int, int, int],
-        pos: tuple[int, int]
+        color: tuple[int, int, int] | tuple[int, int, int, int],
+        pos: tuple[int, int],
+        alpha: int = 255
     ) -> None:
         logo = title_font.render(text, True, color)
         logo_rect = logo.get_rect(
             center=(self.width // pos[0], self.height // pos[1])
         )
+        logo.set_alpha(alpha)
         self.surface.blit(logo, logo_rect)
 
     def _draw_menu(
