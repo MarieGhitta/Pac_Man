@@ -188,7 +188,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 - [ ] Fond noir.
 
 #### UI & typographie
-- [ ] Police arcade (ex. Press Start 2P ou équivalent libre).
+- [x] Police arcade (ex. Press Start 2P ou équivalent libre).
 - [ ] Disposition HUD cohérente avec le style visuel général.
 
 #### Animation
@@ -341,3 +341,16 @@ Implémentation du menu pause en jeu.
 `src/ui/` : création de `pause_menu.py` (`PauseMenu(Screen)`) et `title_screen.py` (`TitleScreen(Screen)`) comme fichiers autonomes. `Screen(ABC)` toujours dans `src/ui/screen.py`. `src/utils/__init__.py` créé (docstring `"""Shared utilities for the Pac-Man project."""`).
 `Screen(ABC)` refactorisé : `surface`, `width`, `height`, `font`, `menu_items`, `menu_index` déplacés dans `__init__`. Helpers communs extraits : `_navigate(key)` (navigation haut/bas avec modulo), `_draw_menu(line_height, menu_start_y)` (rendu centré avec highlight). `draw()` perd son paramètre `surface` — toutes les sous-classes utilisent `self.surface`. `PauseMenu` surcharge `font_size` et `font` après `super().__init__()` pour une taille adaptée.
 Overlay pause : `pygame.Surface` avec `pygame.SRCALPHA` + `Color.ALPHA_BLACK` créé une fois dans `__init__`, réutilisé à chaque frame (évite le flickering).
+
+### #17 — 2026-08-21 — End screen (game over / victoire)
+ 
+Création de `src/ui/end_screen.py` : `EndScreen(Screen)` avec animation en trois phases séquentielles.
+Phase 1 (0→1500ms) : overlay `SRCALPHA` plein écran dont l'alpha monte de 0 à 255 via `min(1.0, elapsed / 1500) * 255` — fondu au noir par-dessus le dernier frame figé du jeu (pas de `frozen_frame` nécessaire : `game.update()` gèle naturellement quand `game_over` est vrai).
+Phase 2 (1200→2500ms, chevauchement intentionnel) : logo "YOU DIED" fade in via `logo.set_alpha(logo_alpha)` sur une surface temporaire — `logo_alpha` calculé via `max(0.0, (elapsed - 1200) / 1000) * 255`.
+Phase 3 (2500ms+) : logo fade out sur 800ms via `(1.0 - min(1.0, (elapsed - 2500) / 800)) * 255`. Les trois phases partagent un seul `elapsed = current_time - fade_start` ; `overlay_alpha` et `logo_alpha` sont calculés indépendamment.
+`fade_start` initialisé dans `__init__` via `current_time` passé en paramètre — même pattern que `Ghost` et `Player`.
+`_draw_logo()` étendu avec un paramètre `alpha: int = 255` ; appliqué via `logo.set_alpha(alpha)` (forme liée, pas `pygame.surface.Surface.set_alpha`).
+`pygame.typing.ColorLike` non disponible sous Python 3.10 / pygame 2.6.1 — annotation `color` repliée sur `tuple[int, int, int] | pygame.Color`.
+Bug identifié dans `title_screen.py` : `from screen import Screen` → doit être `from src.ui.screen import Screen` (import absolu incorrect).
+`pac-man.py` : détection de `game.game_over` dans le case `"game"` après `game.update()` → instanciation unique de `EndScreen(surface, current_time)` + transition vers `"lose"`. `end_screen: EndScreen | None = None` initialisé avant la boucle. Case `"lose"` : `update` + `draw` + lecture de `end_screen.next_screen`.
+Prochain chantier : saisie du nom du joueur, menu post-animation, highscore screen.
