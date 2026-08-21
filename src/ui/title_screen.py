@@ -1,7 +1,11 @@
+"""Title screen displayed at game startup."""
+
+
 import pygame
 
-from screen import Screen
 from src.utils.color import Color
+from src.ui.screen import Screen
+
 
 class TitleScreen(Screen):
     """Title screen with logo, animation, and main menu."""
