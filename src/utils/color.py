@@ -12,3 +12,4 @@ class Color():
     BLUE = (33, 33, 255)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    ALPHA_BLACK = (0, 0, 0, 200)

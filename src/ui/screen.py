@@ -7,6 +7,7 @@ import pygame
 
 from src.utils.color import Color
 
+
 class Screen(ABC):
     """Abstract base class for all game screens.
 
@@ -20,9 +21,12 @@ class Screen(ABC):
         self.surface = surface
         self.width: int = surface.get_width()
         self.height: int = surface.get_height()
+        self.font_size: int = self.height // 32
         self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.height // 32
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
+        self.menu_items: list[str] = []
+        self.menu_index: int = 0
 
     @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -32,6 +36,13 @@ class Screen(ABC):
             event: The pygame event to handle (key press, QUIT, etc.).
         """
         pass
+
+    def _navigate(self, key: int) -> None:
+        match key:
+            case pygame.K_UP:
+                self.menu_index = (self.menu_index - 1) % len(self.menu_items)
+            case pygame.K_DOWN:
+                self.menu_index = (self.menu_index + 1) % len(self.menu_items)
 
     @abstractmethod
     def update(self, current_time: int) -> None:
@@ -43,7 +54,7 @@ class Screen(ABC):
         pass
 
     @abstractmethod
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw(self) -> None:
         """Render the screen onto the given surface.
 
         Args:
@@ -51,6 +62,14 @@ class Screen(ABC):
         """
         pass
 
+    def _draw_menu(self, line_height: int, menu_start_y: int) -> None:
+        for i, el in enumerate(self.menu_items):
+            color = Color.RED if i == self.menu_index else Color.WHITE
+            sub = self.font.render(el, True, color)
+            sub_rect = sub.get_rect(
+                center=(self.width // 2, menu_start_y + i * line_height)
+            )
+            self.surface.blit(sub, sub_rect)
 
 class TitleScreen(Screen):
     """Title screen with logo, animation, and main menu."""
@@ -65,10 +84,9 @@ class TitleScreen(Screen):
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
-        self.menu_items: list[str] = [
+        self.menu_items = [
             "Play", "Highscores", "Cheat Mode", "Quit"
         ]
-        self.menu_index: int = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
         """Process a single pygame event.
@@ -77,15 +95,8 @@ class TitleScreen(Screen):
             event: The pygame event to handle (key press, QUIT, etc.).
         """
         if event.type == pygame.KEYDOWN:
+            self._navigate(event.key)
             match event.key:
-                case pygame.K_UP:
-                    self.menu_index = (
-                        (self.menu_index - 1) % len(self.menu_items)
-                    )
-                case pygame.K_DOWN:
-                    self.menu_index = (
-                        (self.menu_index + 1) % len(self.menu_items)
-                    )
                 case pygame.K_RETURN:
                     match self.menu_index:
                         case 0:
@@ -99,7 +110,6 @@ class TitleScreen(Screen):
                 case pygame.K_ESCAPE:
                     self.next_screen = "quit"
 
-
     def update(self, current_time: int) -> None:
         """Advance the screen's internal state.
 
@@ -108,26 +118,15 @@ class TitleScreen(Screen):
         """
         pass
 
-    def draw(self, surface: pygame.surface.Surface) -> None:
-        """Render the screen onto the given surface.
-
-        Args:
-            surface: The pygame surface to draw onto.
-        """
-        self.surface.fill((0, 0, 0))
+    def draw(self) -> None:
+        """Render the screen onto the given surface."""
+        self.surface.fill(Color.BLACK)
 
         logo = self.title_font.render("Pac-Man", True, Color.YELLOW)
         logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
-        surface.blit(logo, logo_rect)
+        self.surface.blit(logo, logo_rect)
 
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height * 3 // 4 - total_height // 2
-
-        for i, el in enumerate(self.menu_items):
-            color = Color.RED if i == self.menu_index else Color.WHITE
-            sub = self.font.render(el, True, color)
-            sub_rect = sub.get_rect(
-                center=(self.width // 2, menu_start_y + i * line_height)
-            )
-            surface.blit(sub, sub_rect)
+        self._draw_menu(line_height, menu_start_y)
