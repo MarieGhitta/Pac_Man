@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
+from src.utils.color import Color
 
 class Screen(ABC):
     """Abstract base class for all game screens.
@@ -115,7 +116,7 @@ class TitleScreen(Screen):
         """
         self.surface.fill((0, 0, 0))
 
-        logo = self.title_font.render("Pac-Man", True, (255, 191, 0))
+        logo = self.title_font.render("Pac-Man", True, Color.YELLOW)
         logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
         surface.blit(logo, logo_rect)
 
@@ -124,7 +125,7 @@ class TitleScreen(Screen):
         menu_start_y = self.height * 3 // 4 - total_height // 2
 
         for i, el in enumerate(self.menu_items):
-            color = (255, 0, 0) if i == self.menu_index else (255, 255, 255)
+            color = Color.RED if i == self.menu_index else Color.WHITE
             sub = self.font.render(el, True, color)
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)

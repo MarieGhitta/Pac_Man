@@ -11,6 +11,7 @@ from src.game.ghost_state import GhostState
 from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
+from src.utils.color import Color
 
 
 class Renderer:
@@ -48,7 +49,7 @@ class Renderer:
             game: The current game state.
         """
         self._update_window(game.level)
-        self.surface.fill((0, 0, 0))
+        self.surface.fill(Color.BLACK)
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
         self._draw_player(game.player, current_time)
@@ -107,7 +108,7 @@ class Renderer:
             start_pos: Screen coordinates of the wall's start point.
             end_pos: Screen coordinates of the wall's end point.
         """
-        pygame.draw.line(self.surface, (0, 0, 255), start_pos, end_pos, 3)
+        pygame.draw.line(self.surface, Color.BLUE, start_pos, end_pos, 3)
 
     def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
@@ -120,14 +121,14 @@ class Renderer:
             case CellContent.PACGUM:
                 pygame.draw.circle(
                     self.surface,
-                    (255, 255, 255),
+                    Color.WHITE,
                     (center_x, center_y),
                     self.tile_size // 8,
                 )
             case CellContent.SUPER_PACGUM:
                 pygame.draw.circle(
                     self.surface,
-                    (255, 255, 255),
+                    Color.WHITE,
                     (center_x, center_y),
                     self.tile_size // 4,
                 )
@@ -143,7 +144,7 @@ class Renderer:
         center_x, center_y = self._to_screen(render_x, render_y, centered=True)
         pygame.draw.circle(
             self.surface,
-            (255, 255, 0),
+            Color.YELLOW,
             (center_x, center_y),
             self.tile_size // 3,
         )
@@ -196,12 +197,12 @@ class Renderer:
         score_txt = self.font.render(
             f'Score: {game.score}',
             True,
-            (255, 255, 255)
+            Color.WHITE
         )
         lives_txt = self.font.render(
             f"Lives: {game.lives}",
             True,
-            (255, 255, 255)
+            Color.WHITE
         )
         self.surface.blit(
             score_txt,
@@ -271,16 +272,16 @@ class Renderer:
         """
         match ghost.state:
             case GhostState.FRIGHTENED:
-                return (0, 0, 255)
+                return Color.BLUE
             case GhostState.RESPAWN:
-                return (255, 255, 255)
+                return Color.WHITE
 
         match ghost.ghost_type:
             case GhostType.BLINKY:
-                return (255, 0, 0)
+                return Color.RED
             case GhostType.PINKY:
-                return (255, 105, 180)
+                return Color.PINK
             case GhostType.INKY:
-                return (0, 255, 255)
+                return Color.CYAN
             case GhostType.CLYDE:
-                return (255, 128, 0)
+                return Color.ORANGE
