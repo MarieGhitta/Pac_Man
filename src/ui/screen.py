@@ -14,9 +14,15 @@ class Screen(ABC):
     and rendering. Set `next_screen` to signal a transition to the manager.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, surface: pygame.surface.Surface) -> None:
         """Initialize the screen with no pending transition."""
         self.next_screen: str | None = None
+        self.surface = surface
+        self.width: int = surface.get_width()
+        self.height: int = surface.get_height()
+        self.font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.height // 32
+        )
 
     @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -55,15 +61,9 @@ class TitleScreen(Screen):
         Args:
             surface: The pygame surface to draw onto.
         """
-        super().__init__()
-        self.surface = surface
-        self.width: int = surface.get_width()
-        self.height: int = surface.get_height()
+        super().__init__(surface)
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/CrackMan.ttf", self.height // 8
-        )
-        self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.height // 32
         )
         self.menu_items: list[str] = [
             "Play", "Highscores", "Cheat Mode", "Quit"

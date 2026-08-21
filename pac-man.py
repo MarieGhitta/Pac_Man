@@ -10,6 +10,7 @@ from src.renderer.renderer import Renderer
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.screen import TitleScreen
+from src.ui.pause_menu import PauseMenu
 
 
 def main() -> None:
@@ -26,6 +27,7 @@ def main() -> None:
         game = Game(config)
         screen_state = "title"
         title_screen = TitleScreen(surface)
+        pause_menu = PauseMenu(surface)
         renderer = Renderer(game.level, surface)
         clock = pygame.time.Clock()
         running = True
@@ -50,7 +52,12 @@ def main() -> None:
                                 case pygame.K_LEFT:
                                     game.player.next_direction = Direction.LEFT
                                 case pygame.K_ESCAPE:
+                                    pause_menu.next_screen = None
                                     screen_state = "pause"
+                                case pygame.K_Q:
+                                    running = False
+                    case "pause":
+                        pause_menu.handle_event(event)
 
             match screen_state:
                 case "title":
@@ -69,7 +76,15 @@ def main() -> None:
                     game.update()
                     renderer.draw(game)
                 case "pause":
-                    pass
+                    pause_menu.update(current_time)
+                    pause_menu.draw(surface)
+                    match pause_menu.next_screen:
+                        case "game":
+                            screen_state = "game"
+                        case "title":
+                            screen_state = "title"
+                        case "quit":
+                            running = False
 
             pygame.display.flip()
             clock.tick(60)
