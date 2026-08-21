@@ -17,6 +17,10 @@ class TitleScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         super().__init__(surface)
+        self.font_size: int = self.height // 32
+        self.font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
+        )
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
@@ -57,12 +61,8 @@ class TitleScreen(Screen):
     def draw(self) -> None:
         """Render the screen onto the given surface."""
         self.surface.fill(Color.BLACK)
-
-        logo = self.title_font.render("Pac-Man", True, Color.YELLOW)
-        logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
-        self.surface.blit(logo, logo_rect)
-
+        self._draw_logo("Pac-Man", self.title_font, Color.YELLOW, (2, 4))
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height * 3 // 4 - total_height // 2
-        self._draw_menu(line_height, menu_start_y)
+        self._draw_menu(self.font, line_height, menu_start_y)
