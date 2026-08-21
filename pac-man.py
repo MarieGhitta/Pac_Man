@@ -9,8 +9,8 @@ from src.game.game import Game
 from src.renderer.renderer import Renderer
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
-from src.ui.screen import TitleScreen
 from src.ui.pause_menu import PauseMenu
+from src.ui.title_screen import TitleScreen
 
 
 def main() -> None:
