@@ -56,7 +56,7 @@ class TitleScreen(Screen):
         Args:
             current_time: Current time in milliseconds.
         """
-        pass
+        return super().update(current_time)
 
     def draw(self) -> None:
         """Render the screen onto the given surface."""

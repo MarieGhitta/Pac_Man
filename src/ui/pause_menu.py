@@ -56,7 +56,7 @@ class PauseMenu(Screen):
         Args:
             current_time: Current time in milliseconds (unused).
         """
-        pass
+        return super().update(current_time)
 
     def draw(self) -> None:
         """Render the overlay and menu items onto the surface."""
