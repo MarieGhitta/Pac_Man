@@ -7,6 +7,7 @@ import pygame
 
 from src.utils.color import Color
 
+
 class Screen(ABC):
     """Abstract base class for all game screens.
 
@@ -14,92 +15,41 @@ class Screen(ABC):
     and rendering. Set `next_screen` to signal a transition to the manager.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, surface: pygame.surface.Surface) -> None:
         """Initialize the screen with no pending transition."""
         self.next_screen: str | None = None
-
-    @abstractmethod
-    def handle_event(self, event: pygame.event.Event) -> None:
-        """Process a single pygame event.
-
-        Args:
-            event: The pygame event to handle (key press, QUIT, etc.).
-        """
-        pass
-
-    @abstractmethod
-    def update(self, current_time: int) -> None:
-        """Advance the screen's internal state.
-
-        Args:
-            current_time: Current time in milliseconds.
-        """
-        pass
-
-    @abstractmethod
-    def draw(self, surface: pygame.Surface) -> None:
-        """Render the screen onto the given surface.
-
-        Args:
-            surface: The pygame surface to draw onto.
-        """
-        pass
-
-
-class TitleScreen(Screen):
-    """Title screen with logo, animation, and main menu."""
-
-    def __init__(self, surface: pygame.surface.Surface) -> None:
-        """Initialize the title screen.
-
-        Args:
-            surface: The pygame surface to draw onto.
-        """
-        super().__init__()
         self.surface = surface
         self.width: int = surface.get_width()
         self.height: int = surface.get_height()
-        self.title_font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/CrackMan.ttf", self.height // 8
-        )
+        self.font_size: int = self.height // 32
         self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.height // 32
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
-        self.menu_items: list[str] = [
-            "Play", "Highscores", "Cheat Mode", "Quit"
-        ]
+        self.menu_items: list[str] = []
         self.menu_index: int = 0
 
+    @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:
         """Process a single pygame event.
 
         Args:
             event: The pygame event to handle (key press, QUIT, etc.).
         """
-        if event.type == pygame.KEYDOWN:
-            match event.key:
-                case pygame.K_UP:
-                    self.menu_index = (
-                        (self.menu_index - 1) % len(self.menu_items)
-                    )
-                case pygame.K_DOWN:
-                    self.menu_index = (
-                        (self.menu_index + 1) % len(self.menu_items)
-                    )
-                case pygame.K_RETURN:
-                    match self.menu_index:
-                        case 0:
-                            self.next_screen = "game"
-                        case 1:
-                            self.next_screen = "highscores"
-                        case 2:
-                            self.next_screen = "cheat"
-                        case 3:
-                            self.next_screen = "quit"
-                case pygame.K_ESCAPE:
-                    self.next_screen = "quit"
+        pass
 
+    def _navigate(self, key: int) -> None:
+        """Update menu_index based on vertical navigation keys.
 
+        Args:
+            key: The pygame key constant (K_UP or K_DOWN).
+        """
+        match key:
+            case pygame.K_UP:
+                self.menu_index = (self.menu_index - 1) % len(self.menu_items)
+            case pygame.K_DOWN:
+                self.menu_index = (self.menu_index + 1) % len(self.menu_items)
+
+    @abstractmethod
     def update(self, current_time: int) -> None:
         """Advance the screen's internal state.
 
@@ -108,26 +58,26 @@ class TitleScreen(Screen):
         """
         pass
 
-    def draw(self, surface: pygame.surface.Surface) -> None:
+    @abstractmethod
+    def draw(self) -> None:
         """Render the screen onto the given surface.
 
         Args:
             surface: The pygame surface to draw onto.
         """
-        self.surface.fill((0, 0, 0))
+        pass
 
-        logo = self.title_font.render("Pac-Man", True, Color.YELLOW)
-        logo_rect = logo.get_rect(center=(self.width // 2, self.height // 4))
-        surface.blit(logo, logo_rect)
+    def _draw_menu(self, line_height: int, menu_start_y: int) -> None:
+        """Render all menu items centered horizontally, highlighting the selected one.
 
-        line_height = int(self.font.get_height() * 1.5)
-        total_height = len(self.menu_items) * line_height
-        menu_start_y = self.height * 3 // 4 - total_height // 2
-
+        Args:
+            line_height: Vertical spacing between items in pixels.
+            menu_start_y: Y coordinate of the first menu item center.
+        """
         for i, el in enumerate(self.menu_items):
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = self.font.render(el, True, color)
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)
             )
-            surface.blit(sub, sub_rect)
+            self.surface.blit(sub, sub_rect)
