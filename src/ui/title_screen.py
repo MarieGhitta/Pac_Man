@@ -17,10 +17,6 @@ class TitleScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         super().__init__(surface)
-        self.font_size: int = self.height // 32
-        self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
-        )
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
