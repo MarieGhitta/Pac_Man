@@ -79,7 +79,11 @@ class Screen(ABC):
         self.surface.blit(logo, logo_rect)
 
     def _draw_menu(
-        self, font: pygame.font.Font, line_height: int, menu_start_y: int
+        self,
+        font: pygame.font.Font,
+        line_height: int,
+        menu_start_y: int,
+        alpha: int = 255
     ) -> None:
         """Render menu items centered horizontally, highlight the selected one.
 
@@ -94,4 +98,5 @@ class Screen(ABC):
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)
             )
+            sub.set_alpha(alpha)
             self.surface.blit(sub, sub_rect)

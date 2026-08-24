@@ -70,19 +70,20 @@ def main() -> None:
                 case "title":
                     title_screen.update(current_time)
                     title_screen.draw()
-                    match title_screen.next_screen:
-                        case "game":
-                            title_screen.next_screen = None
-                            title_screen.menu_index = 0
-                            game = Game(config)
-                            renderer = Renderer(game.level, surface)
-                            screen_state = "game"
-                        case "highscores":
-                            pass
-                        case "cheat":
-                            pass
-                        case "quit":
-                            running = False
+                    if title_screen.next_screen is not None:
+                        match title_screen.next_screen:
+                            case "game":
+                                title_screen.menu_index = 0
+                                game = Game(config)
+                                renderer = Renderer(game.level, surface)
+                                screen_state = "game"
+                            case "highscores":
+                                pass
+                            case "cheat":
+                                pass
+                            case "quit":
+                                running = False
+                        title_screen.next_screen = None
                 case "game":
                     game.update()
                     if game.game_over:
@@ -111,6 +112,14 @@ def main() -> None:
                         end_screen.draw()
                         if end_screen.next_screen is not None:
                             match end_screen.next_screen:
+                                case "game":
+                                    title_screen.menu_index = 0
+                                    game = Game(config)
+                                    renderer = Renderer(game.level, surface)
+                                    screen_state = "game"
+                                case "title":
+                                    pause_menu.menu_index = 0
+                                    screen_state = "title"
                                 case "quit":
                                     running = False
                             end_screen.next_screen = None
