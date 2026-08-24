@@ -79,7 +79,12 @@ class Screen(ABC):
         self.surface.blit(logo, logo_rect)
 
     def _draw_menu(
-        self, font: pygame.font.Font, line_height: int, menu_start_y: int
+        self,
+        items: list[str],
+        font: pygame.font.Font,
+        line_height: int,
+        menu_start_y: int,
+        alpha: int = 255
     ) -> None:
         """Render menu items centered horizontally, highlight the selected one.
 
@@ -88,10 +93,11 @@ class Screen(ABC):
             line_height: Vertical spacing between items in pixels.
             menu_start_y: Y coordinate of the first menu item center.
         """
-        for i, el in enumerate(self.menu_items):
+        for i, el in enumerate(items):
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = font.render(el, True, color)
             sub_rect = sub.get_rect(
                 center=(self.width // 2, menu_start_y + i * line_height)
             )
+            sub.set_alpha(alpha)
             self.surface.blit(sub, sub_rect)
