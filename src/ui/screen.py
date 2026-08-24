@@ -80,6 +80,7 @@ class Screen(ABC):
 
     def _draw_menu(
         self,
+        items: list[str],
         font: pygame.font.Font,
         line_height: int,
         menu_start_y: int,
@@ -92,7 +93,7 @@ class Screen(ABC):
             line_height: Vertical spacing between items in pixels.
             menu_start_y: Y coordinate of the first menu item center.
         """
-        for i, el in enumerate(self.menu_items):
+        for i, el in enumerate(items):
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = font.render(el, True, color)
             sub_rect = sub.get_rect(
