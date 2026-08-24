@@ -127,9 +127,11 @@ def main() -> None:
             pygame.display.flip()
             clock.tick(60)
 
-        player = PlayerScore("AAA", game.score)
-        highscore.add_score(player)
-        pygame.quit()
+        if end_screen is not None:
+            player = PlayerScore(end_screen.username, game.score)
+            highscore.add_score(player)
+            pygame.quit()
+        raise ValueError("invalid end screen input")
 
     except ValueError as e:
         print(f"Configuration error: {e}")
