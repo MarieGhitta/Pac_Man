@@ -34,6 +34,7 @@ def main() -> None:
         clock = pygame.time.Clock()
         running = True
         frozen_frame: pygame.surface.Surface | None = None
+        score_saved: bool = False
         while running:
             current_time = pygame.time.get_ticks()
 
@@ -77,6 +78,7 @@ def main() -> None:
                                 game = Game(config)
                                 renderer = Renderer(game.level, surface)
                                 screen_state = "game"
+                                score_saved = False
                             case "highscores":
                                 pass
                             case "cheat":
@@ -108,6 +110,12 @@ def main() -> None:
                         pause_menu.next_screen = None
                 case "lose":
                     if end_screen is not None:
+                        if end_screen.can_navigate and not score_saved:
+                            player = PlayerScore(
+                                end_screen.username, game.score
+                            )
+                            highscore.add_score(player)
+                            score_saved = True
                         end_screen.update(current_time)
                         end_screen.draw()
                         if end_screen.next_screen is not None:
@@ -117,6 +125,7 @@ def main() -> None:
                                     game = Game(config)
                                     renderer = Renderer(game.level, surface)
                                     screen_state = "game"
+                                    score_saved = False
                                 case "title":
                                     pause_menu.menu_index = 0
                                     screen_state = "title"
@@ -127,11 +136,7 @@ def main() -> None:
             pygame.display.flip()
             clock.tick(60)
 
-        if end_screen is not None:
-            player = PlayerScore(end_screen.username, game.score)
-            highscore.add_score(player)
-            pygame.quit()
-        raise ValueError("invalid end screen input")
+        pygame.quit()
 
     except ValueError as e:
         print(f"Configuration error: {e}")
