@@ -78,17 +78,16 @@ class EndScreen(Screen):
         else:
             fade_out_progress = min(1.0, (elapsed - 3500) / 800)
             self.logo_alpha = int((1.0 - fade_out_progress) * 255)
-            if elapsed > 3500:
+            if elapsed < 5000:
                 score_progress = max(0.0, (elapsed - 4300) / 1000)
                 self.score_alpha = int(min(1.0, score_progress) * 255)
-                if elapsed > 5000:
-                    if not self.can_navigate:
-                        self.can_write = True
-                    else:
-                        self.score_alpha = 0
-                        menu_progress = max(0.0, (elapsed - 1000) / 1000)
-                        self.menu_alpha = int(min(1.0, menu_progress) * 255)
-
+            else:
+                if not self.can_navigate:
+                    self.can_write = True
+                else:
+                    self.can_write = False
+                    self.score_alpha = 0
+                    self.menu_alpha = 255
 
 
     def draw(self) -> None:
@@ -101,12 +100,6 @@ class EndScreen(Screen):
             (2, 2),
             self.logo_alpha
         )
-
-        # input_txt = self.font.render("Enter your name:", True, Color.WHITE) 
-        # input_txt_rect = input_txt.get_rect(
-        #     center=(self.width // 2, self.height // 2)
-        # )
-        # self.surface.blit(input_txt, input_txt_rect)
 
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.score_input) * line_height
