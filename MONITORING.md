@@ -132,8 +132,8 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 #### End Screen (Game Over / Victory)
 - [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
 - [ ] Afficher le score final.
-- [ ] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
-- [ ] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
+- [x] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
+- [x] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
 
 #### Highscore Screen
 - [ ] Afficher le top 10 (rang + nom + score).
@@ -354,3 +354,17 @@ Phase 3 (2500ms+) : logo fade out sur 800ms via `(1.0 - min(1.0, (elapsed - 2500
 Bug identifié dans `title_screen.py` : `from screen import Screen` → doit être `from src.ui.screen import Screen` (import absolu incorrect).
 `pac-man.py` : détection de `game.game_over` dans le case `"game"` après `game.update()` → instanciation unique de `EndScreen(surface, current_time)` + transition vers `"lose"`. `end_screen: EndScreen | None = None` initialisé avant la boucle. Case `"lose"` : `update` + `draw` + lecture de `end_screen.next_screen`.
 Prochain chantier : saisie du nom du joueur, menu post-animation, highscore screen.
+
+### #17 — 2026-08-24 — End screen (game over)
+
+Création de `src/ui/end_screen.py` : `EndScreen(Screen)` paramétré par `current_time` à l'instanciation — même pattern que `Ghost` et `Player`.
+Animation en trois phases séquentielles pilotée par `elapsed = current_time - fade_start` :
+- Phase 1 (0→1500ms) : overlay `SRCALPHA` plein écran, `overlay_alpha` monte de 0 à 255.
+- Phase 2 (1000→2500ms, chevauchement intentionnel) : logo "YOU DIED" (font OptimusPrinceps) fade in via `logo.set_alpha(logo_alpha)`.
+- Phase 3 (3500→4300ms) : logo fade out. À partir de 5000ms, `can_write = True`.
+Saisie du nom du joueur : `handle_event()` accumule `self.username` via `event.unicode` filtré par `.isalnum()`, limité à 10 caractères. `K_BACKSPACE` supprime le dernier caractère. `K_RETURN` valide si `len(username) > 2` → `can_write = False`, `can_navigate = True`. Navigation clavier activée uniquement quand `can_navigate` est vrai ; remis à `False` après sélection.
+`_draw_logo()` étendu avec un paramètre `alpha: int = 255` appliqué via `logo.set_alpha(alpha)`. `_draw_menu()` étendu avec un paramètre `alpha: int = 255` appliqué via `sub.set_alpha(alpha)` pour chaque item.
+`Screen` : `font` mutualisée dans `__init__` — sous-classes ne la redéfinissent que si elles ont besoin d'une taille ou d'une police différente. `pygame.typing.ColorLike` non disponible sous Python 3.10 / pygame 2.6.1 — annotation `color` repliée sur `tuple[int, int, int] | pygame.Color`.
+`pac-man.py` : état `"lose"` ajouté. Détection de `game.game_over` dans le case `"game"` après `game.update()` → instanciation unique de `EndScreen(surface, current_time)`. `end_screen: EndScreen | None = None` initialisé avant la boucle. `score_saved: bool = False` reset partout où `Game` est réinstancié (title → game, lose → game) pour garantir une sauvegarde par partie. Sauvegarde via `highscore.add_score(PlayerScore(username, score))` déclenchée une seule fois quand `can_navigate and not score_saved`. `pygame.quit()` sorti de tout conditionnel.
+Bug corrigé : `title_screen.py` — `from screen import Screen` → `from src.ui.screen import Screen`.
+Prochain chantier : écran de victoire, highscore screen.
