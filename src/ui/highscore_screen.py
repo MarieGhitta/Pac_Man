@@ -14,21 +14,8 @@ class HighscoreScreen(Screen):
         self.scores = scores
 
     def handle_event(self, event: pygame.event.Event) -> None:
-        if event.type == pygame.KEYDOWN:
-            # self._navigate(event.key)
-            match event.key:
-                # case pygame.K_RETURN:
-                #     match self.menu_index:
-                #         case 0:
-                #             self.next_screen = "game"
-                #         case 1:
-                #             self.next_screen = "highscore"
-                #         case 2:
-                #             self.next_screen = "cheat"
-                #         case 3:
-                #             self.next_screen = "quit"
-                case pygame.K_ESCAPE:
-                    self.next_screen = "title"
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.next_screen = "title"
 
     def update(self, current_time: int) -> None:
         pass
