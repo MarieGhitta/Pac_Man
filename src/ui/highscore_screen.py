@@ -66,4 +66,3 @@ class HighscoreScreen(Screen):
                 midright=(col_score_x, row_start_y + i * line_height)
             )
             self.surface.blit(score, score_rect)
-
