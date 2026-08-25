@@ -21,7 +21,7 @@ class TitleScreen(Screen):
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
         self.menu_items = [
-            "Play", "Highscores", "Cheat Mode", "Quit"
+            "Play", "Highscore", "Cheat Mode", "Quit"
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -38,7 +38,7 @@ class TitleScreen(Screen):
                         case 0:
                             self.next_screen = "game"
                         case 1:
-                            self.next_screen = "highscores"
+                            self.next_screen = "highscore"
                         case 2:
                             self.next_screen = "cheat"
                         case 3:
