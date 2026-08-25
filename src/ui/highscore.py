@@ -36,7 +36,7 @@ class Highscore():
             with open(self.path, 'w') as f:
                 json.dump([], f)
 
-    def add_score(self, player: PlayerScore) -> None:
+    def add_score(self, player: PlayerScore) -> int | None:
         """Add a score, keep the top 10, and persist to disk.
 
         Args:
@@ -58,3 +58,5 @@ class Highscore():
                 f,
                 indent=4
             )
+        entry = {"username": player.username, "score": player.score}
+        return self.scores.index(entry) if entry in self.scores else None
