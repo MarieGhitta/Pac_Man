@@ -12,13 +12,24 @@ class HighscoreScreen(Screen):
     ) -> None:
         super().__init__(surface)
         self.scores = scores
+        self.last_score: int | None = None
+        self.visible: bool = False
 
-    def handle_event(self, event: pygame.event.Event) -> None:
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            self.next_screen = "title"
+    def handle_event(
+        self, event: pygame.event.Event, endgame_highscore: bool = False
+    ) -> None:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.next_screen = "title"
+            if event.key == pygame.K_RETURN and endgame_highscore:
+                self.next_screen = "end"
+                self.last_score = None
 
     def update(self, current_time: int) -> None:
-        pass
+        if self.last_score is not None:
+            self.visible = False
+            if (current_time // 500) % 2 == 0:
+                self.visible = True
 
     def draw(self) -> None:
         self.surface.fill(Color.BLACK)
@@ -51,6 +62,8 @@ class HighscoreScreen(Screen):
         ]
 
         for i, el in enumerate(self.scores):
+            if i == self.last_score and not self.visible:
+                continue
             rank = self.font.render(str(i + 1), True, colors[i])
             rank_rect = rank.get_rect(
                 midright=(col_rank_x, row_start_y + i * line_height)
