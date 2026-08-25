@@ -130,15 +130,15 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Import real fonts
 
 #### End Screen (Game Over / Victory)
-- [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
-- [ ] Afficher le score final.
-- [ ] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
-- [ ] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
+- [x] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
+- [x] Afficher le score final.
+- [x] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
+- [x] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
 
 #### Highscore Screen
-- [ ] Afficher le top 10 (rang + nom + score).
-- [ ] Accessible depuis le title screen.
-- [ ] Mettre en évidence le score qui vient d'être enregistré.
+- [x] Afficher le top 10 (rang + nom + score).
+- [x] Accessible depuis le title screen.
+- [x] Mettre en évidence le score qui vient d'être enregistré apres une partie.
 
 #### Pause Menu
 - [x] Déclenché par `ESC` ou `P` pendant le jeu.
@@ -336,7 +336,7 @@ Ajout de `src/utils/colors.py` : classe `Color` avec attributs de classe pour le
 ### #16 — 2026-08-21 — Pause menu
  
 Implémentation du menu pause en jeu.
-`pac-man.py` : `K_ESCAPE` en mode `"game"` capture une copie statique de la surface (`frozen_frame = surface.copy()`), passe `screen_state = "pause"` et appelle `game.on_pause(current_time)`. Le case `"pause"` blitte `frozen_frame`, puis `pause_menu.draw()` par-dessus. `pause_menu.next_screen` est reset à `None` après chaque transition. Retour au title screen via pause : `game` et `renderer` sont réinstanciés pour garantir une partie fraîche. `menu_index` remis à 0 sur `TitleScreen` et `PauseMenu` à chaque transition entrante.
+`pac-man.py` : `K_ESCAPE` en mode `"game"` capture une copie statique de la surface (`frozen_frame = surface.copy()`), passe `screen_state = "pause"` et appelle `game.on_pause(curreet dans draw nt_time)`. Le case `"pause"` blitte `frozen_frame`, puis `pause_menu.draw()` par-dessus. `pause_menu.next_screen` est reset à `None` après chaque transition. Retour au title screen via pause : `game` et `renderer` sont réinstanciés pour garantir une partie fraîche. `menu_index` remis à 0 sur `TitleScreen` et `PauseMenu` à chaque transition entrante.
 `game.py` : ajout de `on_pause(current_time)` (stocke `_pause_start`) et `on_resume(current_time)` (calcule `duration = current_time - _pause_start`, applique `+= duration` sur `last_state_change`, `player.last_update` et `ghost.last_update` pour chaque fantôme). Décalage des timestamps plutôt que reset — l'interpolation reprend exactement là où elle en était avant la pause.
 `src/ui/` : création de `pause_menu.py` (`PauseMenu(Screen)`) et `title_screen.py` (`TitleScreen(Screen)`) comme fichiers autonomes. `Screen(ABC)` toujours dans `src/ui/screen.py`. `src/utils/__init__.py` créé (docstring `"""Shared utilities for the Pac-Man project."""`).
 `Screen(ABC)` refactorisé : `surface`, `width`, `height`, `font`, `menu_items`, `menu_index` déplacés dans `__init__`. Helpers communs extraits : `_navigate(key)` (navigation haut/bas avec modulo), `_draw_menu(line_height, menu_start_y)` (rendu centré avec highlight). `draw()` perd son paramètre `surface` — toutes les sous-classes utilisent `self.surface`. `PauseMenu` surcharge `font_size` et `font` après `super().__init__()` pour une taille adaptée.
@@ -354,3 +354,29 @@ Phase 3 (2500ms+) : logo fade out sur 800ms via `(1.0 - min(1.0, (elapsed - 2500
 Bug identifié dans `title_screen.py` : `from screen import Screen` → doit être `from src.ui.screen import Screen` (import absolu incorrect).
 `pac-man.py` : détection de `game.game_over` dans le case `"game"` après `game.update()` → instanciation unique de `EndScreen(surface, current_time)` + transition vers `"lose"`. `end_screen: EndScreen | None = None` initialisé avant la boucle. Case `"lose"` : `update` + `draw` + lecture de `end_screen.next_screen`.
 Prochain chantier : saisie du nom du joueur, menu post-animation, highscore screen.
+
+### #17 — 2026-08-24 — End screen (game over)
+
+Création de `src/ui/end_screen.py` : `EndScreen(Screen)` paramétré par `current_time` à l'instanciation — même pattern que `Ghost` et `Player`.
+Animation en trois phases séquentielles pilotée par `elapsed = current_time - fade_start` :
+- Phase 1 (0→1500ms) : overlay `SRCALPHA` plein écran, `overlay_alpha` monte de 0 à 255.
+- Phase 2 (1000→2500ms, chevauchement intentionnel) : logo "YOU DIED" (font OptimusPrinceps) fade in via `logo.set_alpha(logo_alpha)`.
+- Phase 3 (3500→4300ms) : logo fade out. À partir de 5000ms, `can_write = True`.
+Saisie du nom du joueur : `handle_event()` accumule `self.username` via `event.unicode` filtré par `.isalnum()`, limité à 10 caractères. `K_BACKSPACE` supprime le dernier caractère. `K_RETURN` valide si `len(username) > 2` → `can_write = False`, `can_navigate = True`. Navigation clavier activée uniquement quand `can_navigate` est vrai ; remis à `False` après sélection.
+`_draw_logo()` étendu avec un paramètre `alpha: int = 255` appliqué via `logo.set_alpha(alpha)`. `_draw_menu()` étendu avec un paramètre `alpha: int = 255` appliqué via `sub.set_alpha(alpha)` pour chaque item.
+`Screen` : `font` mutualisée dans `__init__` — sous-classes ne la redéfinissent que si elles ont besoin d'une taille ou d'une police différente. `pygame.typing.ColorLike` non disponible sous Python 3.10 / pygame 2.6.1 — annotation `color` repliée sur `tuple[int, int, int] | pygame.Color`.
+`pac-man.py` : état `"lose"` ajouté. Détection de `game.game_over` dans le case `"game"` après `game.update()` → instanciation unique de `EndScreen(surface, current_time)`. `end_screen: EndScreen | None = None` initialisé avant la boucle. `score_saved: bool = False` reset partout où `Game` est réinstancié (title → game, lose → game) pour garantir une sauvegarde par partie. Sauvegarde via `highscore.add_score(PlayerScore(username, score))` déclenchée une seule fois quand `can_navigate and not score_saved`. `pygame.quit()` sorti de tout conditionnel.
+Bug corrigé : `title_screen.py` — `from screen import Screen` → `from src.ui.screen import Screen`.
+Prochain chantier : écran de victoire, highscore screen.
+
+### #18 — 2026-08-25 — Highscore screen
+
+Création de `src/ui/highscore_screen.py` : `HighscoreScreen(Screen)`.
+Affichage du top 10 en trois colonnes : rang (`midright` à 30% de la largeur), nom (`midleft` à 35%), score (`midright` à 70%). Chaque ligne est colorée avec une couleur distincte issue d'un dégradé arc-en-ciel (RED → ORANGE → YELLOW → LIME → GREEN → TEAL → CYAN → BLUE → PURPLE → MAGENTA).
+`handle_event()` prend un paramètre optionnel `endgame_highscore: bool` : `K_ESCAPE` retourne toujours au title ; `K_RETURN` retourne vers `"end"` uniquement si `endgame_highscore` est vrai.
+`update()` gère le clignotement de la ligne fraîchement enregistrée via `self.visible = (current_time // 500) % 2 == 0` quand `self.last_score is not None`.
+`draw()` saute le blit de la ligne `i == self.last_score` quand `not self.visible` (`continue` en tête de boucle).
+`src/utils/color.py` : ajout de LIME `(128, 255, 0)`, GREEN `(0, 255, 0)`, TEAL `(0, 255, 128)`, PURPLE `(128, 0, 255)`, MAGENTA `(255, 0, 255)`.
+`src/ui/highscore.py` : `add_score()` retourne désormais `int | None` — index du score dans la liste triée après troncature à 10, ou `None` si le score n'entre pas dans le top 10. Signature mise à jour en conséquence.
+`pac-man.py` : ajout de l'état `"highscore"` et du flag `endgame_highscore: bool`. Sauvegarde du score déplacée du case `"end"` vers le case `"highscore"` (déclenchée une seule fois quand `endgame_highscore and not score_saved`) ; `last_score` et `scores` de `highscore_screen` mis à jour immédiatement après `add_score()`. Transition `"end"` → `"highscore"` déclenchée par `end_screen.next_screen == "highscore"` avec `endgame_highscore = True`. Retour depuis `"highscore"` → `"title"` (ESC) ou `"highscore"` → `"end"` (RETURN en mode endgame, avec `end_screen.can_navigate = True` pour bypasser l'animation). Transition title → highscore : `screen_state = "highscore"` sans `endgame_highscore`.
+Prochain chantier : refactor de la partie UI et de la boucle principale.

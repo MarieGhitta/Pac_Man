@@ -6,13 +6,13 @@ from src.utils.color import Color
 
 class EndScreen(Screen):
     def __init__(
-            self, surface: pygame.surface.Surface, current_time: int
+        self,
+        surface: pygame.surface.Surface,
+        current_time: int,
+        ending: str
     ) -> None:
         super().__init__(surface)
-        self.font_size: int = self.height // 32
-        self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
-        )
+        self.ending = ending
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/OptimusPrinceps.ttf", self.height // 8
         )
@@ -43,15 +43,13 @@ class EndScreen(Screen):
                     case pygame.K_RETURN:
                         if len(self.username) > 2:
                             self.can_write = False
-                            self.can_navigate = True
+                            self.next_screen = "highscore"
                     case _:
                         if (
                             event.unicode.isalnum()
                             and len(self.username) < 10
                         ):
                             self.username += event.unicode
-                if len(self.username) == 10 and self.can_write:
-                    self.can_write = False
             else:
                 if self.can_navigate:
                     self._navigate(event.key)
@@ -91,12 +89,17 @@ class EndScreen(Screen):
 
 
     def draw(self) -> None:
+        end_msg = "YOU DIED"
+        color = Color.RED
+        if self.ending == "win":
+            end_msg = "VICTORY ACHIEVED"
+            color = Color.YELLOW
         self.overlay.fill((0, 0, 0, self.overlay_alpha))
         self.surface.blit(self.overlay, (0, 0))
         self._draw_logo(
-            "YOU DIED",
+            end_msg,
             self.title_font,
-            Color.RED,
+            color,
             (2, 2),
             self.logo_alpha
         )

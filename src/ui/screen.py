@@ -23,6 +23,10 @@ class Screen(ABC):
         self.height: int = surface.get_height()
         self.menu_items: list[str] = []
         self.menu_index: int = 0
+        self.font_size: int = self.height // 32
+        self.font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
+        )
 
     @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:

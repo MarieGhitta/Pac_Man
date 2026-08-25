@@ -17,15 +17,11 @@ class TitleScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         super().__init__(surface)
-        self.font_size: int = self.height // 32
-        self.font: pygame.font.Font = pygame.font.Font(
-            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
-        )
         self.title_font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/CrackMan.ttf", self.height // 8
         )
         self.menu_items = [
-            "Play", "Highscores", "Cheat Mode", "Quit"
+            "Play", "Highscore", "Cheat Mode", "Quit"
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -42,7 +38,7 @@ class TitleScreen(Screen):
                         case 0:
                             self.next_screen = "game"
                         case 1:
-                            self.next_screen = "highscores"
+                            self.next_screen = "highscore"
                         case 2:
                             self.next_screen = "cheat"
                         case 3:
@@ -56,7 +52,7 @@ class TitleScreen(Screen):
         Args:
             current_time: Current time in milliseconds.
         """
-        return super().update(current_time)
+        pass
 
     def draw(self) -> None:
         """Render the screen onto the given surface."""

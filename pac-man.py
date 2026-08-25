@@ -9,6 +9,7 @@ from src.game.game import Game
 from src.renderer.renderer import Renderer
 from src.ui.end_screen import EndScreen
 from src.ui.highscore import Highscore
+from src.ui.highscore_screen import HighscoreScreen
 from src.ui.models import PlayerScore
 from src.ui.pause_menu import PauseMenu
 from src.ui.title_screen import TitleScreen
@@ -34,6 +35,9 @@ def main() -> None:
         clock = pygame.time.Clock()
         running = True
         frozen_frame: pygame.surface.Surface | None = None
+        score_saved: bool = False
+        highscore_screen = HighscoreScreen(surface, highscore.scores)
+        endgame_highscore: bool = False
         while running:
             current_time = pygame.time.get_ticks()
 
@@ -62,9 +66,11 @@ def main() -> None:
                                     running = False
                     case "pause":
                         pause_menu.handle_event(event)
-                    case "lose":
+                    case "end":
                         if end_screen is not None:
                             end_screen.handle_event(event)
+                    case "highscore":
+                        highscore_screen.handle_event(event, endgame_highscore)
 
             match screen_state:
                 case "title":
@@ -77,8 +83,9 @@ def main() -> None:
                                 game = Game(config)
                                 renderer = Renderer(game.level, surface)
                                 screen_state = "game"
-                            case "highscores":
-                                pass
+                                score_saved = False
+                            case "highscore":
+                                screen_state = "highscore"
                             case "cheat":
                                 pass
                             case "quit":
@@ -86,9 +93,12 @@ def main() -> None:
                         title_screen.next_screen = None
                 case "game":
                     game.update()
-                    if game.game_over:
-                        end_screen = EndScreen(surface, current_time)
-                        screen_state = "lose"
+                    if game.game_over or game.victory:
+                        ending = "win"
+                        if game.game_over:
+                            ending = "lose"
+                        end_screen = EndScreen(surface, current_time, ending)
+                        screen_state = "end"
                     renderer.draw(game)
                 case "pause":
                     pause_menu.update(current_time)
@@ -106,7 +116,7 @@ def main() -> None:
                             case "quit":
                                 running = False
                         pause_menu.next_screen = None
-                case "lose":
+                case "end":
                     if end_screen is not None:
                         end_screen.update(current_time)
                         end_screen.draw()
@@ -117,21 +127,44 @@ def main() -> None:
                                     game = Game(config)
                                     renderer = Renderer(game.level, surface)
                                     screen_state = "game"
+                                    score_saved = False
                                 case "title":
                                     pause_menu.menu_index = 0
                                     screen_state = "title"
+                                case "highscore":
+                                    screen_state = "highscore"
+                                    endgame_highscore = True
                                 case "quit":
                                     running = False
                             end_screen.next_screen = None
+                case "highscore":
+                    if endgame_highscore and end_screen and not score_saved:
+                        highscore_screen.update(current_time)
+                        player = PlayerScore(
+                            end_screen.username, game.score
+                        )
+                        last_score = highscore.add_score(player)
+                        highscore_screen.scores = highscore.scores
+                        highscore_screen.last_score = last_score
+                        score_saved = True
+                    else:
+                        highscore_screen.update(current_time)
+                    highscore_screen.draw()
+                    if highscore_screen.next_screen is not None:
+                        match highscore_screen.next_screen:
+                            case "title":
+                                screen_state = "title"
+                            case "end":
+                                screen_state = "end"
+                                endgame_highscore = False
+                                if end_screen:
+                                    end_screen.can_navigate = True
+                        highscore_screen.next_screen = None
 
             pygame.display.flip()
             clock.tick(60)
 
-        if end_screen is not None:
-            player = PlayerScore(end_screen.username, game.score)
-            highscore.add_score(player)
-            pygame.quit()
-        raise ValueError("invalid end screen input")
+        pygame.quit()
 
     except ValueError as e:
         print(f"Configuration error: {e}")
