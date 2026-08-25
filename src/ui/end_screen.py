@@ -43,7 +43,7 @@ class EndScreen(Screen):
                     case pygame.K_RETURN:
                         if len(self.username) > 2:
                             self.can_write = False
-                            self.can_navigate = True
+                            self.next_screen = "highscore"
                     case _:
                         if (
                             event.unicode.isalnum()
