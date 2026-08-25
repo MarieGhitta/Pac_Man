@@ -130,15 +130,15 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Import real fonts
 
 #### End Screen (Game Over / Victory)
-- [ ] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
-- [ ] Afficher le score final.
+- [x] Même écran, message différent : **"GAME OVER"** (vies épuisées) vs **"YOU WIN"** (tous niveaux complétés).
+- [x] Afficher le score final.
 - [x] Saisie du nom du joueur (max 10 chars, filtrage des caractères invalides).
 - [x] Options post-saisie : **Rejouer** / **Menu principal** / **Quitter**.
 
 #### Highscore Screen
-- [ ] Afficher le top 10 (rang + nom + score).
-- [ ] Accessible depuis le title screen.
-- [ ] Mettre en évidence le score qui vient d'être enregistré.
+- [x] Afficher le top 10 (rang + nom + score).
+- [x] Accessible depuis le title screen.
+- [x] Mettre en évidence le score qui vient d'être enregistré apres une partie.
 
 #### Pause Menu
 - [x] Déclenché par `ESC` ou `P` pendant le jeu.
