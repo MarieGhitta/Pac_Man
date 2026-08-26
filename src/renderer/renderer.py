@@ -55,7 +55,6 @@ class Renderer:
         self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
         self._draw_hud(game)
-        pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
         """Draw all maze cells, including walls and cell contents.
