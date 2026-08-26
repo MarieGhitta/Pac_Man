@@ -77,10 +77,9 @@ class EndScreen(Screen):
         else:
             fade_out_progress = min(1.0, (elapsed - 3500) / 800)
             self.logo_alpha = int((1.0 - fade_out_progress) * 255)
-            if elapsed < 5000:
-                score_progress = max(0.0, (elapsed - 4300) / 1000)
-                self.score_alpha = int(min(1.0, score_progress) * 255)
-            else:
+            score_progress = max(0.0, (elapsed - 4300) / 1000)
+            self.score_alpha = int(min(1.0, score_progress) * 255)
+            if elapsed >= 5000:
                 if not self.can_navigate:
                     self.can_write = True
                 else:
