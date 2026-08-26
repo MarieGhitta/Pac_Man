@@ -228,7 +228,7 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size: int = min(
+        self.tile_size = min(
             int(self.surface_width * 0.8) // self.maze_width,
             int(self.surface_height * 0.8) // self.maze_height
         )
