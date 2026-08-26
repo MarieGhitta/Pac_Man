@@ -28,6 +28,7 @@ class App:
             config_path: Path to the JSON configuration file.
         """
         pygame.init()
+        pygame.display.set_caption("Pac-Man")
         info = pygame.display.Info()
         self.surface: pygame.surface.Surface = pygame.display.set_mode(
             (info.current_w, info.current_h),

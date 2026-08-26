@@ -39,7 +39,6 @@ class Renderer:
         self.offset_y = (
             (self.surface_height - self.maze_height * self.tile_size) // 2
         )
-        pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, self.tile_size)
 
     def draw(self, game: Engine) -> None:
