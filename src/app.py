@@ -1,3 +1,6 @@
+"""Main application class: pygame lifecycle and screen state machine."""
+
+
 import pygame
 
 from src.config.loader import ConfigLoader
@@ -16,8 +19,14 @@ from src.utils.screen_state import ScreenState
 
 
 class App:
+    """Top-level application managing the game loop and screen transitions."""
 
     def __init__(self, config_path: str = "config.json") -> None:
+        """Initialize pygame, load config, and instantiate all subsystems.
+
+        Args:
+            config_path: Path to the JSON configuration file.
+        """
         pygame.init()
         info = pygame.display.Info()
         self.surface: pygame.surface.Surface = pygame.display.set_mode(
@@ -48,6 +57,7 @@ class App:
         self.endgame_score_display: bool = False
 
     def run(self) -> None:
+        """Run the main loop until the application is stopped."""
         while self.running:
             current_time = pygame.time.get_ticks()
             self._handle_events()
@@ -58,6 +68,7 @@ class App:
         pygame.quit()
 
     def _handle_events(self) -> None:
+        """Poll pygame events and forward them to the active screen."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -65,13 +76,26 @@ class App:
                 screen.handle_event(event)
 
     def _update(self, current_time: int) -> None:
-        if self.screen_state == ScreenState.PAUSE and self.frozen_frame is not None:
+        """Update and draw the active screen.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
+        if (
+            self.screen_state == ScreenState.PAUSE
+            and self.frozen_frame is not None
+        ):
             self.surface.blit(self.frozen_frame, (0, 0))
         if screen := self.screens[self.screen_state]:
             screen.update(current_time)
             screen.draw()
 
     def _handle_transitions(self, current_time: int) -> None:
+        """Apply any pending screen transition emitted by the active screen.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         screen = self.screens[self.screen_state]
         if screen is None or screen.next_screen is None:
             return
@@ -108,7 +132,9 @@ class App:
                 if self.endgame_score_display and not self.score_saved:
                     end_screen = self.screens[ScreenState.END]
                     if end_screen and isinstance(end_screen, EndScreen):
-                        player = PlayerScore(end_screen.username, self.engine.score)
+                        player = PlayerScore(
+                            end_screen.username, self.engine.score
+                        )
                         last_score = self.highscore.add_score(player)
                         if hs := self.screens[ScreenState.HIGHSCORE]:
                             if isinstance(hs, HighscoreScreen):

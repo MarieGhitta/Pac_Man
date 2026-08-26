@@ -1,3 +1,6 @@
+"""Highscore screen displaying the top 10 scores."""
+
+
 import pygame
 
 from src.ui.screens.screen import Screen
@@ -6,11 +9,19 @@ from src.utils.screen_state import ScreenState
 
 
 class HighscoreScreen(Screen):
+    """Screen showing the top 10 leaderboard."""
+
     def __init__(
         self,
         surface: pygame.surface.Surface,
         scores: list[dict[str, str | int]]
     ) -> None:
+        """Initialize the highscore screen.
+
+        Args:
+            surface: The pygame surface to draw onto.
+            scores: Ordered list of score entries.
+        """
         super().__init__(surface)
         self.scores = scores
         self.last_score: int | None = None
@@ -18,6 +29,11 @@ class HighscoreScreen(Screen):
         self.endgame: bool = False
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Navigate back to the end screen or title screen.
+
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             match event.key:
                 case pygame.K_ESCAPE:
@@ -27,17 +43,23 @@ class HighscoreScreen(Screen):
                     )
                 case pygame.K_RETURN:
                     self.next_screen = (
-                        ScreenState.END 
+                        ScreenState.END
                         if self.endgame else ScreenState.TITLE
                     )
 
     def update(self, current_time: int) -> None:
+        """Toggle visibility of the highlighted score row for blinking effect.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         if self.last_score is not None:
             self.visible = False
             if (current_time // 500) % 2 == 0:
                 self.visible = True
 
     def draw(self) -> None:
+        """Draw the leaderboard with rank, username, and score columns."""
         self.surface.fill(Color.BLACK)
 
         title = self.font.render("HIGHSCORES", True, Color.WHITE)
