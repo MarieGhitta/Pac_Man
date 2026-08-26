@@ -64,31 +64,12 @@ class App:
             if screen := self.screens[self.screen_state]:
                 screen.handle_event(event)
 
-
     def _update(self, current_time: int) -> None:
-        match self.screen_state:
-            case ScreenState.TITLE:
-                if screen := self.screens[self.screen_state]:
-                    screen.update(current_time)
-                    screen.draw()
-            case ScreenState.GAME:
-                if screen := self.screens[self.screen_state]:
-                    screen.update(current_time)
-                    screen.draw()
-            case ScreenState.PAUSE:
-                if self.frozen_frame is not None:
-                    self.surface.blit(self.frozen_frame, (0, 0))
-                if screen := self.screens[self.screen_state]:
-                    screen.update(current_time)
-                    screen.draw()
-            case ScreenState.END:
-                if screen := self.screens[self.screen_state]:
-                    screen.update(current_time)
-                    screen.draw()
-            case ScreenState.HIGHSCORE:
-                if screen := self.screens[ScreenState.HIGHSCORE]:
-                    screen.update(current_time)
-                    screen.draw()
+        if self.screen_state == ScreenState.PAUSE and self.frozen_frame is not None:
+            self.surface.blit(self.frozen_frame, (0, 0))
+        if screen := self.screens[self.screen_state]:
+            screen.update(current_time)
+            screen.draw()
 
     def _handle_transitions(self, current_time: int) -> None:
         screen = self.screens[self.screen_state]
@@ -130,15 +111,21 @@ class App:
                             if isinstance(hs, HighscoreScreen):
                                 hs.scores = self.highscore.scores
                                 hs.last_score = last_score
+                                hs.endgame = (
+                                    self.screen_state == ScreenState.END
+                                )
                         self.score_saved = True
                 self.screen_state = ScreenState.HIGHSCORE
             case ScreenState.END:
-                ending = "win"
-                if self.engine.game_over:
-                    ending = "lose"
-                self.screens[ScreenState.END] = EndScreen(
-                    self.surface, current_time, ending
-                )
+                if self.screen_state == ScreenState.HIGHSCORE:
+                    if end := self.screens[ScreenState.END]:
+                        if isinstance(end, EndScreen):
+                            end.can_navigate = True
+                else:
+                    ending = "win" if self.engine.victory else "lose"
+                    self.screens[ScreenState.END] = EndScreen(
+                        self.surface, current_time, ending
+                    )
                 self.screen_state = ScreenState.END
             case ScreenState.QUIT:
                 self.running = False
