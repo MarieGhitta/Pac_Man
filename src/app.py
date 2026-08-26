@@ -117,6 +117,7 @@ class App:
                 )
                 self.screen_state = ScreenState.GAME
                 self.score_saved = False
+                self.endgame_score_display = False
             case ScreenState.PAUSE:
                 if pause := self.screens[ScreenState.PAUSE]:
                     pause.menu_index = 0
