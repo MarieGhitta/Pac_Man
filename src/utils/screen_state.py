@@ -6,6 +6,7 @@ class ScreenState(Enum):
     CHEAT = auto()
     GAME = auto()
     PAUSE = auto()
+    RESUME = auto()
     HIGHSCORE = auto()
     END = auto()
     QUIT = auto()
