@@ -3,9 +3,9 @@
 
 import pygame
 
-from src.app import ScreenState
 from src.utils.color import Color
 from src.ui.screens.screen import Screen
+from src.utils.screen_state import ScreenState
 
 
 class TitleScreen(Screen):
