@@ -3,8 +3,9 @@
 
 import pygame
 
+from src.app import ScreenState
 from src.utils.color import Color
-from src.ui.screen import Screen
+from src.ui.screens.screen import Screen
 
 
 class TitleScreen(Screen):
@@ -36,15 +37,15 @@ class TitleScreen(Screen):
                 case pygame.K_RETURN:
                     match self.menu_index:
                         case 0:
-                            self.next_screen = "game"
+                            self.next_screen = ScreenState.GAME
                         case 1:
-                            self.next_screen = "highscore"
+                            self.next_screen = ScreenState.HIGHSCORE
                         case 2:
-                            self.next_screen = "cheat"
+                            self.next_screen = ScreenState.CHEAT
                         case 3:
-                            self.next_screen = "quit"
+                            self.next_screen = ScreenState.QUIT
                 case pygame.K_ESCAPE:
-                    self.next_screen = "quit"
+                    self.next_screen = ScreenState.QUIT
 
     def update(self, current_time: int) -> None:
         """Advance the screen's internal state.

@@ -1,7 +1,8 @@
 import pygame
 
-from src.ui.screen import Screen
+from src.ui.screens.screen import Screen
 from src.utils.color import Color
+from src.utils.screen_state import ScreenState
 
 
 class HighscoreScreen(Screen):
@@ -20,9 +21,9 @@ class HighscoreScreen(Screen):
     ) -> None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.next_screen = "title"
+                self.next_screen = ScreenState.TITLE
             if event.key == pygame.K_RETURN and endgame_highscore:
-                self.next_screen = "end"
+                self.next_screen = ScreenState.END
                 self.last_score = None
 
     def update(self, current_time: int) -> None:
