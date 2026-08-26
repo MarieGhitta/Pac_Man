@@ -64,7 +64,7 @@ class HighscoreScreen(Screen):
 
         title = self.font.render("HIGHSCORES", True, Color.WHITE)
         title_rect = title.get_rect(
-            center=(self.width // 2, self.height // 4)
+            center=(self.width // 2, self.height // 5)
         )
         self.surface.blit(title, title_rect)
 
