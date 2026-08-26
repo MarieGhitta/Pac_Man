@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from src.utils.color import Color
+from src.utils.screen_state import ScreenState
 
 
 class Screen(ABC):
@@ -17,7 +18,7 @@ class Screen(ABC):
 
     def __init__(self, surface: pygame.surface.Surface) -> None:
         """Initialize the screen with no pending transition."""
-        self.next_screen: str | None = None
+        self.next_screen: ScreenState | None = None
         self.surface = surface
         self.width: int = surface.get_width()
         self.height: int = surface.get_height()

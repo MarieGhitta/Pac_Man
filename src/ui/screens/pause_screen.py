@@ -3,11 +3,12 @@
 
 import pygame
 
-from src.ui.screen import Screen
+from src.ui.screens.screen import Screen
 from src.utils.color import Color
+from src.utils.screen_state import ScreenState
 
 
-class PauseMenu(Screen):
+class PauseScreen(Screen):
     """In-game pause menu rendered over a frozen frame.
 
     Triggered by pressing ESC during gameplay. The game loop stops updating
@@ -42,13 +43,13 @@ class PauseMenu(Screen):
                 case pygame.K_RETURN:
                     match self.menu_index:
                         case 0:
-                            self.next_screen = "game"
+                            self.next_screen = ScreenState.GAME
                         case 1:
-                            self.next_screen = "title"
+                            self.next_screen = ScreenState.TITLE
                         case 2:
-                            self.next_screen = "quit"
+                            self.next_screen = ScreenState.QUIT
                 case pygame.K_ESCAPE:
-                    self.next_screen = "game"
+                    self.next_screen = ScreenState.QUIT
 
     def update(self, current_time: int) -> None:
         """No-op: the pause menu has no animated state.

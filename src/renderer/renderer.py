@@ -4,7 +4,7 @@
 import pygame
 
 from src.game.cell_content import CellContent
-from src.game.game import Game
+from src.game.engine import Engine
 from src.game.ghost import Ghost
 from src.game.ghost_type import GhostType
 from src.game.ghost_state import GhostState
@@ -42,7 +42,7 @@ class Renderer:
         pygame.display.set_caption("Pac-Man")
         self.font = pygame.font.Font(None, self.tile_size)
 
-    def draw(self, game: Game) -> None:
+    def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
 
         Args:
@@ -188,7 +188,7 @@ class Renderer:
             sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
         )
 
-    def _draw_hud(self, game: Game) -> None:
+    def _draw_hud(self, game: Engine) -> None:
         """Draw the HUD: score on the left, lives on the right.
 
         Args:
