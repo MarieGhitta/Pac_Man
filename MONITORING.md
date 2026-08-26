@@ -380,3 +380,23 @@ Affichage du top 10 en trois colonnes : rang (`midright` à 30% de la largeur), 
 `src/ui/highscore.py` : `add_score()` retourne désormais `int | None` — index du score dans la liste triée après troncature à 10, ou `None` si le score n'entre pas dans le top 10. Signature mise à jour en conséquence.
 `pac-man.py` : ajout de l'état `"highscore"` et du flag `endgame_highscore: bool`. Sauvegarde du score déplacée du case `"end"` vers le case `"highscore"` (déclenchée une seule fois quand `endgame_highscore and not score_saved`) ; `last_score` et `scores` de `highscore_screen` mis à jour immédiatement après `add_score()`. Transition `"end"` → `"highscore"` déclenchée par `end_screen.next_screen == "highscore"` avec `endgame_highscore = True`. Retour depuis `"highscore"` → `"title"` (ESC) ou `"highscore"` → `"end"` (RETURN en mode endgame, avec `end_screen.can_navigate = True` pour bypasser l'animation). Transition title → highscore : `screen_state = "highscore"` sans `endgame_highscore`.
 Prochain chantier : refactor de la partie UI et de la boucle principale.
+
+### #19 — 2026-08-26 — Refactor UI et boucle principale
+ 
+Création de `src/app.py` : classe `App` qui encapsule l'intégralité de la boucle applicative. `pac-man.py` réduit à l'entry point (`App().run()`).
+`App.__init__` : init pygame, instanciation de `surface`, `clock`, `config`, `engine`, `renderer`, `highscore`, dict `screens`, flags `running`, `score_saved`, `endgame_score_display`, `frozen_frame`.
+`App.run()` : boucle principale — `_handle_events()` → `_update(current_time)` → `_handle_transitions(current_time)` → `pygame.display.flip()` → `clock.tick(60)`.
+`App._handle_events()` : dispatch uniforme via `self.screens[self.screen_state].handle_event(event)` — plus de match par état.
+`App._update()` : match sur `self.screen_state` — `update()` + `draw()` par état. PAUSE blitte `frozen_frame` avant `draw()`.
+`App._handle_transitions()` : match sur `screen.next_screen` (destination) — toute la logique de transition centralisée ici. Tuple `(source, destination)` évité grâce à `ScreenState.RESUME` qui distingue resume-depuis-pause de nouvelle-partie.
+ 
+Création de `src/utils/screen_state.py` : enum `ScreenState` (TITLE / CHEAT / GAME / PAUSE / RESUME / HIGHSCORE / END / QUIT). Déplacé hors de `app.py` pour éviter l'import circulaire avec `screen.py`.
+`Screen.next_screen` : type `str | None` → `ScreenState | None`.
+ 
+Création de `src/ui/screens/game_screen.py` : `GameScreen(Screen)` wrappant `Engine` et `Renderer`. `handle_event()` gère les directions et émet `next_screen = ScreenState.PAUSE` sur ESC. `update()` appelle `engine.update()` et émet `next_screen = ScreenState.END` si `game_over` ou `victory`. `draw()` délègue à `renderer.draw(engine)`. Le dispatch dans `_handle_events` est désormais uniforme pour tous les états.
+ 
+`src/game/game.py` renommé `src/game/engine.py`, classe `Game` renommée `Engine`.
+ 
+Migration `src/ui/` → `src/ui/screens/` : `screen.py`, `title_screen.py`, `pause_menu.py` (renommé `pause_screen.py`), `end_screen.py`, `highscore_screen.py` déplacés dans `src/ui/screens/`.
+ 
+Fix LSP : `HighscoreScreen.handle_event(event, endgame_highscore)` — paramètre `endgame_highscore` supprimé de la signature. `endgame_score_display` devient un flag de `App`, settable dans `_handle_transitions`.
