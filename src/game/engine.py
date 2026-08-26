@@ -38,7 +38,7 @@ _GHOST_CHASE_DELAY: list[list[float]] = [
 _GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
 
 
-class Game:
+class Engine:
     """Represent the game."""
 
     def __init__(self, config: Config):

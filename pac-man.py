@@ -5,7 +5,7 @@ import pygame
 
 from src.config.loader import ConfigLoader
 from src.game.direction import Direction
-from src.game.game import Game
+from src.game.engine import Engine
 from src.renderer.renderer import Renderer
 from src.ui.end_screen import EndScreen
 from src.ui.highscore import Highscore
@@ -26,7 +26,7 @@ def main() -> None:
         )
         config = ConfigLoader().load("config.json")
         highscore = Highscore(config.highscore_filename)
-        game = Game(config)
+        game = Engine(config)
         screen_state = "title"
         title_screen = TitleScreen(surface)
         end_screen: EndScreen | None = None
@@ -80,7 +80,7 @@ def main() -> None:
                         match title_screen.next_screen:
                             case "game":
                                 title_screen.menu_index = 0
-                                game = Game(config)
+                                game = Engine(config)
                                 renderer = Renderer(game.level, surface)
                                 screen_state = "game"
                                 score_saved = False
@@ -124,7 +124,7 @@ def main() -> None:
                             match end_screen.next_screen:
                                 case "game":
                                     title_screen.menu_index = 0
-                                    game = Game(config)
+                                    game = Engine(config)
                                     renderer = Renderer(game.level, surface)
                                     screen_state = "game"
                                     score_saved = False
