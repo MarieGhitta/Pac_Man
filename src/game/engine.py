@@ -158,7 +158,6 @@ class Engine:
         self.current_level_index += 1
         if self.current_level_index >= len(self.config.levels):
             self.victory = True
-            print("You win!")
             return
         self.level = Level(
             self.config.levels[self.current_level_index],
@@ -308,7 +307,6 @@ class Engine:
         self.lives -= 1
         if self.lives == 0:
             self.game_over = True
-            print("Game Over")
             return
         self._reset_positions()
 
@@ -369,3 +367,4 @@ class Engine:
         self.player.last_update += duration
         for ghost in self.ghosts:
             ghost.last_update += duration
+            ghost.frightened_until += duration
