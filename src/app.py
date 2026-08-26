@@ -79,6 +79,9 @@ class App:
             case ScreenState.TITLE:
                 if title := self.screens[ScreenState.TITLE]:
                     title.menu_index = 0
+                if hs := self.screens[ScreenState.HIGHSCORE]:
+                    if isinstance(hs, HighscoreScreen):
+                        hs.last_score = None
                 self.screen_state = ScreenState.TITLE
             case ScreenState.CHEAT:
                 pass
@@ -111,10 +114,10 @@ class App:
                             if isinstance(hs, HighscoreScreen):
                                 hs.scores = self.highscore.scores
                                 hs.last_score = last_score
-                                hs.endgame = (
-                                    self.screen_state == ScreenState.END
-                                )
                         self.score_saved = True
+                if hs := self.screens[ScreenState.HIGHSCORE]:
+                    if isinstance(hs, HighscoreScreen):
+                        hs.endgame = (self.screen_state == ScreenState.END)
                 self.screen_state = ScreenState.HIGHSCORE
             case ScreenState.END:
                 if self.screen_state == ScreenState.HIGHSCORE:
