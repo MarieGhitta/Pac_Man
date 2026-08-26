@@ -76,6 +76,15 @@ class Screen(ABC):
         pos: tuple[int, int],
         alpha: int = 255
     ) -> None:
+        """Render a centered logo text at a fractional screen position.
+
+        Args:
+            text: The text to render.
+            title_font: The font to use.
+            color: RGB or RGBA color of the text.
+            pos: Divisors (dx, dy).
+            alpha: Opacity from 0 (transparent) to 255 (opaque).
+        """
         logo = title_font.render(text, True, color)
         logo_rect = logo.get_rect(
             center=(self.width // pos[0], self.height // pos[1])

@@ -73,6 +73,7 @@ class Engine:
         self.elapsed_before_fright: int = 0
         self.is_frighten: bool = False
         self.eat_ghost_combo: int = 0
+        self._pause_start: int = 0
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""

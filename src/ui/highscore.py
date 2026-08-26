@@ -43,7 +43,9 @@ class Highscore():
             username: player name.
             score: player score.
         """
-        entry = {"username": player.username, "score": player.score}
+        entry: dict[str, str | int] = {
+            "username": player.username, "score": player.score
+        }
         self.scores.append(entry)
         self.scores = sorted(
             self.scores, key=lambda n: n["score"], reverse=True

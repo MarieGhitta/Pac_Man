@@ -1,3 +1,6 @@
+"""End screen shown on game over or victory."""
+
+
 import pygame
 
 from src.ui.screens.screen import Screen
@@ -6,12 +9,21 @@ from src.utils.screen_state import ScreenState
 
 
 class EndScreen(Screen):
+    """Animated end screen with username input and navigation menu."""
+
     def __init__(
         self,
         surface: pygame.surface.Surface,
         current_time: int,
         ending: str
     ) -> None:
+        """Initialize the end screen.
+
+        Args:
+            surface: The pygame surface to draw onto.
+            current_time: Time in milliseconds used as animation origin.
+            ending: ``"win"`` or ``"lose"``, controls logo text and color.
+        """
         super().__init__(surface)
         self.ending = ending
         self.title_font: pygame.font.Font = pygame.font.Font(
@@ -36,6 +48,11 @@ class EndScreen(Screen):
         self.can_write: bool = False
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle keyboard input for username entry and menu navigation.
+
+        Args:
+            event: The pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             if self.can_write:
                 match event.key:
@@ -69,6 +86,11 @@ class EndScreen(Screen):
                         self.can_navigate = False
 
     def update(self, current_time: int) -> None:
+        """Advance animation alphas and toggle input/navigation flags.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         elapsed = current_time - self.fade_start
         self.overlay_alpha = int(min(1.0, elapsed / 1500) * 255)
         if elapsed < 2500:
@@ -77,10 +99,9 @@ class EndScreen(Screen):
         else:
             fade_out_progress = min(1.0, (elapsed - 3500) / 800)
             self.logo_alpha = int((1.0 - fade_out_progress) * 255)
-            if elapsed < 5000:
-                score_progress = max(0.0, (elapsed - 4300) / 1000)
-                self.score_alpha = int(min(1.0, score_progress) * 255)
-            else:
+            score_progress = max(0.0, (elapsed - 4300) / 1000)
+            self.score_alpha = int(min(1.0, score_progress) * 255)
+            if elapsed >= 5000:
                 if not self.can_navigate:
                     self.can_write = True
                 else:
@@ -88,8 +109,8 @@ class EndScreen(Screen):
                     self.score_alpha = 0
                     self.menu_alpha = 255
 
-
     def draw(self) -> None:
+        """Draw the overlay, logo, score input, and navigation menu."""
         end_msg = "YOU DIED"
         color = Color.RED
         if self.ending == "win":

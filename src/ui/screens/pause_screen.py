@@ -43,13 +43,13 @@ class PauseScreen(Screen):
                 case pygame.K_RETURN:
                     match self.menu_index:
                         case 0:
-                            self.next_screen = ScreenState.GAME
+                            self.next_screen = ScreenState.RESUME
                         case 1:
                             self.next_screen = ScreenState.TITLE
                         case 2:
                             self.next_screen = ScreenState.QUIT
                 case pygame.K_ESCAPE:
-                    self.next_screen = ScreenState.QUIT
+                    self.next_screen = ScreenState.RESUME
 
     def update(self, current_time: int) -> None:
         """No-op: the pause menu has no animated state.
@@ -57,7 +57,7 @@ class PauseScreen(Screen):
         Args:
             current_time: Current time in milliseconds (unused).
         """
-        return super().update(current_time)
+        pass
 
     def draw(self) -> None:
         """Render the overlay and menu items onto the surface."""

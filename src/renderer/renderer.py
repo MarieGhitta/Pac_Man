@@ -55,7 +55,6 @@ class Renderer:
         self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
         self._draw_hud(game)
-        pygame.display.flip()
 
     def _draw_maze(self, maze: Maze) -> None:
         """Draw all maze cells, including walls and cell contents.
@@ -229,7 +228,7 @@ class Renderer:
             return
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size: int = min(
+        self.tile_size = min(
             int(self.surface_width * 0.8) // self.maze_width,
             int(self.surface_height * 0.8) // self.maze_height
         )
