@@ -3,11 +3,11 @@
 
 import pygame
 
-from src.game.direction import Direction
 from src.game.engine import Engine
 from src.renderer.renderer import Renderer
 from src.ui.screens.screen import Screen
 from src.utils.screen_state import ScreenState
+from src.utils.sprite_enums import Direction
 
 
 class GameScreen(Screen):
