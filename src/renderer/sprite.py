@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import math
 
 import pygame
 
@@ -152,22 +151,26 @@ class GhostSprite(Sprite):
         self.anim_speed = 75
 
     def _build_frames(self) -> None:
-        frames = [self._build_frame(i) for i in range(6)]
+        frames = [self._build_frame(i) for i in range(8)]
         side = frames[:2]
         up = frames[2:4]
-        down = frames[4:]
+        down = frames[4:6]
+        frightened = frames[6:]
+
         self.frames[(Direction.RIGHT, GhostState.CHASE)] = side
         self.frames[(Direction.LEFT, GhostState.CHASE)] = [
             pygame.transform.flip(f, True, False) for f in side
         ]
         self.frames[(Direction.UP, GhostState.CHASE)] = up
         self.frames[(Direction.DOWN, GhostState.CHASE)] = down
+
         for direction in [
             Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN
         ]:
             self.frames[(direction, GhostState.SCATTER)] = self.frames[
                 (direction, GhostState.CHASE)
             ]
+            self.frames[direction, GhostState.FRIGHTENED] = frightened
 
     def _build_frame(self, frame_index: int) -> pygame.surface.Surface:
         frames = [
@@ -303,6 +306,50 @@ class GhostSprite(Sprite):
                 "00000000000000000000",
                 "00000000000000000000"
             ],
+            [
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000333300000000",
+                "00000033333333000000",
+                "00000333333333300000",
+                "00003333333333330000",
+                "00003333333333330000",
+                "00003334433443330000",
+                "00033334433443333000",
+                "00033333333333333000",
+                "00033333333333333000",
+                "00033443344334433000",
+                "00034334433443343000",
+                "00033333333333333000",
+                "00033033333333033000",
+                "00030003300330003000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000"
+            ],
+            [
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000333300000000",
+                "00000033333333000000",
+                "00000333333333300000",
+                "00003333333333330000",
+                "00003333333333330000",
+                "00003334433443330000",
+                "00033334433443333000",
+                "00033333333333333000",
+                "00033333333333333000",
+                "00033443344334433000",
+                "00034334433443343000",
+                "00033333333333333000",
+                "00033330333303333000",
+                "00003300033000330000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000"
+            ],
 
         ]
         grid = frames[frame_index]
@@ -318,6 +365,8 @@ class GhostSprite(Sprite):
                         surface.set_at((x, y), Color.WHITE)
                     case "3":
                         surface.set_at((x, y), Color.BLUE)
+                    case "4":
+                        surface.set_at((x, y), Color.LIGHTPINK)
         surface = pygame.transform.scale(
             surface, (self.tile_size, self.tile_size)
         )
