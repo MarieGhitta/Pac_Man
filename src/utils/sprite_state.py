@@ -22,3 +22,12 @@ class PacmanState(SpriteState):
 
     ALIVE = auto()
     DYING = auto()
+
+
+class GhostType(Enum):
+    """Represent the ghost types."""
+
+    BLINKY = auto()
+    PINKY = auto()
+    INKY = auto()
+    CLYDE = auto()
