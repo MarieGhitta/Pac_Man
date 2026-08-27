@@ -15,6 +15,7 @@ class Color():
     PURPLE = (128, 0, 255)
     MAGENTA = (255, 0, 255)
     PINK = (255, 168, 222)
+    LIGHTPINK = (250, 185, 176)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     ALPHA_BLACK = (0, 0, 0, 200)
