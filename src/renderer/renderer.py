@@ -39,7 +39,10 @@ class Renderer:
         self.offset_y = (
             (self.surface_height - self.maze_height * self.tile_size) // 2
         )
-        self.font = pygame.font.Font(None, self.tile_size)
+        self.font_size: int = self.surface_height // 32
+        self.font: pygame.font.Font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size
+        )
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -100,13 +103,22 @@ class Renderer:
     def _draw_wall(
         self, start_pos: tuple[int, int], end_pos: tuple[int, int]
     ) -> None:
-        """Draw a single wall segment as a blue line.
+        """Draw a wall segment as a blue tube: thick blue line with a black
+        inner line to create a hollow outlined effect.
 
         Args:
             start_pos: Screen coordinates of the wall's start point.
             end_pos: Screen coordinates of the wall's end point.
         """
-        pygame.draw.line(self.surface, Color.BLUE, start_pos, end_pos, 3)
+        outer = max(4, self.tile_size // 4)
+        inner = max(2, self.tile_size // 5)
+        radius = outer // 2
+        pygame.draw.line(self.surface, Color.BLUE, start_pos, end_pos, outer)
+        pygame.draw.line(self.surface, Color.BLACK, start_pos, end_pos, inner)
+        pygame.draw.circle(self.surface, Color.BLUE, start_pos, radius)
+        pygame.draw.circle(self.surface, Color.BLACK, start_pos, inner // 2)
+        pygame.draw.circle(self.surface, Color.BLUE, end_pos, radius)
+        pygame.draw.circle(self.surface, Color.BLACK, end_pos, inner // 2)
 
     def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
@@ -121,14 +133,14 @@ class Renderer:
                     self.surface,
                     Color.WHITE,
                     (center_x, center_y),
-                    self.tile_size // 8,
+                    self.tile_size // 12,
                 )
             case CellContent.SUPER_PACGUM:
                 pygame.draw.circle(
                     self.surface,
                     Color.WHITE,
                     (center_x, center_y),
-                    self.tile_size // 4,
+                    self.tile_size // 6,
                 )
 
     def _draw_player(self, player: Player, current_time: int) -> None:
@@ -144,7 +156,7 @@ class Renderer:
             self.surface,
             Color.YELLOW,
             (center_x, center_y),
-            self.tile_size // 3,
+            self.tile_size // 3.5,
         )
 
     def _to_screen(
