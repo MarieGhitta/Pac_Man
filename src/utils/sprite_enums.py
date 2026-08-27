@@ -31,3 +31,12 @@ class GhostType(Enum):
     PINKY = auto()
     INKY = auto()
     CLYDE = auto()
+
+
+class Direction(Enum):
+    """Represent the possible movement directions."""
+
+    UP = auto()
+    RIGHT = auto()
+    DOWN = auto()
+    LEFT = auto()

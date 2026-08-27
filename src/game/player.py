@@ -1,7 +1,7 @@
 """Manage Pac-Man."""
 
 
-from src.game.direction import Direction
+from src.utils.sprite_enums import Direction
 
 
 class Player:

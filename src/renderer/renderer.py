@@ -6,12 +6,11 @@ import pygame
 from src.game.cell_content import CellContent
 from src.game.engine import Engine
 from src.game.ghost import Ghost
-from src.game.ghost_type import GhostType
-from src.game.ghost_state import GhostState
 from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
 from src.utils.color import Color
+from src.utils.sprite_enums import GhostState, GhostType
 
 
 class Renderer:
