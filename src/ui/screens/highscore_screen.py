@@ -90,6 +90,7 @@ class HighscoreScreen(Screen):
         ]
 
         for i, el in enumerate(self.scores):
+
             if i == self.last_score and not self.visible:
                 continue
             rank = self.font.render(str(i + 1), True, colors[i])
@@ -97,12 +98,12 @@ class HighscoreScreen(Screen):
                 midright=(col_rank_x, row_start_y + i * line_height)
             )
             self.surface.blit(rank, rank_rect)
-            name = self.font.render(str(el["username"]), True, colors[i])
+            name = self.font.render(str(el["username"])[:10], True, colors[i])
             name_rect = name.get_rect(
                 midleft=(col_name_x, row_start_y + i * line_height)
             )
             self.surface.blit(name, name_rect)
-            score = self.font.render(str(el["score"]), True, colors[i])
+            score = self.font.render(str(el["score"])[:9], True, colors[i])
             score_rect = score.get_rect(
                 midright=(col_score_x, row_start_y + i * line_height)
             )
