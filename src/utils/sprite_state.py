@@ -1,0 +1,24 @@
+"""Sprite state enums for the animation system."""
+
+
+from enum import Enum, auto
+
+
+class SpriteState(Enum):
+    """Base class for all sprite animation states."""
+
+
+class GhostState(SpriteState):
+    """Represent differents states of ghosts."""
+
+    FRIGHTENED = auto()
+    CHASE = auto()
+    SCATTER = auto()
+    RESPAWN = auto()
+
+
+class PacmanState(SpriteState):
+    """Animation states for Pac-Man."""
+
+    ALIVE = auto()
+    DYING = auto()
