@@ -9,8 +9,9 @@ from src.game.ghost import Ghost
 from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
+from src.renderer.sprite import PacmanSprite, GhostSprite
 from src.utils.color import Color
-from src.utils.sprite_enums import GhostState, GhostType
+from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 
 
 class Renderer:
@@ -28,7 +29,7 @@ class Renderer:
         self.surface_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size: int = 16
+        self.tile_size: int = 20
         self.logical_surface = pygame.Surface((
             self.maze_width * self.tile_size + self.tile_size,
             self.maze_height * self.tile_size + self.tile_size
@@ -46,6 +47,13 @@ class Renderer:
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
+        self.pacman_sprite: PacmanSprite = PacmanSprite(self.tile_size)
+        self.ghost_sprites = {
+            GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
+            GhostType.PINKY: GhostSprite(self.tile_size, Color.PINK),
+            GhostType.INKY: GhostSprite(self.tile_size, Color.CYAN),
+            GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
+        }
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -115,7 +123,9 @@ class Renderer:
             start_pos: Screen coordinates of the wall's start point.
             end_pos: Screen coordinates of the wall's end point.
         """
-        pygame.draw.line(self.logical_surface, Color.BLUE, start_pos, end_pos, 2)
+        pygame.draw.line(
+            self.logical_surface, Color.BLUE, start_pos, end_pos, 2
+        )
 
     def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
@@ -152,13 +162,15 @@ class Renderer:
             current_time: Current time in milliseconds for interpolation.
         """
         render_x, render_y = self._interpolate(player, current_time)
-        center_x, center_y = self._to_screen(render_x, render_y, centered=True)
-        pygame.draw.circle(
+        center_x, center_y = self._to_screen(render_x, render_y)
+        self.pacman_sprite.update(current_time)
+        self.pacman_sprite.draw(
             self.logical_surface,
-            Color.YELLOW,
-            (center_x, center_y),
-            self.tile_size // 3,
+            center_x,
+            center_y,
+            (player.direction, PacmanState.ALIVE)
         )
+
 
     def _to_screen(
         self, x: float, y: float, centered: bool = False
@@ -261,16 +273,9 @@ class Renderer:
         for ghost in ghosts:
             render_x, render_y = self._interpolate(ghost, current_time)
             corner_x, corner_y = self._to_screen(render_x, render_y)
-            margin = self.tile_size // 4
-            points = [
-                (corner_x + self.tile_size // 2, corner_y + margin),
-                (
-                    corner_x + self.tile_size - margin,
-                    corner_y + self.tile_size - margin
-                ),
-                (corner_x + margin, corner_y + self.tile_size - margin)
-            ]
-            pygame.draw.polygon(self.logical_surface, self._ghost_color(ghost), points)
+            sprite = self.ghost_sprites[ghost.ghost_type]
+            sprite.update(current_time)
+            sprite.draw(self.logical_surface, corner_x, corner_y, (ghost.direction, ghost.state))
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the display color of a ghost based on its state and type.
