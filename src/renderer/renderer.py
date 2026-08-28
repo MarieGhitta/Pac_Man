@@ -63,15 +63,17 @@ class Renderer:
         """
         self._update_window(game.level)
         self.logical_surface.fill(Color.BLACK)
-        self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
+        self._draw_maze(game.level.maze, current_time)
         self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
-        scaled = pygame.transform.scale(self.logical_surface, (self.scaled_w, self.scaled_h))
+        scaled = pygame.transform.scale(
+            self.logical_surface, (self.scaled_w, self.scaled_h)
+        )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
         self._draw_hud(game)
 
-    def _draw_maze(self, maze: Maze) -> None:
+    def _draw_maze(self, maze: Maze, current_time: int) -> None:
         """Draw all maze cells, including walls and cell contents.
 
         Args:
@@ -82,7 +84,7 @@ class Renderer:
                 surface_x = cell.x * self.tile_size + self.maze_offset
                 surface_y = cell.y * self.tile_size + self.maze_offset
                 self._draw_walls(cell, surface_x, surface_y)
-                self._draw_cell_content(cell)
+                self._draw_cell_content(cell, current_time)
 
     def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
@@ -127,7 +129,7 @@ class Renderer:
             self.logical_surface, Color.BLUE, start_pos, end_pos, 2
         )
 
-    def _draw_cell_content(self, cell: Cell) -> None:
+    def _draw_cell_content(self, cell: Cell, current_time: int) -> None:
         """Draw the content of a maze cell.
 
         Args:
@@ -147,12 +149,13 @@ class Renderer:
                     )
                 )
             case CellContent.SUPER_PACGUM:
-                pygame.draw.circle(
-                    self.logical_surface,
-                    Color.LIGHTPINK,
-                    (center_x, center_y),
-                    self.tile_size // 5,
-                )
+                if (current_time // 150) % 2 == 0:
+                    pygame.draw.circle(
+                        self.logical_surface,
+                        Color.LIGHTPINK,
+                        (center_x, center_y),
+                        self.tile_size // 4,
+                    )
 
     def _draw_player(self, player: Player, current_time: int) -> None:
         """Draw the player at its interpolated position.
