@@ -34,6 +34,7 @@ _GHOST_CHASE_DELAY: list[list[float]] = [
     [2e4, 2e4, 1037e3, float("inf")]
 ]
 _GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
+_DEATH_DELAY: int = 1500
 
 
 class Engine:
@@ -72,6 +73,8 @@ class Engine:
         self.is_frighten: bool = False
         self.eat_ghost_combo: int = 0
         self._pause_start: int = 0
+        self.dying: bool = False
+        self._death_start: int = 0
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -183,6 +186,14 @@ class Engine:
         if self.game_over or self.victory:
             return
         current_time = pygame.time.get_ticks()
+        if self.dying:
+            if current_time - self._death_start >= _DEATH_DELAY:
+                self.dying = False
+                if self.lives == 0:
+                    self.game_over = True
+                else:
+                    self._reset_positions()
+            return
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
@@ -303,10 +314,8 @@ class Engine:
     def _player_hit(self) -> None:
         """Handle the player being hit."""
         self.lives -= 1
-        if self.lives == 0:
-            self.game_over = True
-            return
-        self._reset_positions()
+        self.dying = True
+        self._death_start = pygame.time.get_ticks()
 
     def _reset_positions(self) -> None:
         """Reset the player and ghosts positions."""
