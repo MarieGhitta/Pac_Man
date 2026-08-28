@@ -6,12 +6,12 @@ import pygame
 from src.game.cell_content import CellContent
 from src.game.engine import Engine
 from src.game.ghost import Ghost
-from src.game.ghost_type import GhostType
-from src.game.ghost_state import GhostState
 from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
+from src.renderer.sprite import PacmanSprite, GhostSprite
 from src.utils.color import Color
+from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 
 
 class Renderer:
@@ -29,20 +29,31 @@ class Renderer:
         self.surface_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size: int = min(
-            int(self.surface_width * 0.8) // self.maze_width,
-            int(self.surface_height * 0.8) // self.maze_height
+        self.tile_size: int = 20
+        self.logical_surface = pygame.Surface((
+            self.maze_width * self.tile_size + self.tile_size,
+            self.maze_height * self.tile_size + self.tile_size
+        ))
+        self.scale = min(
+            int(self.surface_width * 0.8) // (self.maze_width * self.tile_size),
+            int(self.surface_height * 0.8) // (self.maze_height * self.tile_size)
         )
-        self.offset_x = (
-            (self.surface_width - self.maze_width * self.tile_size) // 2
-        )
-        self.offset_y = (
-            (self.surface_height - self.maze_height * self.tile_size) // 2
-        )
+        self.scaled_w: int = (self.maze_width * self.tile_size + self.tile_size) * self.scale
+        self.scaled_h: int = (self.maze_height * self.tile_size + self.tile_size) * self.scale
+        self.offset_x: int = (self.surface_width - self.scaled_w) // 2
+        self.offset_y: int = (self.surface_height - self.scaled_h) // 2
+        self.maze_offset: int = self.tile_size // 2
         self.font_size: int = self.surface_height // 32
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
+        self.pacman_sprite: PacmanSprite = PacmanSprite(self.tile_size)
+        self.ghost_sprites = {
+            GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
+            GhostType.PINKY: GhostSprite(self.tile_size, Color.PINK),
+            GhostType.INKY: GhostSprite(self.tile_size, Color.CYAN),
+            GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
+        }
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -51,11 +62,13 @@ class Renderer:
             game: The current game state.
         """
         self._update_window(game.level)
-        self.surface.fill(Color.BLACK)
+        self.logical_surface.fill(Color.BLACK)
         self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
         self._draw_player(game.player, current_time)
         self._draw_ghosts(game.ghosts, current_time)
+        scaled = pygame.transform.scale(self.logical_surface, (self.scaled_w, self.scaled_h))
+        self.surface.blit(scaled, (self.offset_x, self.offset_y))
         self._draw_hud(game)
 
     def _draw_maze(self, maze: Maze) -> None:
@@ -66,8 +79,8 @@ class Renderer:
         """
         for row in maze.cells:
             for cell in row:
-                surface_x = self.offset_x + cell.x * self.tile_size
-                surface_y = self.offset_y + cell.y * self.tile_size
+                surface_x = cell.x * self.tile_size + self.maze_offset
+                surface_y = cell.y * self.tile_size + self.maze_offset
                 self._draw_walls(cell, surface_x, surface_y)
                 self._draw_cell_content(cell)
 
@@ -110,15 +123,9 @@ class Renderer:
             start_pos: Screen coordinates of the wall's start point.
             end_pos: Screen coordinates of the wall's end point.
         """
-        outer = max(4, self.tile_size // 4)
-        inner = max(2, self.tile_size // 5)
-        radius = outer // 2
-        pygame.draw.line(self.surface, Color.BLUE, start_pos, end_pos, outer)
-        pygame.draw.line(self.surface, Color.BLACK, start_pos, end_pos, inner)
-        pygame.draw.circle(self.surface, Color.BLUE, start_pos, radius)
-        pygame.draw.circle(self.surface, Color.BLACK, start_pos, inner // 2)
-        pygame.draw.circle(self.surface, Color.BLUE, end_pos, radius)
-        pygame.draw.circle(self.surface, Color.BLACK, end_pos, inner // 2)
+        pygame.draw.line(
+            self.logical_surface, Color.BLUE, start_pos, end_pos, 2
+        )
 
     def _draw_cell_content(self, cell: Cell) -> None:
         """Draw the content of a maze cell.
@@ -129,18 +136,22 @@ class Renderer:
         center_x, center_y = self._to_screen(cell.x, cell.y, centered=True)
         match cell.content:
             case CellContent.PACGUM:
-                pygame.draw.circle(
-                    self.surface,
-                    Color.WHITE,
-                    (center_x, center_y),
-                    self.tile_size // 12,
+                pygame.draw.rect(
+                    self.logical_surface,
+                    Color.LIGHTPINK,
+                    (
+                        center_x - self.tile_size // 12,
+                        center_y - self.tile_size // 12,
+                        self.tile_size // 6,
+                        self.tile_size // 6
+                    )
                 )
             case CellContent.SUPER_PACGUM:
                 pygame.draw.circle(
-                    self.surface,
-                    Color.WHITE,
+                    self.logical_surface,
+                    Color.LIGHTPINK,
                     (center_x, center_y),
-                    self.tile_size // 6,
+                    self.tile_size // 5,
                 )
 
     def _draw_player(self, player: Player, current_time: int) -> None:
@@ -151,13 +162,18 @@ class Renderer:
             current_time: Current time in milliseconds for interpolation.
         """
         render_x, render_y = self._interpolate(player, current_time)
-        center_x, center_y = self._to_screen(render_x, render_y, centered=True)
-        pygame.draw.circle(
-            self.surface,
-            Color.YELLOW,
-            (center_x, center_y),
-            self.tile_size // 3.5,
+        center_x, center_y = self._to_screen(render_x, render_y)
+        self.pacman_sprite.update(
+            current_time,
+            (player.direction, PacmanState.ALIVE)
         )
+        self.pacman_sprite.draw(
+            self.logical_surface,
+            center_x,
+            center_y,
+            (player.direction, PacmanState.ALIVE)
+        )
+
 
     def _to_screen(
         self, x: float, y: float, centered: bool = False
@@ -174,8 +190,8 @@ class Renderer:
         """
         half = self.tile_size // 2 if centered else 0
         return (
-            int(self.offset_x + x * self.tile_size + half),
-            int(self.offset_y + y * self.tile_size + half)
+            round(x * self.tile_size + half + self.maze_offset + 1),
+            round(y * self.tile_size + half + self.maze_offset + 1)
         )
 
     def _interpolate(
@@ -260,16 +276,17 @@ class Renderer:
         for ghost in ghosts:
             render_x, render_y = self._interpolate(ghost, current_time)
             corner_x, corner_y = self._to_screen(render_x, render_y)
-            margin = self.tile_size // 4
-            points = [
-                (corner_x + self.tile_size // 2, corner_y + margin),
-                (
-                    corner_x + self.tile_size - margin,
-                    corner_y + self.tile_size - margin
-                ),
-                (corner_x + margin, corner_y + self.tile_size - margin)
-            ]
-            pygame.draw.polygon(self.surface, self._ghost_color(ghost), points)
+            sprite = self.ghost_sprites[ghost.ghost_type]
+            sprite.update(
+                current_time,
+                (ghost.direction, ghost.state)
+            )
+            sprite.draw(
+                self.logical_surface,
+                corner_x,
+                corner_y,
+                (ghost.direction, ghost.state)
+            )
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the display color of a ghost based on its state and type.
