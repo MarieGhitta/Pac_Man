@@ -61,12 +61,14 @@ class Renderer:
         Args:
             game: The current game state.
         """
+        dying = game.dying or (game.game_over and not game.victory)
         self._update_window(game.level)
         self.logical_surface.fill(Color.BLACK)
         current_time = pygame.time.get_ticks()
         self._draw_maze(game.level.maze, current_time)
-        self._draw_player(game.player, current_time)
-        self._draw_ghosts(game.ghosts, current_time)
+        if not dying:
+            self._draw_ghosts(game.ghosts, current_time)
+        self._draw_player(game.player, current_time, dying)
         scaled = pygame.transform.scale(
             self.logical_surface, (self.scaled_w, self.scaled_h)
         )
@@ -157,7 +159,9 @@ class Renderer:
                         self.tile_size // 4,
                     )
 
-    def _draw_player(self, player: Player, current_time: int) -> None:
+    def _draw_player(
+        self, player: Player, current_time: int, dying: bool
+    ) -> None:
         """Draw the player at its interpolated position.
 
         Args:
@@ -166,15 +170,13 @@ class Renderer:
         """
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y)
-        self.pacman_sprite.update(
-            current_time,
-            (player.direction, PacmanState.ALIVE)
+        variant = (
+            (None, PacmanState.DYING)
+            if dying else (player.direction, PacmanState.ALIVE)
         )
+        self.pacman_sprite.update(current_time, variant)
         self.pacman_sprite.draw(
-            self.logical_surface,
-            center_x,
-            center_y,
-            (player.direction, PacmanState.ALIVE)
+            self.logical_surface, center_x, center_y, variant
         )
 
 
