@@ -47,6 +47,9 @@ class Renderer:
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
+        self.countdown_font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size * 7
+        )
         self.pacman_sprite: PacmanSprite = PacmanSprite(self.tile_size)
         self.ghost_sprites = {
             GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
@@ -73,6 +76,8 @@ class Renderer:
             self.logical_surface, (self.scaled_w, self.scaled_h)
         )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
+        if game.counting_down:
+            self._draw_countdown(game.countdown)
         self._draw_hud(game)
 
     def _draw_maze(self, maze: Maze, current_time: int) -> None:
@@ -304,3 +309,13 @@ class Renderer:
             if (current_time // 250) % 2 == 0:
                 return GhostState.FLICKER
         return ghost.state
+
+    def _draw_countdown(self, countdown: int) -> None:
+        overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 150))
+        self.surface.blit(overlay, (0, 0))
+        text = self.countdown_font.render(str(countdown), True, Color.YELLOW)
+        rect = text.get_rect(center=(
+            self.surface.get_width() // 2, self.surface.get_height() // 2)
+        )
+        self.surface.blit(text, rect)
