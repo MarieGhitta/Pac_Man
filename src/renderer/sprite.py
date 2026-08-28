@@ -25,9 +25,13 @@ class Sprite(ABC):
     def _build_frames(self) -> None:
         pass
 
-    def update(self, current_time: int) -> None:
+    def update(
+        self, current_time: int, variant: tuple[Direction | None, SpriteState]
+    ) -> None:
+        if not self.frames[variant]:
+            return
         if current_time - self.last_anim_update >= self.anim_speed:
-            self.anim_tick = (self.anim_tick + 1) % self.anim_count
+            self.anim_tick = (self.anim_tick + 1) % len(self.frames[variant])
             self.last_anim_update = current_time
 
     def draw(
@@ -37,7 +41,10 @@ class Sprite(ABC):
         y: int,
         variant: tuple[Direction | None, SpriteState]
     ) -> None:
-        surface.blit(self.frames[variant][self.anim_tick], (x, y))
+        if not self.frames[variant]:
+            return
+        tick = self.anim_tick % len(self.frames[variant])
+        surface.blit(self.frames[variant][tick], (x, y))
 
 
 class PacmanSprite(Sprite):
@@ -156,6 +163,10 @@ class GhostSprite(Sprite):
         up = frames[2:4]
         down = frames[4:6]
         frightened = frames[6:]
+        respawn_frames = [self._build_frame(i, respawn=True) for i in range(6)]
+        respawn_side = respawn_frames[:2]
+        respawn_up = respawn_frames[2:4]
+        respawn_down = respawn_frames[4:6]
 
         self.frames[(Direction.RIGHT, GhostState.CHASE)] = side
         self.frames[(Direction.LEFT, GhostState.CHASE)] = [
@@ -172,7 +183,16 @@ class GhostSprite(Sprite):
             ]
             self.frames[direction, GhostState.FRIGHTENED] = frightened
 
-    def _build_frame(self, frame_index: int) -> pygame.surface.Surface:
+        self.frames[(Direction.RIGHT, GhostState.RESPAWN)] = respawn_side
+        self.frames[(Direction.LEFT, GhostState.RESPAWN)] = [
+            pygame.transform.flip(f, True, False) for f in respawn_side
+        ]
+        self.frames[(Direction.UP, GhostState.RESPAWN)] = respawn_up
+        self.frames[(Direction.DOWN, GhostState.RESPAWN)] = respawn_down
+
+    def _build_frame(
+        self, frame_index: int, respawn: bool = False
+    ) -> pygame.surface.Surface:
         frames = [
             [
                 "00000000000000000000",
@@ -360,7 +380,8 @@ class GhostSprite(Sprite):
             for x, pixel in enumerate(row):
                 match pixel:
                     case "1":
-                        surface.set_at((x, y), self.color)
+                        if not respawn:
+                            surface.set_at((x, y), self.color)
                     case "2":
                         surface.set_at((x, y), Color.WHITE)
                     case "3":

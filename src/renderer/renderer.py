@@ -163,7 +163,10 @@ class Renderer:
         """
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y)
-        self.pacman_sprite.update(current_time)
+        self.pacman_sprite.update(
+            current_time,
+            (player.direction, PacmanState.ALIVE)
+        )
         self.pacman_sprite.draw(
             self.logical_surface,
             center_x,
@@ -274,8 +277,16 @@ class Renderer:
             render_x, render_y = self._interpolate(ghost, current_time)
             corner_x, corner_y = self._to_screen(render_x, render_y)
             sprite = self.ghost_sprites[ghost.ghost_type]
-            sprite.update(current_time)
-            sprite.draw(self.logical_surface, corner_x, corner_y, (ghost.direction, ghost.state))
+            sprite.update(
+                current_time,
+                (ghost.direction, ghost.state)
+            )
+            sprite.draw(
+                self.logical_surface,
+                corner_x,
+                corner_y,
+                (ghost.direction, ghost.state)
+            )
 
     def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
         """Return the display color of a ghost based on its state and type.
