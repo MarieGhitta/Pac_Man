@@ -287,28 +287,3 @@ class Renderer:
                 corner_y,
                 (ghost.direction, ghost.state)
             )
-
-    def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
-        """Return the display color of a ghost based on its state and type.
-
-        Args:
-            ghost: The ghost whose color is determined.
-
-        Returns:
-            RGB color tuple.
-        """
-        match ghost.state:
-            case GhostState.FRIGHTENED:
-                return Color.BLUE
-            case GhostState.RESPAWN:
-                return Color.WHITE
-
-        match ghost.ghost_type:
-            case GhostType.BLINKY:
-                return Color.RED
-            case GhostType.PINKY:
-                return Color.PINK
-            case GhostType.INKY:
-                return Color.CYAN
-            case GhostType.CLYDE:
-                return Color.ORANGE
