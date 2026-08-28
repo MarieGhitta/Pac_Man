@@ -163,10 +163,13 @@ class GhostSprite(Sprite):
         up = frames[2:4]
         down = frames[4:6]
         frightened = frames[6:]
-        respawn_frames = [self._build_frame(i, respawn=True) for i in range(6)]
-        respawn_side = respawn_frames[:2]
-        respawn_up = respawn_frames[2:4]
-        respawn_down = respawn_frames[4:6]
+        alt_frames = [
+            self._build_frame(i, respawn=True, flicker=True) for i in range(8)
+        ]
+        alt_side = alt_frames[:2]
+        alt_up = alt_frames[2:4]
+        alt_down = alt_frames[4:6]
+        alt_frightened = alt_frames[6:]
 
         self.frames[(Direction.RIGHT, GhostState.CHASE)] = side
         self.frames[(Direction.LEFT, GhostState.CHASE)] = [
@@ -183,15 +186,20 @@ class GhostSprite(Sprite):
             ]
             self.frames[direction, GhostState.FRIGHTENED] = frightened
 
-        self.frames[(Direction.RIGHT, GhostState.RESPAWN)] = respawn_side
+        self.frames[(Direction.RIGHT, GhostState.RESPAWN)] = alt_side
         self.frames[(Direction.LEFT, GhostState.RESPAWN)] = [
-            pygame.transform.flip(f, True, False) for f in respawn_side
+            pygame.transform.flip(f, True, False) for f in alt_side
         ]
-        self.frames[(Direction.UP, GhostState.RESPAWN)] = respawn_up
-        self.frames[(Direction.DOWN, GhostState.RESPAWN)] = respawn_down
+        self.frames[(Direction.UP, GhostState.RESPAWN)] = alt_up
+        self.frames[(Direction.DOWN, GhostState.RESPAWN)] = alt_down
+
+        for direction in [
+            Direction.RIGHT, Direction.LEFT, Direction.UP, Direction.DOWN
+        ]:
+            self.frames[direction, GhostState.FLICKER] = alt_frightened
 
     def _build_frame(
-        self, frame_index: int, respawn: bool = False
+        self, frame_index: int, respawn: bool = False, flicker: bool = False
     ) -> pygame.surface.Surface:
         frames = [
             [
@@ -385,11 +393,16 @@ class GhostSprite(Sprite):
                     case "2":
                         surface.set_at((x, y), Color.WHITE)
                     case "3":
-                        surface.set_at((x, y), Color.BLUE)
+                        if not flicker:
+                            surface.set_at((x, y), Color.BLUE)
+                        else:
+                            surface.set_at((x, y), Color.WHITE)
                     case "4":
-                        surface.set_at((x, y), Color.LIGHTPINK)
+                        if not flicker:
+                            surface.set_at((x, y), Color.LIGHTPINK)
+                        else:
+                            surface.set_at((x, y), Color.RED)
         surface = pygame.transform.scale(
             surface, (self.tile_size, self.tile_size)
         )
         return surface
-
