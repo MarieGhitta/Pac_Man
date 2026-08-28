@@ -19,6 +19,9 @@ class Sprite(ABC):
         self._last_variant: tuple[
             Direction | None, SpriteState | None
         ] = (None, None)
+        self._one_shot_variants: set[
+            tuple[Direction | None, SpriteState]
+        ] = set()
         self.frames: dict[
             tuple[Direction | None, SpriteState],
             list[pygame.surface.Surface]
@@ -45,7 +48,11 @@ class Sprite(ABC):
                 )
                 self.last_anim_update = current_time
             else:
-                self.anim_stop = True
+                if variant in self._one_shot_variants:
+                    self.anim_stop = True
+                else:
+                    self.anim_tick = 0
+                    self.last_anim_update = current_time
 
     def draw(
         self,
@@ -80,6 +87,7 @@ class PacmanSprite(Sprite):
             pygame.transform.rotate(f, 270) for f in cycle
         ]
         self.frames[(None, PacmanState.DYING)] = frames[3:]
+        self._one_shot_variants.add((None, PacmanState.DYING))
 
 
     def _build_frame(self, frame_index: int) -> pygame.surface.Surface:
