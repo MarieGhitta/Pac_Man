@@ -11,9 +11,10 @@ class SpriteState(Enum):
 class GhostState(SpriteState):
     """Represent differents states of ghosts."""
 
-    FRIGHTENED = auto()
-    CHASE = auto()
     SCATTER = auto()
+    CHASE = auto()
+    FRIGHTENED = auto()
+    FLICKER = auto()
     RESPAWN = auto()
 
 

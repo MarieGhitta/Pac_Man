@@ -70,7 +70,7 @@ class Ghost:
                 return self._choose_scatter_direction(directions)
             case GhostState.CHASE:
                 return self._choose_chase_direction(directions, player, ghosts)
-            case GhostState.FRIGHTENED:
+            case GhostState.FRIGHTENED | GhostState.FLICKER:
                 return self._choose_frightened_direction(directions)
             case GhostState.RESPAWN:
                 return self._choose_respawn_direction(directions, level)

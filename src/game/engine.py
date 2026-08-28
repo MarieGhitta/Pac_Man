@@ -34,6 +34,7 @@ _GHOST_CHASE_DELAY: list[list[float]] = [
     [2e4, 2e4, 1037e3, float("inf")]
 ]
 _GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
+_DEATH_DELAY: int = 1500
 
 
 class Engine:
@@ -72,6 +73,11 @@ class Engine:
         self.is_frighten: bool = False
         self.eat_ghost_combo: int = 0
         self._pause_start: int = 0
+        self.dying: bool = False
+        self._death_start: int = 0
+        self.counting_down: bool = True
+        self._countdown_start: int = pygame.time.get_ticks()
+        self.countdown: int = 3
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -177,12 +183,29 @@ class Engine:
         self.player.next_direction = Direction.LEFT
         self.is_frighten = False
         self.elapsed_before_fright = 0
+        self.counting_down = True
+        self.countdown = 3
+        self._countdown_start = pygame.time.get_ticks()
 
     def update(self) -> None:
         """Update the game state."""
         if self.game_over or self.victory:
             return
         current_time = pygame.time.get_ticks()
+        if self.counting_down:
+            elapsed = current_time - self._countdown_start
+            self.countdown = 3 - elapsed // 1000
+            if elapsed >= 3000:
+                self.counting_down = False
+            return
+        if self.dying:
+            if current_time - self._death_start >= _DEATH_DELAY:
+                self.dying = False
+                if self.lives == 0:
+                    self.game_over = True
+                else:
+                    self._reset_positions()
+            return
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
@@ -303,10 +326,8 @@ class Engine:
     def _player_hit(self) -> None:
         """Handle the player being hit."""
         self.lives -= 1
-        if self.lives == 0:
-            self.game_over = True
-            return
-        self._reset_positions()
+        self.dying = True
+        self._death_start = pygame.time.get_ticks()
 
     def _reset_positions(self) -> None:
         """Reset the player and ghosts positions."""
@@ -324,6 +345,9 @@ class Engine:
         self.state_phase_index = 0
         self.is_frighten = False
         self.elapsed_before_fright = 0
+        self.counting_down = True
+        self.countdown = 3
+        self._countdown_start = pygame.time.get_ticks()
 
     def _frighten_ghosts(self) -> None:
         """Put all ghosts in frightened state."""

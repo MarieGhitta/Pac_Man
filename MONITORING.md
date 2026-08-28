@@ -105,7 +105,7 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Créer `src/ui/` (manager + modèle).
 - [x] Charger au démarrage depuis `config.highscore_filename`.
 - [x] Sauvegarder score après chaque fin de partie (game over ou victoire).
-- [ ] Recuperer le nom du joueur
+- [x] Recuperer le nom du joueur
 - [x] Valider les noms : max 10 caractères, alphanumérique + espaces.
 - [x] Conserver le **top 10** des scores, triés par ordre décroissant.
 - [x] Robuste aux erreurs : fichier absent, JSON invalide, permissions.
@@ -171,20 +171,20 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 #### Pac-Man
 - [x] Cercle jaune avec **bouche animée** (arc qui s'ouvre/ferme selon la direction de déplacement).
 - [x] Orientation de la bouche selon `player.direction`.
-- [ ] Animation de mort (séquence : bouche qui s'ouvre à 360° puis disparaît).
-- [ ] Séquence "READY!" au démarrage de chaque niveau (texte clignotant, brève pause avant de jouer).
+- [x] Animation de mort (séquence : bouche qui s'ouvre à 360° puis disparaît).
+- [x] Séquence "READY!" au démarrage de chaque niveau (texte clignotant, brève pause avant de jouer).
 
 #### Fantômes
 - [x] Sprite fantôme classique : corps arrondi, bas dentelé, **yeux directionnels**.
 - [xx Frightened : corps bleu uni.
-- [ ] Frightened clignotant (bleu/blanc, dernières ~2s — lié à § 2.6).
+- [x] Frightened clignotant (bleu/blanc, dernières ~2s — lié à § 2.6).
 - [x] Respawn : **yeux seuls** se déplaçant vers le spawn.
 - [x] Couleurs par type : Blinky rouge, Pinky rose, Inky cyan, Clyde orange.
 
 #### Maze & élémentsBrother DCP-L2627DWE
-- [ ] Murs style bleu néon (coins arrondis si possible).
+- [x] Murs style bleu néon (coins arrondis si possible).
 - [x] Pacgums : petits points blancs centrés.
-- [ ] Super-pacgums : gros points blancs **clignotants**.
+- [x] Super-pacgums : gros points blancs **clignotants**.
 - [x] Fond noir.
 
 #### UI & typographie
@@ -399,11 +399,27 @@ Fix LSP : `HighscoreScreen.handle_event(event, endgame_highscore)` — paramètr
 ### #20 — 2026-08-28 — Pixel art renderer et sprites animés
  
 Refactor `Renderer` : introduction d'une `logical_surface` (`maze_width * tile_size × maze_height * tile_size`) dessinée en coordonnées logiques, scalée chaque frame sur `self.surface` via `pygame.transform.scale` (nearest-neighbor, rendu pixel art). `tile_size = 18` fixe. `scale` calculé comme facteur entier. `offset_x/y` déplacés au blit final. `_draw_maze`, `_draw_player`, `_draw_ghosts` sur `logical_surface` ; `_draw_hud` sur `self.surface`. `_draw_wall` réduit à une ligne. `pygame.display.set_caption` déplacé dans `App.__init__`.
- 
 Création de `src/renderer/sprite.py` : `Sprite(ABC)` — `frames: dict[tuple[Direction | None, SpriteState], list[Surface]]`, `update(current_time, variant)`, `draw(surface, x, y, variant)`, `_build_frames()` abstraite. Animation par `anim_speed` / `anim_tick`.
 `PacmanSprite(Sprite)` : grilles pixel art 20×20 dessinées via `set_at`, scalées à `tile_size`, rotations pour 4 directions, cycle 4 frames.
 `GhostSprite(Sprite)` : reçoit `color`. 8 frames CHASE + 6 frames RESPAWN + 2 frames FRIGHTENED. SCATTER = alias CHASE. RESPAWN = corps transparent, yeux seuls. Flip horizontal pour LEFT.
- 
 Création de `src/utils/sprite_enums.py` : `SpriteState`, `GhostState`, `PacmanState` (`ALIVE` / `DYING`), `GhostType`, `Direction` regroupés — partagés entre `game/` et `renderer/`. `ghost_state.py` et `direction.py` supprimés de `src/game/`.
- 
 Bugs corrigés : `endgame_score_display` non reset à nouvelle partie (double save) ; `ghost.frightened_until` non décalé dans `on_resume` (sortie prématurée de FRIGHTENED) ; deux `print` de debug retirés de `engine.py`.
+
+### #21 — 2026-08-28 — Animations de mort Pac-Man, clignotement fantômes et super-pacgums
+
+**Ghost FLICKER (clignotement dernières 2s de FRIGHTENED)**
+Ajout de `GhostState.FLICKER` dans `sprite_enums.py` — état visuel uniquement, jamais assigné dans `Engine`.
+`GhostSprite._build_frames` : frames FLICKER = mêmes grilles que FRIGHTENED (frames 6-7) mais couleur `4` → `Color.WHITE`, `5` → `Color.RED` (via `flicker=True` sur `_build_frame`).
+`Renderer` : helper `_visual_ghost_state(ghost, current_time) → GhostState` — retourne `FLICKER` si `ghost.state == FRIGHTENED`, `ghost.frightened_until - current_time <= 2000`, et `(current_time // 250) % 2 == 0` ; sinon `ghost.state`. Utilisé dans `_draw_ghosts` pour le variant sprite.
+**Super-pacgums clignotants**
+`_draw_maze` reçoit `current_time` en paramètre, propagé à `_draw_cell_content`. Case `SUPER_PACGUM` : dessin conditionnel sur `(current_time // 500) % 2 == 0`.
+**Animation de mort Pac-Man**
+`PacmanSprite._build_frames` : 13 frames buildées (0-2 ALIVE, 3-12 DYING). Cycle ALIVE = frames 0-1-2-1. Frames DYING enregistrées sous clé `(None, PacmanState.DYING)`.
+`Sprite` : ajout de `anim_stop: bool = False` et `_one_shot_variants: set[...]`. Dans `update()` : reset `anim_stop` au changement de variant (avant l'early return) ; quand `anim_tick == len(frames) - 1`, boucle normale si variant absent de `_one_shot_variants`, sinon `anim_stop = True`. `PacmanSprite` ajoute `(None, PacmanState.DYING)` à `_one_shot_variants` dans `_build_frames`.
+`Engine` : constante `_DEATH_DURATION = 1500`. Attributs `self.dying: bool = False`, `self._death_start: int = 0`. `_player_hit` décrémente `lives` et set `dying = True` + `_death_start = current_time` au lieu de reset immédiat. `update()` : si `dying` → vérifier `current_time - _death_start >= _DEATH_DURATION` → `dying = False` puis `game_over = True` si `lives == 0` sinon `_reset_positions()` ; `return` immédiat pendant `dying`.
+`Renderer._draw_player` : paramètre `dying: bool` ajouté. Variant `(None, PacmanState.DYING)` si `dying`, sinon `(player.direction, PacmanState.ALIVE)`. `draw(game)` : `dying = game.dying or (game.game_over and not game.victory)` — étend la condition pour éviter le flash de la frame de transition. Ghosts non dessinés si `dying`. Player dessiné avant les ghosts si `not dying`, après si `dying`.
+**Countdown de début de partie**
+`Engine` : attributs `self.counting_down: bool = True`, `self.countdown: int = 3`, `self._countdown_start: int`. Dans `update()` : si `counting_down` → calcul `elapsed`, mise à jour `countdown = 3 - elapsed // 1000`, sortie de `counting_down` à `elapsed >= 3000`, `return` immédiat (jeu gelé). Reset dans `_reset_positions()` et `_next_level()`.
+`Renderer` : `self.countdown_font` (PressStart2P 80px) dans `__init__`. Méthode `_draw_countdown(countdown)` : overlay `(0,0,0,150)` sur `self.surface` + chiffre centré en jaune. Appelée dans `draw(game)` si `game.counting_down`.
+**Fix : frame parasite sur transition**
+`App.run()` : `_handle_transitions` déplacé avant `_update` — la transition est appliquée avant le draw du même frame, ce qui supprime la frame parasite visible lors du retour au menu depuis `EndScreen`.

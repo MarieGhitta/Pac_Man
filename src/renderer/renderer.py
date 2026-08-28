@@ -47,6 +47,9 @@ class Renderer:
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
+        self.countdown_font = pygame.font.Font(
+            "assets/fonts/PressStart2P-Regular.ttf", self.font_size * 7
+        )
         self.pacman_sprite: PacmanSprite = PacmanSprite(self.tile_size)
         self.ghost_sprites = {
             GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
@@ -61,17 +64,23 @@ class Renderer:
         Args:
             game: The current game state.
         """
+        dying = game.dying or (game.game_over and not game.victory)
         self._update_window(game.level)
         self.logical_surface.fill(Color.BLACK)
-        self._draw_maze(game.level.maze)
         current_time = pygame.time.get_ticks()
-        self._draw_player(game.player, current_time)
-        self._draw_ghosts(game.ghosts, current_time)
-        scaled = pygame.transform.scale(self.logical_surface, (self.scaled_w, self.scaled_h))
+        self._draw_maze(game.level.maze, current_time)
+        if not dying:
+            self._draw_ghosts(game.ghosts, current_time)
+        self._draw_player(game.player, current_time, dying)
+        scaled = pygame.transform.scale(
+            self.logical_surface, (self.scaled_w, self.scaled_h)
+        )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
+        if game.counting_down:
+            self._draw_countdown(game.countdown)
         self._draw_hud(game)
 
-    def _draw_maze(self, maze: Maze) -> None:
+    def _draw_maze(self, maze: Maze, current_time: int) -> None:
         """Draw all maze cells, including walls and cell contents.
 
         Args:
@@ -82,7 +91,7 @@ class Renderer:
                 surface_x = cell.x * self.tile_size + self.maze_offset
                 surface_y = cell.y * self.tile_size + self.maze_offset
                 self._draw_walls(cell, surface_x, surface_y)
-                self._draw_cell_content(cell)
+                self._draw_cell_content(cell, current_time)
 
     def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
@@ -127,7 +136,7 @@ class Renderer:
             self.logical_surface, Color.BLUE, start_pos, end_pos, 2
         )
 
-    def _draw_cell_content(self, cell: Cell) -> None:
+    def _draw_cell_content(self, cell: Cell, current_time: int) -> None:
         """Draw the content of a maze cell.
 
         Args:
@@ -147,14 +156,17 @@ class Renderer:
                     )
                 )
             case CellContent.SUPER_PACGUM:
-                pygame.draw.circle(
-                    self.logical_surface,
-                    Color.LIGHTPINK,
-                    (center_x, center_y),
-                    self.tile_size // 5,
-                )
+                if (current_time // 150) % 2 == 0:
+                    pygame.draw.circle(
+                        self.logical_surface,
+                        Color.LIGHTPINK,
+                        (center_x, center_y),
+                        self.tile_size // 4,
+                    )
 
-    def _draw_player(self, player: Player, current_time: int) -> None:
+    def _draw_player(
+        self, player: Player, current_time: int, dying: bool
+    ) -> None:
         """Draw the player at its interpolated position.
 
         Args:
@@ -163,15 +175,13 @@ class Renderer:
         """
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y)
-        self.pacman_sprite.update(
-            current_time,
-            (player.direction, PacmanState.ALIVE)
+        variant = (
+            (None, PacmanState.DYING)
+            if dying else (player.direction, PacmanState.ALIVE)
         )
+        self.pacman_sprite.update(current_time, variant)
         self.pacman_sprite.draw(
-            self.logical_surface,
-            center_x,
-            center_y,
-            (player.direction, PacmanState.ALIVE)
+            self.logical_surface, center_x, center_y, variant
         )
 
 
@@ -276,39 +286,36 @@ class Renderer:
         for ghost in ghosts:
             render_x, render_y = self._interpolate(ghost, current_time)
             corner_x, corner_y = self._to_screen(render_x, render_y)
+            visual_state = self._visual_ghost_state(ghost, current_time)
             sprite = self.ghost_sprites[ghost.ghost_type]
             sprite.update(
                 current_time,
-                (ghost.direction, ghost.state)
+                (ghost.direction, visual_state)
             )
             sprite.draw(
                 self.logical_surface,
                 corner_x,
                 corner_y,
-                (ghost.direction, ghost.state)
+                (ghost.direction, visual_state)
             )
 
-    def _ghost_color(self, ghost: Ghost) -> tuple[int, int, int]:
-        """Return the display color of a ghost based on its state and type.
+    def _visual_ghost_state(
+        self, ghost: Ghost, current_time: int
+    ) -> GhostState:
+        if (
+            ghost.state == GhostState.FRIGHTENED
+            and ghost.frightened_until - current_time <= 2000
+        ):
+            if (current_time // 250) % 2 == 0:
+                return GhostState.FLICKER
+        return ghost.state
 
-        Args:
-            ghost: The ghost whose color is determined.
-
-        Returns:
-            RGB color tuple.
-        """
-        match ghost.state:
-            case GhostState.FRIGHTENED:
-                return Color.BLUE
-            case GhostState.RESPAWN:
-                return Color.WHITE
-
-        match ghost.ghost_type:
-            case GhostType.BLINKY:
-                return Color.RED
-            case GhostType.PINKY:
-                return Color.PINK
-            case GhostType.INKY:
-                return Color.CYAN
-            case GhostType.CLYDE:
-                return Color.ORANGE
+    def _draw_countdown(self, countdown: int) -> None:
+        overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 150))
+        self.surface.blit(overlay, (0, 0))
+        text = self.countdown_font.render(str(countdown), True, Color.YELLOW)
+        rect = text.get_rect(center=(
+            self.surface.get_width() // 2, self.surface.get_height() // 2)
+        )
+        self.surface.blit(text, rect)
