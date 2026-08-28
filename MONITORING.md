@@ -169,23 +169,23 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 ### 3.6 Graphisme arcade 1980
 
 #### Pac-Man
-- [ ] Cercle jaune avec **bouche animée** (arc qui s'ouvre/ferme selon la direction de déplacement).
-- [ ] Orientation de la bouche selon `player.direction`.
+- [x] Cercle jaune avec **bouche animée** (arc qui s'ouvre/ferme selon la direction de déplacement).
+- [x] Orientation de la bouche selon `player.direction`.
 - [ ] Animation de mort (séquence : bouche qui s'ouvre à 360° puis disparaît).
 - [ ] Séquence "READY!" au démarrage de chaque niveau (texte clignotant, brève pause avant de jouer).
 
 #### Fantômes
-- [ ] Sprite fantôme classique : corps arrondi, bas dentelé, **yeux directionnels**.
-- [ ] Frightened : corps bleu uni.
+- [x] Sprite fantôme classique : corps arrondi, bas dentelé, **yeux directionnels**.
+- [xx Frightened : corps bleu uni.
 - [ ] Frightened clignotant (bleu/blanc, dernières ~2s — lié à § 2.6).
-- [ ] Respawn : **yeux seuls** se déplaçant vers le spawn.
-- [ ] Couleurs par type : Blinky rouge, Pinky rose, Inky cyan, Clyde orange.
+- [x] Respawn : **yeux seuls** se déplaçant vers le spawn.
+- [x] Couleurs par type : Blinky rouge, Pinky rose, Inky cyan, Clyde orange.
 
 #### Maze & élémentsBrother DCP-L2627DWE
 - [ ] Murs style bleu néon (coins arrondis si possible).
-- [ ] Pacgums : petits points blancs centrés.
+- [x] Pacgums : petits points blancs centrés.
 - [ ] Super-pacgums : gros points blancs **clignotants**.
-- [ ] Fond noir.
+- [x] Fond noir.
 
 #### UI & typographie
 - [x] Police arcade (ex. Press Start 2P ou équivalent libre).
@@ -389,14 +389,21 @@ Création de `src/app.py` : classe `App` qui encapsule l'intégralité de la bou
 `App._handle_events()` : dispatch uniforme via `self.screens[self.screen_state].handle_event(event)` — plus de match par état.
 `App._update()` : match sur `self.screen_state` — `update()` + `draw()` par état. PAUSE blitte `frozen_frame` avant `draw()`.
 `App._handle_transitions()` : match sur `screen.next_screen` (destination) — toute la logique de transition centralisée ici. Tuple `(source, destination)` évité grâce à `ScreenState.RESUME` qui distingue resume-depuis-pause de nouvelle-partie.
- 
 Création de `src/utils/screen_state.py` : enum `ScreenState` (TITLE / CHEAT / GAME / PAUSE / RESUME / HIGHSCORE / END / QUIT). Déplacé hors de `app.py` pour éviter l'import circulaire avec `screen.py`.
 `Screen.next_screen` : type `str | None` → `ScreenState | None`.
- 
 Création de `src/ui/screens/game_screen.py` : `GameScreen(Screen)` wrappant `Engine` et `Renderer`. `handle_event()` gère les directions et émet `next_screen = ScreenState.PAUSE` sur ESC. `update()` appelle `engine.update()` et émet `next_screen = ScreenState.END` si `game_over` ou `victory`. `draw()` délègue à `renderer.draw(engine)`. Le dispatch dans `_handle_events` est désormais uniforme pour tous les états.
- 
 `src/game/game.py` renommé `src/game/engine.py`, classe `Game` renommée `Engine`.
- 
 Migration `src/ui/` → `src/ui/screens/` : `screen.py`, `title_screen.py`, `pause_menu.py` (renommé `pause_screen.py`), `end_screen.py`, `highscore_screen.py` déplacés dans `src/ui/screens/`.
- 
 Fix LSP : `HighscoreScreen.handle_event(event, endgame_highscore)` — paramètre `endgame_highscore` supprimé de la signature. `endgame_score_display` devient un flag de `App`, settable dans `_handle_transitions`.
+
+### #20 — 2026-08-28 — Pixel art renderer et sprites animés
+ 
+Refactor `Renderer` : introduction d'une `logical_surface` (`maze_width * tile_size × maze_height * tile_size`) dessinée en coordonnées logiques, scalée chaque frame sur `self.surface` via `pygame.transform.scale` (nearest-neighbor, rendu pixel art). `tile_size = 18` fixe. `scale` calculé comme facteur entier. `offset_x/y` déplacés au blit final. `_draw_maze`, `_draw_player`, `_draw_ghosts` sur `logical_surface` ; `_draw_hud` sur `self.surface`. `_draw_wall` réduit à une ligne. `pygame.display.set_caption` déplacé dans `App.__init__`.
+ 
+Création de `src/renderer/sprite.py` : `Sprite(ABC)` — `frames: dict[tuple[Direction | None, SpriteState], list[Surface]]`, `update(current_time, variant)`, `draw(surface, x, y, variant)`, `_build_frames()` abstraite. Animation par `anim_speed` / `anim_tick`.
+`PacmanSprite(Sprite)` : grilles pixel art 20×20 dessinées via `set_at`, scalées à `tile_size`, rotations pour 4 directions, cycle 4 frames.
+`GhostSprite(Sprite)` : reçoit `color`. 8 frames CHASE + 6 frames RESPAWN + 2 frames FRIGHTENED. SCATTER = alias CHASE. RESPAWN = corps transparent, yeux seuls. Flip horizontal pour LEFT.
+ 
+Création de `src/utils/sprite_enums.py` : `SpriteState`, `GhostState`, `PacmanState` (`ALIVE` / `DYING`), `GhostType`, `Direction` regroupés — partagés entre `game/` et `renderer/`. `ghost_state.py` et `direction.py` supprimés de `src/game/`.
+ 
+Bugs corrigés : `endgame_score_display` non reset à nouvelle partie (double save) ; `ghost.frightened_until` non décalé dans `on_resume` (sortie prématurée de FRIGHTENED) ; deux `print` de debug retirés de `engine.py`.
