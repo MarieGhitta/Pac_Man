@@ -276,14 +276,26 @@ class Renderer:
         for ghost in ghosts:
             render_x, render_y = self._interpolate(ghost, current_time)
             corner_x, corner_y = self._to_screen(render_x, render_y)
+            visual_state = self._visual_ghost_state(ghost, current_time)
             sprite = self.ghost_sprites[ghost.ghost_type]
             sprite.update(
                 current_time,
-                (ghost.direction, ghost.state)
+                (ghost.direction, visual_state)
             )
             sprite.draw(
                 self.logical_surface,
                 corner_x,
                 corner_y,
-                (ghost.direction, ghost.state)
+                (ghost.direction, visual_state)
             )
+
+    def _visual_ghost_state(
+        self, ghost: Ghost, current_time: int
+    ) -> GhostState:
+        if (
+            ghost.state == GhostState.FRIGHTENED
+            and ghost.frightened_until - current_time <= 2000
+        ):
+            if (current_time // 250) % 2 == 0:
+                return GhostState.FLICKER
+        return ghost.state
