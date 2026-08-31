@@ -42,15 +42,15 @@ class Renderer:
         ))
         logical_w = self.maze_width * self.tile_size + self.tile_size
         logical_h = self.maze_height * self.tile_size + self.tile_size
-        ratio = min(
-            self.surface_width * 0.95 / logical_w,
-            self.surface_height * 0.80 / logical_h
+        self.ratio = min(
+            self.surface_height * 0.65 / logical_h,
+            self.surface_width * 0.9 / logical_w
         )
-        self.scaled_w = int(logical_w * ratio)
-        self.scaled_h = int(logical_h * ratio)
-        self.offset_x: int = (self.surface_width - self.scaled_w) // 2
-        self.offset_y: int = (self.surface_height - self.scaled_h) // 2
+        self.scaled_h = int(logical_h * self.ratio)
+        self.scaled_w = int(logical_w * self.ratio)
         self.maze_offset: int = self.tile_size // 2
+        self.offset_x = (self.surface_width - self.scaled_w) // 2
+        self.offset_y = (self.surface_height - self.scaled_h) // 2
         self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
@@ -104,7 +104,6 @@ class Renderer:
 
     def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
-haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
         Args:
             cell: The maze cell whose walls are drawn.
             x: Pixel x-coordinate of the cell's top-left corner.
@@ -199,7 +198,7 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
     ) -> tuple[int, int]:
         """Convert grid coordinates to screen pixel coordinates.
 
-        Args:haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
+        Args:
             x: Horizontal grid coordinate.
             y: Vertical grid coordinate.
             centered: If True, offset by half a tile to target the tile center.
