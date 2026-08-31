@@ -308,8 +308,8 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
                 sprite_h = life_sprite.get_height()
                 self._draw_text(
                     f"x{str(game.lives)}",
-                    self.offset_x + sprite_w + line_height // 2,
-                    self.offset_y + self.scaled_h + sprite_h - line_height
+                    self.offset_x + sprite_w + line_height // 4,
+                    self.offset_y + self.scaled_h + self.tile_size
                 )
 
     def _draw_life_sprite(
