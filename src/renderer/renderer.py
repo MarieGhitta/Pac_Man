@@ -2,6 +2,7 @@
 
 
 import pygame
+from pygame.draw import line
 
 from src.game.cell_content import CellContent
 from src.game.engine import Engine
@@ -17,7 +18,12 @@ from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 class Renderer:
     """Draw the game."""
 
-    def __init__(self, level: Level, surface: pygame.surface.Surface) -> None:
+    def __init__(
+        self,
+        level: Level,
+        surface: pygame.surface.Surface,
+        highscore: int
+    ) -> None:
         """Initialize the renderer and create the fullscreen window.
 
         Args:
@@ -29,21 +35,22 @@ class Renderer:
         self.surface_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
+        self.highscore = str(highscore)[:7]
         self.tile_size: int = 20
         self.logical_surface = pygame.Surface((
             self.maze_width * self.tile_size + self.tile_size,
             self.maze_height * self.tile_size + self.tile_size
         ))
         self.scale = min(
-            int(self.surface_width * 0.8) // (self.maze_width * self.tile_size),
-            int(self.surface_height * 0.8) // (self.maze_height * self.tile_size)
+            int(self.surface_width * 0.7) // (self.maze_width * self.tile_size),
+            int(self.surface_height * 0.7) // (self.maze_height * self.tile_size)
         )
         self.scaled_w: int = (self.maze_width * self.tile_size + self.tile_size) * self.scale
         self.scaled_h: int = (self.maze_height * self.tile_size + self.tile_size) * self.scale
         self.offset_x: int = (self.surface_width - self.scaled_w) // 2
         self.offset_y: int = (self.surface_height - self.scaled_h) // 2
         self.maze_offset: int = self.tile_size // 2
-        self.font_size: int = self.surface_height // 32
+        self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
@@ -64,6 +71,7 @@ class Renderer:
         Args:
             game: The current game state.
         """
+        self.surface.fill(Color.BLACK)
         dying = game.dying or (game.game_over and not game.victory)
         self._update_window(game.level)
         self.logical_surface.fill(Color.BLACK)
@@ -76,7 +84,7 @@ class Renderer:
             self.logical_surface, (self.scaled_w, self.scaled_h)
         )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
-        self._draw_hud(game)
+        self._draw_hud(game, current_time)
         if game.counting_down:
             self._draw_countdown(game.countdown)
 
@@ -95,7 +103,7 @@ class Renderer:
 
     def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
-
+haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
         Args:
             cell: The maze cell whose walls are drawn.
             x: Pixel x-coordinate of the cell's top-left corner.
@@ -190,7 +198,7 @@ class Renderer:
     ) -> tuple[int, int]:
         """Convert grid coordinates to screen pixel coordinates.
 
-        Args:
+        Args:haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
             x: Horizontal grid coordinate.
             y: Vertical grid coordinate.
             centered: If True, offset by half a tile to target the tile center.
@@ -224,33 +232,82 @@ class Renderer:
             sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
         )
 
-    def _draw_hud(self, game: Engine) -> None:
+    def _draw_hud(
+        self, game: Engine, current_time: int, cheat: bool = False
+    ) -> None:
         """Draw the HUD: score on the left, lives on the right.
 
         Args:
             game: The current game state.
+            current_time: the current time in milliseconds.
         """
-        score_txt = self.font.render(
-            f'Score: {game.score}',
-            True,
-            Color.WHITE
+        line_height = int(self.font.get_height() * 1.2)
+        self._draw_text(
+            "1UP",
+            self.offset_x,
+            self.offset_y - self.tile_size - line_height,
+            Color.WHITE,
+            current_time,
+            True
         )
-        lives_txt = self.font.render(
-            f"Lives: {game.lives}",
-            True,
-            Color.WHITE
+        self._draw_text(
+            str(game.score),
+            self.offset_x,
+            self.offset_y - self.tile_size
         )
-        self.surface.blit(
-            score_txt,
-            (self.offset_x, self.offset_y - self.tile_size)
+        self._draw_text(
+            "HIGH SCORE",
+            self.surface_width // 2,
+            self.offset_y - self.tile_size - line_height
         )
-        self.surface.blit(
-            lives_txt,
-            (
-                self.surface_width - lives_txt.get_width() - self.offset_x,
-                self.offset_y - self.tile_size
-            )
+        self._draw_text(
+            self.highscore,
+            self.surface_width // 2,
+            self.offset_y - self.tile_size
         )
+        self._draw_text(
+            "LEVEL",
+            self.offset_x + self.scaled_w,
+            self.offset_y - self.tile_size - line_height,
+        )
+        self._draw_text(
+            f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
+            self.offset_x + self.scaled_w,
+            self.offset_y - self.tile_size
+        )
+        self._draw_text(
+            "CHEAT MODE",
+            self.offset_x + self.scaled_w,
+            self.offset_y + self.scaled_h + self.tile_size,
+        )
+        cheat_mode = "OFF" 
+        color = Color.WHITE
+        if cheat:
+            cheat_mode = "ON"
+            color = Color.RED
+        self._draw_text(
+            cheat_mode,
+            self.offset_x + self.scaled_w,
+            self.offset_y + self.scaled_h + self.tile_size + line_height,
+            color
+        )
+
+    def _draw_text(
+        self,
+        text: str,
+        x: int,
+        y: int,
+        color: tuple[int, int, int] = Color.WHITE,
+        current_time: int = 0,
+        blink: bool = False,
+    ) -> None:
+        display = self.font.render(text, True, color)
+        display_rect = display.get_rect(center=(x, y))
+        if blink:
+            if (current_time // 250) % 2 == 0:
+                self.surface.blit(display, display_rect)
+        else:
+            self.surface.blit(display, display_rect)
 
     def _update_window(self, level: Level) -> None:
         """Recalculate offsets if the level dimensions changed.
