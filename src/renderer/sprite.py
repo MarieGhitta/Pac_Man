@@ -72,6 +72,7 @@ class PacmanSprite(Sprite):
         super().__init__(tile_size)
         self.anim_count = 4
         self.anim_speed = 75
+        self.life_sprite: pygame.surface.Surface | None = None 
 
     def _build_frames(self) -> None:
         frames = [self._build_frame(i) for i in range(13)]
@@ -83,6 +84,7 @@ class PacmanSprite(Sprite):
         self.frames[(Direction.LEFT, PacmanState.ALIVE)] = [
             pygame.transform.rotate(f, 180) for f in cycle
         ]
+        self.life_sprite = self.frames[(Direction.LEFT, PacmanState.ALIVE)][1]
         self.frames[(Direction.DOWN, PacmanState.ALIVE)] = [
             pygame.transform.rotate(f, 270) for f in cycle
         ]
