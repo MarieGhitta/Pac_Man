@@ -76,9 +76,9 @@ class Renderer:
             self.logical_surface, (self.scaled_w, self.scaled_h)
         )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
+        self._draw_hud(game)
         if game.counting_down:
             self._draw_countdown(game.countdown)
-        self._draw_hud(game)
 
     def _draw_maze(self, maze: Maze, current_time: int) -> None:
         """Draw all maze cells, including walls and cell contents.
