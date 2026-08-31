@@ -2,7 +2,6 @@
 
 
 import pygame
-from pygame.draw import line
 
 from src.game.cell_content import CellContent
 from src.game.engine import Engine
@@ -291,6 +290,42 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
             self.offset_y + self.scaled_h + self.tile_size + line_height,
             color
         )
+        if self.pacman_sprite.life is not None:
+            life_sprite = pygame.transform.scale(
+                self.pacman_sprite.life,
+                (self.font_size * 2.2, self.font_size * 2.2)
+            )
+            if game.lives < 10:
+                sprite_offset = 0.0
+                for _ in range(game.lives):
+                    self._draw_life_sprite(
+                        life_sprite, line_height, sprite_offset
+                    )
+                    sprite_offset += self.font_size * 1.8
+            else:
+                self._draw_life_sprite(life_sprite, line_height)
+                sprite_w = life_sprite.get_width()
+                sprite_h = life_sprite.get_height()
+                self._draw_text(
+                    f"x{str(game.lives)}",
+                    self.offset_x + sprite_w + line_height // 2,
+                    self.offset_y + self.scaled_h + sprite_h - line_height
+                )
+
+    def _draw_life_sprite(
+        self,
+        life_sprite: pygame.surface.Surface,
+        line_height: int,
+        offset: float = 0.0
+    ) -> None:
+        self.surface.blit(
+            life_sprite,
+            (
+                self.offset_x + offset - line_height,
+                self.offset_y + self.scaled_h - self.font_size // 2
+            )
+        )
+
 
     def _draw_text(
         self,
