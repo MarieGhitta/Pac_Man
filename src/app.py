@@ -68,6 +68,8 @@ class App:
             current_time = pygame.time.get_ticks()
             self._handle_events()
             self._handle_transitions(current_time)
+            if not self.running:
+                break
             self._update(current_time)
             pygame.display.flip()
             self.clock.tick(60)
