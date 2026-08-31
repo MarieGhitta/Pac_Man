@@ -37,8 +37,13 @@ class App:
         self.clock: pygame.time.Clock = pygame.time.Clock()
         self.config: Config = ConfigLoader().load(config_path)
         self.engine: Engine = Engine(self.config)
-        self.renderer: Renderer = Renderer(self.engine.level, self.surface)
         self.highscore: Highscore = Highscore(self.config.highscore_filename)
+        if isinstance(self.highscore.scores[0]['score'], int):
+            self.renderer = Renderer(
+                self.engine.level,
+                self.surface,
+                self.highscore.scores[0]['score'] 
+            )
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
             ScreenState.CHEAT: None,
@@ -112,7 +117,12 @@ class App:
                 pass
             case ScreenState.GAME:
                 self.engine = Engine(self.config)
-                self.renderer = Renderer(self.engine.level, self.surface)
+                if isinstance(self.highscore.scores[0]['score'], int):
+                    self.renderer = Renderer(
+                        self.engine.level,
+                        self.surface,
+                        self.highscore.scores[0]['score'] 
+                    )
                 self.screens[ScreenState.GAME] = GameScreen(
                     self.surface, self.engine, self.renderer
                 )
