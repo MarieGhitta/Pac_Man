@@ -138,14 +138,17 @@ class Engine:
         if self._is_level_completed():
             self._next_level()
 
+    def _add_score(self, points: int) -> None:
+        self.score = min(self.score + points, 3333360)
+
     def _collect_cell_content(self, cell: Cell) -> None:
         """Collect the content of a maze cell."""
         if cell.content == CellContent.PACGUM:
             cell.content = CellContent.EMPTY
-            self.score += self.config.points_per_pacgum
+            self._add_score(self.config.points_per_pacgum)
         elif cell.content == CellContent.SUPER_PACGUM:
             cell.content = CellContent.EMPTY
-            self.score += self.config.points_per_super_pacgum
+            self._add_score(self.config.points_per_super_pacgum)
             self._frighten_ghosts()
 
     def _is_level_completed(self) -> bool:
@@ -320,7 +323,7 @@ class Engine:
             for _ in range(self.eat_ghost_combo):
                 score *= 2
         self.eat_ghost_combo += 1
-        self.score += score
+        self._add_score(score)
         ghost.state = GhostState.RESPAWN
 
     def _player_hit(self) -> None:
