@@ -103,7 +103,7 @@ class HighscoreScreen(Screen):
                 midleft=(col_name_x, row_start_y + i * line_height)
             )
             self.surface.blit(name, name_rect)
-            score = self.font.render(str(el["score"])[:9], True, colors[i])
+            score = self.font.render(str(el["score"])[:7], True, colors[i])
             score_rect = score.get_rect(
                 midright=(col_score_x, row_start_y + i * line_height)
             )
