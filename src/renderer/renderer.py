@@ -40,12 +40,14 @@ class Renderer:
             self.maze_width * self.tile_size + self.tile_size,
             self.maze_height * self.tile_size + self.tile_size
         ))
-        self.scale = min(
-            int(self.surface_width * 0.7) // (self.maze_width * self.tile_size),
-            int(self.surface_height * 0.7) // (self.maze_height * self.tile_size)
+        logical_w = self.maze_width * self.tile_size + self.tile_size
+        logical_h = self.maze_height * self.tile_size + self.tile_size
+        ratio = min(
+            self.surface_width * 0.95 / logical_w,
+            self.surface_height * 0.80 / logical_h
         )
-        self.scaled_w: int = (self.maze_width * self.tile_size + self.tile_size) * self.scale
-        self.scaled_h: int = (self.maze_height * self.tile_size + self.tile_size) * self.scale
+        self.scaled_w = int(logical_w * ratio)
+        self.scaled_h = int(logical_h * ratio)
         self.offset_x: int = (self.surface_width - self.scaled_w) // 2
         self.offset_y: int = (self.surface_height - self.scaled_h) // 2
         self.maze_offset: int = self.tile_size // 2
@@ -243,41 +245,41 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
         line_height = int(self.font.get_height() * 1.2)
         self._draw_text(
             "1UP",
-            self.offset_x,
-            self.offset_y - self.tile_size - line_height,
+            self.surface_width // 3,
+            self.surface_height // 8,
             Color.WHITE,
             current_time,
             True
         )
         self._draw_text(
             str(game.score),
-            self.offset_x,
-            self.offset_y - self.tile_size
+            self.surface_width // 3,
+            self.surface_height // 8 + line_height
         )
         self._draw_text(
             "HIGH SCORE",
             self.surface_width // 2,
-            self.offset_y - self.tile_size - line_height
+            self.surface_height // 8
         )
         self._draw_text(
             self.highscore,
             self.surface_width // 2,
-            self.offset_y - self.tile_size
+            self.surface_height // 8 + line_height
         )
         self._draw_text(
             "LEVEL",
-            self.offset_x + self.scaled_w,
-            self.offset_y - self.tile_size - line_height,
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height // 8
         )
         self._draw_text(
             f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
-            self.offset_x + self.scaled_w,
-            self.offset_y - self.tile_size
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height // 8 + line_height
         )
         self._draw_text(
             "CHEAT MODE",
-            self.offset_x + self.scaled_w,
-            self.offset_y + self.scaled_h + self.tile_size,
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height * 7 // 8 - line_height
         )
         cheat_mode = "OFF" 
         color = Color.WHITE
@@ -286,8 +288,8 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
             color = Color.RED
         self._draw_text(
             cheat_mode,
-            self.offset_x + self.scaled_w,
-            self.offset_y + self.scaled_h + self.tile_size + line_height,
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height * 7 // 8,
             color
         )
         if self.pacman_sprite.life is not None:
@@ -304,12 +306,12 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
                     sprite_offset += self.font_size * 1.8
             else:
                 self._draw_life_sprite(life_sprite, line_height)
-                sprite_w = life_sprite.get_width()
-                sprite_h = life_sprite.get_height()
                 self._draw_text(
                     f"x{str(game.lives)}",
-                    self.offset_x + sprite_w + line_height // 4,
-                    self.offset_y + self.scaled_h + self.tile_size
+                    self.surface_width // 3
+                        + life_sprite.get_width()
+                        + line_height // 4,
+                    self.surface_height * 7 // 8 - line_height
                 )
 
     def _draw_life_sprite(
@@ -321,11 +323,10 @@ haque pixel est soit coloré soit transparent, pas de valeur intermédiaire.
         self.surface.blit(
             life_sprite,
             (
-                self.offset_x + offset - line_height,
-                self.offset_y + self.scaled_h - self.font_size // 2
+                self.surface_width // 3 - line_height + offset,
+                self.surface_height - (self.surface_height // 6),
             )
         )
-
 
     def _draw_text(
         self,
