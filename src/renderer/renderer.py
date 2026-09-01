@@ -40,17 +40,15 @@ class Renderer:
             self.maze_width * self.tile_size + self.tile_size,
             self.maze_height * self.tile_size + self.tile_size
         ))
-        logical_w = self.maze_width * self.tile_size + self.tile_size
-        logical_h = self.maze_height * self.tile_size + self.tile_size
-        self.ratio = min(
-            self.surface_height * 0.65 / logical_h,
-            self.surface_width * 0.9 / logical_w
+        self.scale = min(
+            int(self.surface_width * 0.7) // (self.maze_width * self.tile_size),
+            int(self.surface_height * 0.7) // (self.maze_height * self.tile_size)
         )
-        self.scaled_h = int(logical_h * self.ratio)
-        self.scaled_w = int(logical_w * self.ratio)
+        self.scaled_w: int = (self.maze_width * self.tile_size + self.tile_size) * self.scale
+        self.scaled_h: int = (self.maze_height * self.tile_size + self.tile_size) * self.scale
+        self.offset_x: int = (self.surface_width - self.scaled_w) // 2
+        self.offset_y: int = (self.surface_height - self.scaled_h) // 2
         self.maze_offset: int = self.tile_size // 2
-        self.offset_x = (self.surface_width - self.scaled_w) // 2
-        self.offset_y = (self.surface_height - self.scaled_h) // 2
         self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
@@ -104,6 +102,7 @@ class Renderer:
 
     def _draw_walls(self, cell: Cell, x: int, y: int) -> None:
         """Draw the walls of a maze cell.
+
         Args:
             cell: The maze cell whose walls are drawn.
             x: Pixel x-coordinate of the cell's top-left corner.
@@ -307,10 +306,8 @@ class Renderer:
                 self._draw_life_sprite(life_sprite, line_height)
                 self._draw_text(
                     f"x{str(game.lives)}",
-                    self.surface_width // 3
-                        + life_sprite.get_width()
-                        + line_height // 4,
-                    self.surface_height * 7 // 8 - line_height
+                    self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
+                    self.offset_y + self.scaled_h + self.tile_size
                 )
 
     def _draw_life_sprite(
