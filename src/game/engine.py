@@ -14,12 +14,12 @@ from src.maze.models import Cell
 from src.utils.sprite_enums import GhostState, GhostType, Direction
 
 
-_PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
+_PLAYER_UPDATE_DELAY: list[int] = [175, 155, 140, 140]
 _GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
-    GhostState.SCATTER: [200, 175, 160, 160],
-    GhostState.CHASE: [200, 175, 160, 160],
-    GhostState.FRIGHTENED: [300, 275, 250, 250],
-    GhostState.RESPAWN: [80,  80,  80, 80]
+    GhostState.SCATTER: [235, 205, 190, 190],
+    GhostState.CHASE: [350, 320, 295, 295],
+    GhostState.FRIGHTENED: [350, 320, 295, 295],
+    GhostState.RESPAWN: [95, 95, 95, 95]
 }
 _GHOST_SCATTER_DELAY: list[list[float]] = [
     [7e3, 7e3, 5e3, 5e3],
@@ -216,8 +216,13 @@ class Engine:
                     self._reset_positions()
             return
         self.time_remaining = max(
-            0, self.config.level_max_time - (current_time - self.level_start_time) // 1000
+            0, 
+            self.config.level_max_time
+                - (current_time - self.level_start_time)
+                // 1000
         )
+        if self.time_remaining == 0:
+            self._player_hit()
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
@@ -401,6 +406,9 @@ class Engine:
         duration = current_time - self._pause_start
         self.last_state_change += duration
         self.player.last_update += duration
+        self._countdown_start += duration
+        self._death_start += duration
+        self.level_start_time += duration
         for ghost in self.ghosts:
             ghost.last_update += duration
             ghost.frightened_until += duration
