@@ -7,6 +7,7 @@ import pygame
 
 from src.config.models import Config
 from src.game.cell_content import CellContent
+from src.game.cheat import Cheat
 from src.game.level import Level
 from src.game.player import Player
 from src.game.ghost import Ghost
@@ -40,13 +41,14 @@ _DEATH_DELAY: int = 1500
 class Engine:
     """Represent the game."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, cheat: Cheat):
         """Initialize the game.
 
         Args:
             config (Config): The game configuration
         """
         self.config = config
+        self.cheat = cheat
         self.current_level_index: int = 0
         self.level: Level = Level(
             self.config.levels[self.current_level_index],
@@ -215,45 +217,48 @@ class Engine:
                 else:
                     self._reset_positions()
             return
-        self.time_remaining = max(
-            0, 
-            self.config.level_max_time
+        remaining = (
+                self.config.level_max_time
                 - (current_time - self.level_start_time)
                 // 1000
         )
+        if self.cheat.infinite_time:
+            remaining = self.config.level_max_time
+        self.time_remaining = max(0, remaining)
         if self.time_remaining == 0:
             self._player_hit()
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
         lvl_idx = self._level_interval()
-        if (
-            current_time - self.player.last_update
-            >= _PLAYER_UPDATE_DELAY[lvl_idx]
-        ):
+        delay = _PLAYER_UPDATE_DELAY[lvl_idx]
+        if self.cheat.speed_boost:
+            delay //= 2
+        if current_time - self.player.last_update >= delay:
             self.player.last_update = current_time
             self.player.prev_x = self.player.x
             self.player.prev_y = self.player.y
             self._update_player()
             self.player.update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
-        for ghost in self.ghosts:
-            if (
-                current_time - ghost.last_update
-                >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
-            ):
-                ghost.last_update = current_time
-                ghost.prev_x = ghost.x
-                ghost.prev_y = ghost.y
-                ghost.update(
-                    self.level,
-                    self.player,
-                    self.ghosts,
-                    self.ghost_state,
-                )
-                ghost.update_delay = (
-                    _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
-                )
-        self._check_collision()
+        if not self.cheat.ghost_freeze:
+            for ghost in self.ghosts:
+                if (
+                    current_time - ghost.last_update
+                    >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
+                ):
+                    ghost.last_update = current_time
+                    ghost.prev_x = ghost.x
+                    ghost.prev_y = ghost.y
+                    ghost.update(
+                        self.level,
+                        self.player,
+                        self.ghosts,
+                        self.ghost_state,
+                    )
+                    ghost.update_delay = (
+                        _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
+                    )
+            self._check_collision()
 
     def _update_player(self) -> None:
         """Update the player."""
@@ -328,7 +333,8 @@ class Engine:
         if ghost.state == GhostState.FRIGHTENED:
             self._eat_ghost(ghost)
         else:
-            self._player_hit()
+            if not self.cheat.invincibility:
+                self._player_hit()
 
     def _eat_ghost(self, ghost: Ghost) -> None:
         """Eat a frightened ghost."""
