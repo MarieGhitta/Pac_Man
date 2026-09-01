@@ -17,7 +17,12 @@ from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 class Renderer:
     """Draw the game."""
 
-    def __init__(self, level: Level, surface: pygame.surface.Surface) -> None:
+    def __init__(
+        self,
+        level: Level,
+        surface: pygame.surface.Surface,
+        highscore: int
+    ) -> None:
         """Initialize the renderer and create the fullscreen window.
 
         Args:
@@ -29,21 +34,22 @@ class Renderer:
         self.surface_height = surface.get_height()
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
-        self.tile_size: int = 20
-        self.logical_surface = pygame.Surface((
-            self.maze_width * self.tile_size + self.tile_size,
-            self.maze_height * self.tile_size + self.tile_size
-        ))
-        self.scale = min(
-            int(self.surface_width * 0.8) // (self.maze_width * self.tile_size),
-            int(self.surface_height * 0.8) // (self.maze_height * self.tile_size)
+        self.highscore = str(highscore)[:7]
+        self.tile_size: int = min(
+            int(self.surface_width * 0.80) // (self.maze_width + 1),
+            int(self.surface_height * 0.70) // (self.maze_height + 1)
         )
-        self.scaled_w: int = (self.maze_width * self.tile_size + self.tile_size) * self.scale
-        self.scaled_h: int = (self.maze_height * self.tile_size + self.tile_size) * self.scale
+        self.maze_offset: int = self.tile_size // 2
+        self.logical_surface = pygame.Surface((
+            (self.maze_width + 1) * self.tile_size,
+            (self.maze_height + 1) * self.tile_size
+        ))
+        self.scaled_w: int = (self.maze_width + 1) * self.tile_size
+        self.scaled_h: int = (self.maze_height + 1) * self.tile_size
         self.offset_x: int = (self.surface_width - self.scaled_w) // 2
         self.offset_y: int = (self.surface_height - self.scaled_h) // 2
         self.maze_offset: int = self.tile_size // 2
-        self.font_size: int = self.surface_height // 32
+        self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
@@ -64,6 +70,7 @@ class Renderer:
         Args:
             game: The current game state.
         """
+        self.surface.fill(Color.BLACK)
         dying = game.dying or (game.game_over and not game.victory)
         self._update_window(game.level)
         self.logical_surface.fill(Color.BLACK)
@@ -76,7 +83,7 @@ class Renderer:
             self.logical_surface, (self.scaled_w, self.scaled_h)
         )
         self.surface.blit(scaled, (self.offset_x, self.offset_y))
-        self._draw_hud(game)
+        self._draw_hud(game, current_time)
         if game.counting_down:
             self._draw_countdown(game.countdown)
 
@@ -133,7 +140,8 @@ class Renderer:
             end_pos: Screen coordinates of the wall's end point.
         """
         pygame.draw.line(
-            self.logical_surface, Color.BLUE, start_pos, end_pos, 2
+            self.logical_surface, Color.BLUE, start_pos, end_pos,
+            max(1, self.tile_size // 8)
         )
 
     def _draw_cell_content(self, cell: Cell, current_time: int) -> None:
@@ -224,33 +232,107 @@ class Renderer:
             sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
         )
 
-    def _draw_hud(self, game: Engine) -> None:
+    def _draw_hud(self, game: Engine, current_time: int) -> None:
         """Draw the HUD: score on the left, lives on the right.
 
         Args:
             game: The current game state.
+            current_time: the current time in milliseconds.
         """
-        score_txt = self.font.render(
-            f'Score: {game.score}',
-            True,
-            Color.WHITE
+        line_height = int(self.font.get_height() * 1.2)
+        self._draw_text(
+            "1UP",
+            self.surface_width // 3,
+            self.surface_height // 8,
+            Color.WHITE,
+            current_time,
+            True
         )
-        lives_txt = self.font.render(
-            f"Lives: {game.lives}",
-            True,
-            Color.WHITE
+        self._draw_text(
+            str(game.score),
+            self.surface_width // 3,
+            self.surface_height // 8 + line_height
         )
+        self._draw_text(
+            "HIGH SCORE",
+            self.surface_width // 2,
+            self.surface_height // 8
+        )
+        self._draw_text(
+            self.highscore,
+            self.surface_width // 2,
+            self.surface_height // 8 + line_height
+        )
+        self._draw_text(
+            "TIME",
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height // 8
+        )
+        self._draw_text(
+            str(game.time_remaining),
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height // 8 + line_height
+        )
+        self._draw_text(
+            "LEVEL",
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height * 7 // 8 - line_height
+        )
+        self._draw_text(
+            f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
+            self.surface_width - (self.surface_width // 3),
+            self.surface_height * 7 // 8
+        )
+        if self.pacman_sprite.life is not None:
+            life_sprite = pygame.transform.scale(
+                self.pacman_sprite.life,
+                (self.font_size * 2.2, self.font_size * 2.2)
+            )
+            if game.lives < 10:
+                sprite_offset = 0.0
+                for _ in range(game.lives):
+                    self._draw_life_sprite(
+                        life_sprite, line_height, sprite_offset
+                    )
+                    sprite_offset += self.font_size * 1.8
+            else:
+                self._draw_life_sprite(life_sprite, line_height)
+                self._draw_text(
+                    f"x{str(game.lives)}",
+                    self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
+                    self.surface_height * 7 // 8 - line_height
+                )
+
+    def _draw_life_sprite(
+        self,
+        life_sprite: pygame.surface.Surface,
+        line_height: int,
+        offset: float = 0.0
+    ) -> None:
         self.surface.blit(
-            score_txt,
-            (self.offset_x, self.offset_y - self.tile_size)
-        )
-        self.surface.blit(
-            lives_txt,
+            life_sprite,
             (
-                self.surface_width - lives_txt.get_width() - self.offset_x,
-                self.offset_y - self.tile_size
+                self.surface_width // 3 - line_height + offset,
+                self.surface_height - (self.surface_height // 6),
             )
         )
+
+    def _draw_text(
+        self,
+        text: str,
+        x: int,
+        y: int,
+        color: tuple[int, int, int] = Color.WHITE,
+        current_time: int = 0,
+        blink: bool = False,
+    ) -> None:
+        display = self.font.render(text, True, color)
+        display_rect = display.get_rect(center=(x, y))
+        if blink:
+            if (current_time // 250) % 2 == 0:
+                self.surface.blit(display, display_rect)
+        else:
+            self.surface.blit(display, display_rect)
 
     def _update_window(self, level: Level) -> None:
         """Recalculate offsets if the level dimensions changed.
@@ -266,15 +348,25 @@ class Renderer:
         self.maze_width = level.maze.width
         self.maze_height = level.maze.height
         self.tile_size = min(
-            int(self.surface_width * 0.8) // self.maze_width,
-            int(self.surface_height * 0.8) // self.maze_height
+            int(self.surface_width * 0.80) // (self.maze_width + 1),
+            int(self.surface_height * 0.70) // (self.maze_height + 1)
         )
-        self.offset_x = (
-            (self.surface_width - self.maze_width * self.tile_size) // 2
-        )
-        self.offset_y = (
-            (self.surface_height - self.maze_height * self.tile_size) // 2
-        )
+        self.maze_offset = self.tile_size // 2
+        self.logical_surface = pygame.Surface((
+            (self.maze_width + 1) * self.tile_size,
+            (self.maze_height + 1) * self.tile_size
+        ))
+        self.scaled_w = (self.maze_width + 1) * self.tile_size
+        self.scaled_h = (self.maze_height + 1) * self.tile_size
+        self.offset_x = (self.surface_width - self.scaled_w) // 2
+        self.offset_y = (self.surface_height - self.scaled_h) // 2
+        self.pacman_sprite = PacmanSprite(self.tile_size)
+        self.ghost_sprites = {
+            GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
+            GhostType.PINKY: GhostSprite(self.tile_size, Color.PINK),
+            GhostType.INKY: GhostSprite(self.tile_size, Color.CYAN),
+            GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
+        }
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts.
