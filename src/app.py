@@ -5,12 +5,14 @@ import pygame
 
 from src.config.loader import ConfigLoader
 from src.config.models import Config
+from src.game.cheat import Cheat
 from src.game.engine import Engine
 from src.renderer.renderer import Renderer
 from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.screens.screen import Screen
 from src.ui.screens.title_screen import TitleScreen
+from src.ui.screens.cheat_screen import CheatScreen
 from src.ui.screens.pause_screen import PauseScreen
 from src.ui.screens.end_screen import EndScreen
 from src.ui.screens.highscore_screen import HighscoreScreen
@@ -36,7 +38,8 @@ class App:
         )
         self.clock: pygame.time.Clock = pygame.time.Clock()
         self.config: Config = ConfigLoader().load(config_path)
-        self.engine: Engine = Engine(self.config)
+        self.cheat: Cheat = Cheat()
+        self.engine: Engine = Engine(self.config, self.cheat)
         self.highscore: Highscore = Highscore(self.config.highscore_filename)
         if isinstance(self.highscore.scores[0]['score'], int):
             self.renderer = Renderer(
@@ -46,7 +49,7 @@ class App:
             )
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
-            ScreenState.CHEAT: None,
+            ScreenState.CHEAT: CheatScreen(self.surface, self.cheat),
             ScreenState.GAME: GameScreen(
                 self.surface, self.engine, self.renderer
             ),
@@ -116,9 +119,11 @@ class App:
                         hs.last_score = None
                 self.screen_state = ScreenState.TITLE
             case ScreenState.CHEAT:
-                pass
+                if title := self.screens[ScreenState.TITLE]:
+                    title.menu_index = 0
+                self.screen_state = ScreenState.CHEAT
             case ScreenState.GAME:
-                self.engine = Engine(self.config)
+                self.engine = Engine(self.config, self.cheat)
                 if isinstance(self.highscore.scores[0]['score'], int):
                     self.renderer = Renderer(
                         self.engine.level,
