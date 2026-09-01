@@ -464,3 +464,19 @@ Ajout du timer de niveau dans `engine.py` et affichage dans le HUD.
 - Top-right : "TIME" + `game.time_remaining`.
 - Bottom-right : "LEVEL" + `game.current_level_index + 1 / total`.
 **§3.5 HUD** : score ✓, vies ✓, niveau ✓, timer ✓, indicateur cheat retiré. Reste ouvert : indicateur Frightened.
+
+### #24 — 2026-09-01 — Fix pause pendant countdown + timeout de niveau + ralentissement
+**Fix `on_resume` — timestamps non décalés (3 cas)**
+`engine.py` — `on_resume()` ne décalait pas trois timestamps par la durée de pause, les rendant inexacts à la reprise :
+- `_countdown_start` : le temps de pause comptait comme du countdown écoulé → sortie immédiate de `counting_down` si la pause durait plus longtemps que le countdown restant.
+- `_death_start` : idem pour l'animation de mort → skip de l'animation.
+- `level_start_time` : le timer de niveau continuait de décompter pendant la pause.
+Fix : `self._countdown_start += duration`, `self._death_start += duration`, `self.level_start_time += duration` ajoutés dans `on_resume()`.
+**Timeout de niveau → vie perdue**
+`engine.py` — `update()` : si `time_remaining == 0`, appel de `_player_hit()` immédiatement après le calcul de `time_remaining`.
+**Ralentissement du gameplay (+15 % uniforme)**
+Toutes les constantes de délai augmentées de ~15 % pour ralentir le gameplay sans altérer les ratios de vitesse relative :
+- `_PLAYER_UPDATE_DELAY` : `[150, 133, 120, 120]` → `[175, 155, 140, 140]`
+- Ghost SCATTER/CHASE : `[200, 175, 160, 160]` → `[235, 205, 190, 190]`
+- Ghost FRIGHTENED : `[300, 275, 250, 250]` → `[350, 320, 295, 295]`
+- Ghost RESPAWN : `[80, 80, 80, 80]` → `[95, 95, 95, 95]`
