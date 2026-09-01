@@ -159,12 +159,10 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 
 ### 3.5 HUD en jeu (refonte renderer)
 
-- [ ] Score.
-- [ ] Vies (icônes Pac-Man miniatures ou chiffre).
-- [ ] Compte à rebours `level_max_time`.
-- [ ] Numéro de niveau en cours.
-- [ ] Indicateur Frightened (effet visuel global ou texte discret).
-- [ ] Indicateur cheat actif.
+- [x] Score.
+- [x] Vies (icônes Pac-Man miniatures ou chiffre).
+- [x] Compte à rebours `level_max_time`.
+- [x] Numéro de niveau en cours.
 
 ### 3.6 Graphisme arcade 1980
 
@@ -423,3 +421,46 @@ Ajout de `GhostState.FLICKER` dans `sprite_enums.py` — état visuel uniquement
 `Renderer` : `self.countdown_font` (PressStart2P 80px) dans `__init__`. Méthode `_draw_countdown(countdown)` : overlay `(0,0,0,150)` sur `self.surface` + chiffre centré en jaune. Appelée dans `draw(game)` si `game.counting_down`.
 **Fix : frame parasite sur transition**
 `App.run()` : `_handle_transitions` déplacé avant `_update` — la transition est appliquée avant le draw du même frame, ce qui supprime la frame parasite visible lors du retour au menu depuis `EndScreen`.
+
+### #22 — 2026-09-01 — HUD remake + refactor renderer
+
+Refonte complète du HUD dans `renderer.py` et ajustements associés dans `engine.py`, `sprite.py`, `app.py`.
+**HUD — 4 zones fixes en coordonnées écran (`self.surface`) :**
+- Top-left : label "1UP" clignotant + score courant.
+- Top-center : label "HIGH SCORE" + top score (injecté depuis `App` via `Renderer.__init__(highscore: int)`).
+- Top-right : label "LEVEL" + `current_level_index + 1 / total`.
+- Bottom-left : icônes Pac-Man (sprite bouche mi-ouverte × `game.lives`) ; si `lives >= 10`, un seul sprite + label `x{lives}`.
+- Bottom-right : label "CHEAT MODE" + "ON"/"OFF" (paramètre `cheat: bool` de `_draw_hud`).
+**Helpers ajoutés à `Renderer` :**
+- `_draw_text(text, x, y, color, current_time, blink)` : render centré sur `(x, y)`, blink à 250ms si demandé.
+- `_draw_life_sprite(life_sprite, line_height, offset)` : blit d'une icône de vie avec décalage horizontal.
+**`PacmanSprite.life_sprite` :**
+- Attribut ajouté dans `sprite.py`. Initialisé à `None` **avant** `super().__init__()` pour ne pas écraser le résultat de `_build_frames()`. Assigné dans `_build_frames()` : frame index `[1]` de la variante `(Direction.LEFT, PacmanState.ALIVE)` (bouche mi-ouverte).
+**`Renderer.__init__` :**
+- `tile_size` désormais dynamique : `min(surface_width * 0.80 // (maze_width + 1), surface_height * 0.70 // (maze_height + 1))`. Élimine le downscale massif pour les grands mazes (ex. height=100) et garantit marges proportionnelles fixes.
+- `maze_offset = tile_size // 2` (cohérent avec tile_size dynamique).
+- `logical_surface` dimensionnée en `(maze_width + 1) * tile_size × (maze_height + 1) * tile_size`.
+- `scale = 1` implicite — blit direct sans `transform.scale`.
+- `surface.fill(Color.BLACK)` ajouté en tête de `draw()` pour nettoyer les marges entre frames (évite l'empilement du HUD).
+**`_update_window` :**
+- Aligne sur la même logique que `__init__` : recalcule `tile_size`, `maze_offset`, `logical_surface`, `scaled_w/h`, `offset_x/y`, et réinstancie les sprites (tile_size change entre niveaux).
+**`Engine` :**
+- Score plafonné à 3 333 360 (maximum de l'arcade original) : `self.score = min(self.score + points, 3333360)`.
+**`App` :**
+- Guard `if not self.running: break` après `_handle_transitions()` — évite le flash d'un frame parasite au quit depuis `EndScreen`.
+- `highscore` injecté dans `Renderer.__init__` depuis `self.highscore.scores[0]["score"]` si scores non vide, sinon `0`.
+**§3.5 HUD partiellement soldé :** score ✓, vies ✓, indicateur cheat ✓, niveau ✓. Restent ouverts : compte à rebours `level_max_time`, indicateur Frightened.
+
+### #23 — 2026-09-01 — Timer de niveau
+
+Ajout du timer de niveau dans `engine.py` et affichage dans le HUD.
+**`Engine` :**
+- `level_start_time: int = 0` — timestamp du démarrage effectif du niveau (après countdown).
+- `time_remaining: int = self.config.level_max_time` — temps restant en secondes, mis à jour à chaque frame dans `update()`.
+- `update()` : `level_start_time` setté quand `counting_down` passe à `False`. `time_remaining` calculé hors des blocs `counting_down` et `dying` : `max(0, level_max_time - (current_time - level_start_time) // 1000)`.
+- `_next_level()` et `_reset_positions()` : `level_start_time = 0` et `time_remaining = config.level_max_time` pour reset propre entre niveaux et après mort.
+**`Renderer._draw_hud` :**
+- CHEAT MODE retiré du HUD.
+- Top-right : "TIME" + `game.time_remaining`.
+- Bottom-right : "LEVEL" + `game.current_level_index + 1 / total`.
+**§3.5 HUD** : score ✓, vies ✓, niveau ✓, timer ✓, indicateur cheat retiré. Reste ouvert : indicateur Frightened.
