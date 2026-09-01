@@ -266,30 +266,24 @@ class Renderer:
             self.surface_height // 8 + line_height
         )
         self._draw_text(
-            "LEVEL",
+            "TIME",
             self.surface_width - (self.surface_width // 3),
             self.surface_height // 8
         )
         self._draw_text(
-            f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
+            str(game.time_remaining),
             self.surface_width - (self.surface_width // 3),
             self.surface_height // 8 + line_height
         )
         self._draw_text(
-            "CHEAT MODE",
+            "LEVEL",
             self.surface_width - (self.surface_width // 3),
             self.surface_height * 7 // 8 - line_height
         )
-        cheat_mode = "OFF" 
-        color = Color.WHITE
-        if cheat:
-            cheat_mode = "ON"
-            color = Color.RED
         self._draw_text(
-            cheat_mode,
+            f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
             self.surface_width - (self.surface_width // 3),
-            self.surface_height * 7 // 8,
-            color
+            self.surface_height * 7 // 8
         )
         if self.pacman_sprite.life is not None:
             life_sprite = pygame.transform.scale(

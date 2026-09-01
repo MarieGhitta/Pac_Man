@@ -78,6 +78,8 @@ class Engine:
         self.counting_down: bool = True
         self._countdown_start: int = pygame.time.get_ticks()
         self.countdown: int = 3
+        self.level_start_time: int = 0
+        self.time_remaining: int = self.config.level_max_time
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
         """Create the ghosts for the current level."""
@@ -189,6 +191,8 @@ class Engine:
         self.counting_down = True
         self.countdown = 3
         self._countdown_start = pygame.time.get_ticks()
+        self.level_start_time = 0
+        self.time_remaining = self.config.level_max_time
 
     def update(self) -> None:
         """Update the game state."""
@@ -200,6 +204,8 @@ class Engine:
             self.countdown = 3 - elapsed // 1000
             if elapsed >= 3000:
                 self.counting_down = False
+                self.level_start_time = current_time
+                self.level_start_time = current_time
             return
         if self.dying:
             if current_time - self._death_start >= _DEATH_DELAY:
@@ -209,6 +215,9 @@ class Engine:
                 else:
                     self._reset_positions()
             return
+        self.time_remaining = max(
+            0, self.config.level_max_time - (current_time - self.level_start_time) // 1000
+        )
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
@@ -351,6 +360,8 @@ class Engine:
         self.counting_down = True
         self.countdown = 3
         self._countdown_start = pygame.time.get_ticks()
+        self.level_start_time = 0
+        self.time_remaining = self.config.level_max_time
 
     def _frighten_ghosts(self) -> None:
         """Put all ghosts in frightened state."""
