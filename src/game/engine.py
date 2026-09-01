@@ -14,12 +14,12 @@ from src.maze.models import Cell
 from src.utils.sprite_enums import GhostState, GhostType, Direction
 
 
-_PLAYER_UPDATE_DELAY: list[int] = [150, 133, 120, 120]
+_PLAYER_UPDATE_DELAY: list[int] = [175, 155, 140, 140]
 _GHOST_UPDATE_DELAY: dict[GhostState, list[int]] = {
-    GhostState.SCATTER: [200, 175, 160, 160],
-    GhostState.CHASE: [200, 175, 160, 160],
+    GhostState.SCATTER: [235, 205, 190, 190],
+    GhostState.CHASE: [350, 320, 295, 295],
     GhostState.FRIGHTENED: [300, 275, 250, 250],
-    GhostState.RESPAWN: [80,  80,  80, 80]
+    GhostState.RESPAWN: [95, 95, 95, 95]
 }
 _GHOST_SCATTER_DELAY: list[list[float]] = [
     [7e3, 7e3, 5e3, 5e3],
