@@ -68,7 +68,7 @@ class Engine:
         self.global_ghosts_state: GhostState = GhostState.SCATTER
         self.state_phase_index: int = 0
         self.last_state_change: int = current_time
-        self.lives: int = self.config.lives
+        self.lives: int = min(self.config.lives, 99)
         self.game_over: bool = False
         self.victory: bool = False
         self.elapsed_before_fright: int = 0
@@ -201,6 +201,8 @@ class Engine:
         if self.game_over or self.victory:
             return
         current_time = pygame.time.get_ticks()
+        if self.cheat.infinite_lives:
+            self.lives = 99
         if self.counting_down:
             elapsed = current_time - self._countdown_start
             self.countdown = 3 - elapsed // 1000
