@@ -401,6 +401,9 @@ class Engine:
         duration = current_time - self._pause_start
         self.last_state_change += duration
         self.player.last_update += duration
+        self._countdown_start += duration
+        self._death_start += duration
+        self.level_start_time += duration
         for ghost in self.ghosts:
             ghost.last_update += duration
             ghost.frightened_until += duration
