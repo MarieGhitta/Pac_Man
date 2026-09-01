@@ -400,7 +400,7 @@ class GhostSprite(Sprite):
         self.color = color
         super().__init__(tile_size)
         self.anim_count = 2
-        self.anim_speed = 75
+        self.anim_speed = 150
 
     def _build_frames(self) -> None:
         frames = [self._build_frame(i) for i in range(8)]
