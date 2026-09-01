@@ -216,8 +216,13 @@ class Engine:
                     self._reset_positions()
             return
         self.time_remaining = max(
-            0, self.config.level_max_time - (current_time - self.level_start_time) // 1000
+            0, 
+            self.config.level_max_time
+                - (current_time - self.level_start_time)
+                // 1000
         )
+        if self.time_remaining == 0:
+            self._player_hit()
         self._update_ghost_state(current_time)
         if self.is_frighten:
             self._check_if_frighten(current_time)
