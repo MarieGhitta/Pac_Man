@@ -232,9 +232,7 @@ class Renderer:
             sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
         )
 
-    def _draw_hud(
-        self, game: Engine, current_time: int, cheat: bool = False
-    ) -> None:
+    def _draw_hud(self, game: Engine, current_time: int) -> None:
         """Draw the HUD: score on the left, lives on the right.
 
         Args:
