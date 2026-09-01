@@ -98,7 +98,9 @@ class Screen(ABC):
         font: pygame.font.Font,
         line_height: int,
         menu_start_y: int,
-        alpha: int = 255
+        alpha: int = 255,
+        alignment: str = "center",
+        x: int = 2
     ) -> None:
         """Render menu items centered horizontally, highlight the selected one.
 
@@ -111,7 +113,7 @@ class Screen(ABC):
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = font.render(el, True, color)
             sub_rect = sub.get_rect(
-                center=(self.width // 2, menu_start_y + i * line_height)
+                **{alignment: (self.width // x, menu_start_y + i * line_height)}
             )
             sub.set_alpha(alpha)
             self.surface.blit(sub, sub_rect)
