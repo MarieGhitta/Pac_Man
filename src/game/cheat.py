@@ -6,4 +6,5 @@ class Cheat:
         self.speed_boost: bool = False
         self.infinite_time: bool = False
         self.infinite_lives: bool = False
-        self.lvl_skip: int = 0
+        self.lvl_skip: bool = False
+        self.add_life: bool = False
