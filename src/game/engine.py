@@ -209,7 +209,6 @@ class Engine:
             if elapsed >= 3000:
                 self.counting_down = False
                 self.level_start_time = current_time
-                self.level_start_time = current_time
             return
         if self.dying:
             if current_time - self._death_start >= _DEATH_DELAY:
