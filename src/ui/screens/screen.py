@@ -100,7 +100,8 @@ class Screen(ABC):
         menu_start_y: int,
         alpha: int = 255,
         alignment: str = "center",
-        x: int = 2
+        x: int = 2,
+        highlight: bool = True
     ) -> None:
         """Render menu items centered horizontally, highlight the selected one.
 
@@ -110,7 +111,10 @@ class Screen(ABC):
             menu_start_y: Y coordinate of the first menu item center.
         """
         for i, el in enumerate(items):
-            color = Color.RED if i == self.menu_index else Color.WHITE
+            if highlight:
+                color = Color.RED if i == self.menu_index else Color.WHITE
+            else:
+                color = Color.WHITE
             sub = font.render(el, True, color)
             sub_rect = sub.get_rect(
                 **{alignment: (self.width // x, menu_start_y + i * line_height)}
