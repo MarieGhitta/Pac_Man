@@ -50,8 +50,9 @@ class Engine:
         self.config = config
         self.cheat = cheat
         self.current_level_index: int = 0
+        self.max_level_index = self.config.max_levels
         self.level: Level = Level(
-            self.config.levels[self.current_level_index],
+            self.config.levels[0],
             self.config.seed,
             self.config.pacgum
         )
@@ -166,12 +167,16 @@ class Engine:
 
     def _next_level(self) -> None:
         """Load the next level."""
-        self.current_level_index += 1
-        if self.current_level_index >= len(self.config.levels):
+        if self.current_level_index + 1 < self.max_level_index:
+            self.current_level_index += 1
+        else:
             self.victory = True
             return
+        level_index = self.current_level_index
+        if self.current_level_index > len(self.config.levels) - 1:
+            level_index = len(self.config.levels) - 1
         self.level = Level(
-            self.config.levels[self.current_level_index],
+            self.config.levels[level_index],
             random.randint(0, 2**32 - 1),
             self.config.pacgum
         )

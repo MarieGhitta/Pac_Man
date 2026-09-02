@@ -279,7 +279,7 @@ class Renderer:
             self.surface_height * 7 // 8 - line_height
         )
         self._draw_text(
-            f"{str(game.current_level_index + 1)}/{len(game.config.levels)}",
+            f"{str(game.current_level_index + 1)}/{game.max_level_index}",
             self.surface_width - (self.surface_width // 3),
             self.surface_height * 7 // 8
         )
