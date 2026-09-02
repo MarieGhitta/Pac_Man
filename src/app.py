@@ -12,7 +12,7 @@ from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.screens.screen import Screen
 from src.ui.screens.title_screen import TitleScreen
-from src.ui.screens.cheat_screen import CheatScreen
+from src.ui.screens.cheat_screen import CheatScreen, PauseCheatScreen
 from src.ui.screens.pause_screen import PauseScreen
 from src.ui.screens.end_screen import EndScreen
 from src.ui.screens.highscore_screen import HighscoreScreen
@@ -50,6 +50,7 @@ class App:
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
             ScreenState.CHEAT: CheatScreen(self.surface, self.cheat),
+            ScreenState.PAUSECHEAT: PauseCheatScreen(self.surface, self.cheat),
             ScreenState.GAME: GameScreen(
                 self.surface, self.engine, self.renderer
             ),
@@ -122,6 +123,10 @@ class App:
                 if title := self.screens[ScreenState.TITLE]:
                     title.menu_index = 0
                 self.screen_state = ScreenState.CHEAT
+            case ScreenState.PAUSECHEAT:
+                if title := self.screens[ScreenState.TITLE]:
+                    title.menu_index = 0
+                self.screen_state = ScreenState.PAUSECHEAT
             case ScreenState.GAME:
                 self.engine = Engine(self.config, self.cheat)
                 if isinstance(self.highscore.scores[0]['score'], int):
@@ -139,7 +144,8 @@ class App:
             case ScreenState.PAUSE:
                 if pause := self.screens[ScreenState.PAUSE]:
                     pause.menu_index = 0
-                self.frozen_frame = self.surface.copy()
+                if self.screen_state == ScreenState.GAME:
+                    self.frozen_frame = self.surface.copy()
                 self.engine.on_pause(current_time)
                 self.screen_state = ScreenState.PAUSE
             case ScreenState.RESUME:
