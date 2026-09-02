@@ -124,7 +124,8 @@ class Ghost:
         best_distance: float = float("inf")
         for direction in directions:
             next_x, next_y = self._next_position(direction)
-            distance: float = math.hypot(target_x - next_x, target_y - next_y)
+            # distance: float = math.hypot(target_x - next_x, target_y - next_y)
+            distance: float = abs(target_x - next_x) + abs(target_y - next_y)
             if distance < best_distance:
                 best_distance = distance
                 best_directions = [direction]
