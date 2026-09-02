@@ -9,7 +9,7 @@ from src.game.ghost import Ghost
 from src.game.level import Level
 from src.game.player import Player
 from src.maze.models import Maze, Cell
-from src.renderer.sprite import PacmanSprite, GhostSprite
+from src.renderer.sprite import PacmanSprite, GhostSprite, SuperPacgumSprite
 from src.utils.color import Color
 from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 
@@ -63,6 +63,7 @@ class Renderer:
             GhostType.INKY: GhostSprite(self.tile_size, Color.CYAN),
             GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
         }
+        self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -141,7 +142,7 @@ class Renderer:
         """
         pygame.draw.line(
             self.logical_surface, Color.BLUE, start_pos, end_pos,
-            max(1, self.tile_size // 8)
+            max(1, self.tile_size // 6)
         )
 
     def _draw_cell_content(self, cell: Cell, current_time: int) -> None:
@@ -150,9 +151,11 @@ class Renderer:
         Args:
             cell: The maze cell whose content is drawn.
         """
-        center_x, center_y = self._to_screen(cell.x, cell.y, centered=True)
         match cell.content:
             case CellContent.PACGUM:
+                center_x, center_y = self._to_screen(
+                    cell.x, cell.y, centered=True
+                )
                 pygame.draw.rect(
                     self.logical_surface,
                     Color.LIGHTPINK,
@@ -164,12 +167,11 @@ class Renderer:
                     )
                 )
             case CellContent.SUPER_PACGUM:
+                center_x, center_y = self._to_screen(cell.x, cell.y)
                 if (current_time // 150) % 2 == 0:
-                    pygame.draw.circle(
-                        self.logical_surface,
-                        Color.LIGHTPINK,
-                        (center_x, center_y),
-                        self.tile_size // 4,
+                    self.superpacgum_sprite.update(current_time, (None, None))
+                    self.superpacgum_sprite.draw(
+                        self.logical_surface, center_x, center_y, (None, None)
                     )
 
     def _draw_player(
