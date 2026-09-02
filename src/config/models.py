@@ -22,6 +22,7 @@ class Config:
             self,
             highscore_filename: str,
             levels: list[LevelConfig],
+            max_levels: int,
             lives: int,
             pacgum: int,
             points_per_pacgum: int,
@@ -45,6 +46,7 @@ class Config:
         """
         self.highscore_filename = highscore_filename
         self.levels = levels
+        self.max_levels = max_levels
         self.lives: int = lives
         self.pacgum = pacgum
         self.points_per_pacgum = points_per_pacgum

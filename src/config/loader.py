@@ -52,6 +52,7 @@ class ConfigLoader:
     def _build_config(self, data: dict[str, Any]) -> Config:
         highscore_filename = self._get_str(data, "highscore_filename",
                                            "highscores.json")
+        max_levels = self._get_int(data, "max_levels", 10, 10, 99)
         lives = self._get_int(data, "lives", 3, 1, 99)
         pacgum = self._get_int(data, "pacgum", 0, 0)
         points_per_pacgum = self._get_int(data, "points_per_pacgum", 10, 0, 100)
@@ -76,6 +77,7 @@ class ConfigLoader:
         return Config(
             highscore_filename=highscore_filename,
             levels=levels,
+            max_levels=max_levels,
             lives=lives,
             pacgum=pacgum,
             points_per_pacgum=points_per_pacgum,
