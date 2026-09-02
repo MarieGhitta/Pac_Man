@@ -201,7 +201,7 @@ class App:
                 else:
                     ending = "win" if self.engine.victory else "lose"
                     self.screens[ScreenState.END] = EndScreen(
-                        self.surface, current_time, ending
+                        self.surface, current_time, ending, self.engine.score
                     )
                 self.screen_state = ScreenState.END
 
