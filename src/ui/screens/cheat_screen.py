@@ -85,6 +85,7 @@ class PauseCheatScreen(CheatScreen):
             "Infinite Time",
             "Infinite Lives",
             "Level Skip",
+            "Add Life"
 
         ]
         self.cheat_attrs = [
@@ -114,6 +115,9 @@ class PauseCheatScreen(CheatScreen):
                         case 5:
                             self.cheat.lvl_skip = True
                             self.next_screen = ScreenState.GAME
+                        case 6:
+                            self.cheat.add_life = True
+                            self.next_screen = ScreenState.RESUME
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
 
