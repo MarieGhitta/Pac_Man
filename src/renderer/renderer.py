@@ -79,10 +79,10 @@ class Renderer:
         if not dying:
             self._draw_ghosts(game.ghosts, current_time)
         self._draw_player(game.player, current_time, dying)
-        scaled = pygame.transform.scale(
-            self.logical_surface, (self.scaled_w, self.scaled_h)
-        )
-        self.surface.blit(scaled, (self.offset_x, self.offset_y))
+        # scaled = pygame.transform.scale(
+        #     self.logical_surface, (self.scaled_w, self.scaled_h)
+        # )
+        self.surface.blit(self.logical_surface, (self.offset_x, self.offset_y))
         self._draw_hud(game, current_time)
         if game.counting_down:
             self._draw_countdown(game.countdown)
