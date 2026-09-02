@@ -41,11 +41,12 @@ class App:
         self.cheat: Cheat = Cheat()
         self.engine: Engine = Engine(self.config, self.cheat)
         self.highscore: Highscore = Highscore(self.config.highscore_filename)
-        if isinstance(self.highscore.scores[0]['score'], int):
+        highscore = 0
+        if len(self.highscore.scores) != 0:
+            highscore = self.highscore.scores[0]['score']
+        if isinstance(highscore, int):
             self.renderer = Renderer(
-                self.engine.level,
-                self.surface,
-                self.highscore.scores[0]['score'] 
+                self.engine.level, self.surface, highscore
             )
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
@@ -129,11 +130,14 @@ class App:
                 self.screen_state = ScreenState.PAUSECHEAT
             case ScreenState.GAME:
                 self.engine = Engine(self.config, self.cheat)
-                if isinstance(self.highscore.scores[0]['score'], int):
+                highscore = 0
+                if len(self.highscore.scores) != 0:
+                    highscore = self.highscore.scores[0]['score']
+                if isinstance(highscore, int):
                     self.renderer = Renderer(
                         self.engine.level,
                         self.surface,
-                        self.highscore.scores[0]['score'] 
+                        highscore
                     )
                 self.screens[ScreenState.GAME] = GameScreen(
                     self.surface, self.engine, self.renderer
