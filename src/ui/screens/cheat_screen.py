@@ -7,7 +7,7 @@ from src.utils.screen_state import ScreenState
 
 
 class CheatScreen(Screen):
-   
+
     def __init__(self, surface: pygame.surface.Surface, cheat: Cheat):
         super().__init__(surface)
         self.cheat = cheat
@@ -25,7 +25,7 @@ class CheatScreen(Screen):
             "infinite_time",
             "infinite_lives"
         ]
-        
+
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN:
             self._navigate(event.key)
@@ -74,7 +74,7 @@ class CheatScreen(Screen):
             self.surface.blit(sub, sub_rect)
 
 class PauseCheatScreen(CheatScreen):
-   
+
     def __init__(self, surface: pygame.surface.Surface, cheat: Cheat):
         super().__init__(surface, cheat)
         self.menu_items = [
@@ -90,8 +90,9 @@ class PauseCheatScreen(CheatScreen):
             "ghost_freeze",
             "speed_boost",
             "infinite_time",
+            "lvl_skip"
         ]
-        
+
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN:
             self._navigate(event.key)
@@ -106,6 +107,8 @@ class PauseCheatScreen(CheatScreen):
                             self.cheat.speed_boost = not self.cheat.speed_boost
                         case 3:
                             self.cheat.infinite_time = not self.cheat.infinite_time
+                        case 4:
+                            self.cheat.lvl_skip += 1
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
 
