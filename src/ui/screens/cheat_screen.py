@@ -77,11 +77,13 @@ class PauseCheatScreen(CheatScreen):
 
     def __init__(self, surface: pygame.surface.Surface, cheat: Cheat):
         super().__init__(surface, cheat)
+        self.overlay = self._draw_overlay()
         self.menu_items = [
             "Invincibility",
             "Ghost Freeze",
             "Speed Boost",
             "Infinite Time",
+            "Infinite Lives",
             "Level Skip",
 
         ]
@@ -90,7 +92,7 @@ class PauseCheatScreen(CheatScreen):
             "ghost_freeze",
             "speed_boost",
             "infinite_time",
-            "lvl_skip"
+            "infinite_lives",
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -108,7 +110,10 @@ class PauseCheatScreen(CheatScreen):
                         case 3:
                             self.cheat.infinite_time = not self.cheat.infinite_time
                         case 4:
-                            self.cheat.lvl_skip += 1
+                            self.cheat.infinite_lives = not self.cheat.infinite_lives
+                        case 5:
+                            self.cheat.lvl_skip = True
+                            self.next_screen = ScreenState.GAME
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
 
@@ -117,7 +122,7 @@ class PauseCheatScreen(CheatScreen):
         pass
 
     def draw(self) -> None:
-        self.surface.fill(Color.BLACK)
+        self.surface.blit(self.overlay, (0, 0))
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height // 2 - total_height // 3
@@ -139,3 +144,13 @@ class PauseCheatScreen(CheatScreen):
                 midleft=(self.width * 2 // 3, menu_start_y + i * line_height)
             )
             self.surface.blit(sub, sub_rect)
+
+    def _draw_overlay(self) -> pygame.surface.Surface:
+        """Create a semi-transparent black overlay covering the full surface.
+
+        Returns:
+            A pygame Surface with per-pixel alpha, filled with ALPHA_BLACK.
+        """
+        overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        overlay.fill(Color.ALPHA_BLACK)
+        return overlay

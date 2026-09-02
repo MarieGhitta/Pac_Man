@@ -95,7 +95,10 @@ class App:
             current_time: Current time in milliseconds.
         """
         if (
-            self.screen_state == ScreenState.PAUSE
+            (
+                self.screen_state == ScreenState.PAUSE
+                or self.screen_state == ScreenState.PAUSECHEAT
+            )
             and self.frozen_frame is not None
         ):
             self.surface.blit(self.frozen_frame, (0, 0))
@@ -112,7 +115,9 @@ class App:
         screen = self.screens[self.screen_state]
         if screen is None or screen.next_screen is None:
             return
+
         match screen.next_screen:
+
             case ScreenState.TITLE:
                 if title := self.screens[ScreenState.TITLE]:
                     title.menu_index = 0
@@ -120,15 +125,25 @@ class App:
                     if isinstance(hs, HighscoreScreen):
                         hs.last_score = None
                 self.screen_state = ScreenState.TITLE
+
             case ScreenState.CHEAT:
                 if title := self.screens[ScreenState.TITLE]:
                     title.menu_index = 0
                 self.screen_state = ScreenState.CHEAT
+
             case ScreenState.PAUSECHEAT:
-                if title := self.screens[ScreenState.TITLE]:
-                    title.menu_index = 0
+                if pause := self.screens[ScreenState.PAUSECHEAT]:
+                    pause.menu_index = 0
                 self.screen_state = ScreenState.PAUSECHEAT
+
             case ScreenState.GAME:
+                if self.cheat.lvl_skip:
+                    self.cheat.lvl_skip = False
+                    self.engine._next_level()
+                    self.engine.on_resume(current_time)
+                    self.screen_state = ScreenState.GAME
+                    screen.next_screen = None
+                    return
                 self.engine = Engine(self.config, self.cheat)
                 highscore = 0
                 if len(self.highscore.scores) != 0:
@@ -145,16 +160,19 @@ class App:
                 self.screen_state = ScreenState.GAME
                 self.score_saved = False
                 self.endgame_score_display = False
+
             case ScreenState.PAUSE:
                 if pause := self.screens[ScreenState.PAUSE]:
                     pause.menu_index = 0
                 if self.screen_state == ScreenState.GAME:
                     self.frozen_frame = self.surface.copy()
-                self.engine.on_pause(current_time)
+                    self.engine.on_pause(current_time)
                 self.screen_state = ScreenState.PAUSE
+
             case ScreenState.RESUME:
                 self.engine.on_resume(current_time)
                 self.screen_state = ScreenState.GAME
+
             case ScreenState.HIGHSCORE:
                 if self.screen_state == ScreenState.END:
                     self.endgame_score_display = True
@@ -174,6 +192,7 @@ class App:
                     if isinstance(hs, HighscoreScreen):
                         hs.endgame = (self.screen_state == ScreenState.END)
                 self.screen_state = ScreenState.HIGHSCORE
+
             case ScreenState.END:
                 if self.screen_state == ScreenState.HIGHSCORE:
                     if end := self.screens[ScreenState.END]:
@@ -185,6 +204,8 @@ class App:
                         self.surface, current_time, ending
                     )
                 self.screen_state = ScreenState.END
+
             case ScreenState.QUIT:
                 self.running = False
+
         screen.next_screen = None
