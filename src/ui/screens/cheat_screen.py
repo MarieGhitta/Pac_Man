@@ -1,3 +1,6 @@
+"""Cheat configuration screens for title and pause contexts."""
+
+
 import pygame
 
 from src.game.cheat import Cheat
@@ -7,8 +10,15 @@ from src.utils.screen_state import ScreenState
 
 
 class CheatScreen(Screen):
+    """Cheat toggle menu accessible from the title screen."""
 
     def __init__(self, surface: pygame.surface.Surface, cheat: Cheat):
+        """Initialize the cheat screen.
+
+        Args:
+            surface: Target pygame surface.
+            cheat: Shared cheat flags instance.
+        """
         super().__init__(surface)
         self.cheat = cheat
         self.menu_items = [
@@ -27,6 +37,11 @@ class CheatScreen(Screen):
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Toggle cheats on RETURN, navigate on arrows, exit on ESCAPE.
+
+        Args:
+            event: Pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             self._navigate(event.key)
             match event.key:
@@ -47,9 +62,14 @@ class CheatScreen(Screen):
 
 
     def update(self, current_time: int) -> None:
-        pass
+        """No-op: cheat screen has no animated state.
+
+        Args:
+            current_time: Current time in milliseconds (unused).
+        """
 
     def draw(self) -> None:
+        """Render the cheat toggle menu with ON/OFF status column."""
         self.surface.fill(Color.BLACK)
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
@@ -74,10 +94,20 @@ class CheatScreen(Screen):
             self.surface.blit(sub, sub_rect)
 
 class PauseCheatScreen(CheatScreen):
+    """Extended cheat menu accessible from the pause screen."""
 
     def __init__(self, surface: pygame.surface.Surface, cheat: Cheat):
+        """Initialize the pause cheat screen with action items.
+
+        Args:
+            surface: Target pygame surface.
+            cheat: Shared cheat flags instance.
+        """
         super().__init__(surface, cheat)
-        self.overlay = self._draw_overlay()
+        self.overlay = pygame.Surface(
+            (self.width, self.height), pygame.SRCALPHA
+        )
+        self.overlay.fill(Color.ALPHA_BLACK)
         self.menu_items = [
             "Invincibility",
             "Ghost Freeze",
@@ -102,6 +132,11 @@ class PauseCheatScreen(CheatScreen):
         self.lives_index: int = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle toggles, Add Life cycling, actions, and ESCAPE.
+
+        Args:
+            event: Pygame event to handle.
+        """
         if event.type == pygame.KEYDOWN:
             self._navigate(event.key)
             match event.key:
@@ -140,9 +175,14 @@ class PauseCheatScreen(CheatScreen):
 
 
     def update(self, current_time: int) -> None:
-        pass
+        """No-op: pause cheat screen has no animated state.
+
+        Args:
+            current_time: Current time in milliseconds (unused).
+        """
 
     def draw(self) -> None:
+        """Render the overlay and extended cheat menu."""
         self.surface.blit(self.overlay, (0, 0))
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
@@ -168,13 +208,3 @@ class PauseCheatScreen(CheatScreen):
                 midleft=(self.width * 2 // 3, menu_start_y + i * line_height)
             )
             self.surface.blit(sub, sub_rect)
-
-    def _draw_overlay(self) -> pygame.surface.Surface:
-        """Create a semi-transparent black overlay covering the full surface.
-
-        Returns:
-            A pygame Surface with per-pixel alpha, filled with ALPHA_BLACK.
-        """
-        overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        overlay.fill(Color.ALPHA_BLACK)
-        return overlay
