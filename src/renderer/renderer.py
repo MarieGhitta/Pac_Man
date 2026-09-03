@@ -369,6 +369,7 @@ class Renderer:
             GhostType.INKY: GhostSprite(self.tile_size, Color.CYAN),
             GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
         }
+        self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)
 
     def _draw_ghosts(self, ghosts: list[Ghost], current_time: int) -> None:
         """Draw all ghosts.
