@@ -86,7 +86,7 @@ class EndScreen(Screen):
                                 case 2:
                                     self.next_screen = ScreenState.QUIT
                         case pygame.K_ESCAPE:
-                            self.next_screen = ScreenState.QUIT
+                            self.next_screen = ScreenState.TITLE
                     if self.next_screen is not None:
                         self.can_navigate = False
 
