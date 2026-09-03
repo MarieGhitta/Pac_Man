@@ -1,6 +1,11 @@
+"""Cheat flags container."""
+
+
 class Cheat:
+    """Hold all cheat mode flags for the current session."""
 
     def __init__(self) -> None:
+        """Initialize all cheat flags to their default off state."""
         self.invincibility: bool = False
         self.ghost_freeze: bool = False
         self.speed_boost: bool = False
