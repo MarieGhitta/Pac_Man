@@ -46,20 +46,10 @@ class CheatScreen(Screen):
             self._navigate(event.key)
             match event.key:
                 case pygame.K_RETURN:
-                    match self.menu_index:
-                        case 0:
-                            self.cheat.invincibility = not self.cheat.invincibility
-                        case 1:
-                            self.cheat.ghost_freeze = not self.cheat.ghost_freeze 
-                        case 2:
-                            self.cheat.speed_boost = not self.cheat.speed_boost
-                        case 3:
-                            self.cheat.infinite_time = not self.cheat.infinite_time
-                        case 4:
-                            self.cheat.infinite_lives = not self.cheat.infinite_lives
+                    attr = self.cheat_attrs[self.menu_index]
+                    setattr(self.cheat, attr, not getattr(self.cheat, attr))
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.TITLE
-
 
     def update(self, current_time: int) -> None:
         """No-op: cheat screen has no animated state.
@@ -92,6 +82,7 @@ class CheatScreen(Screen):
                 midleft=(self.width * 2 // 3, menu_start_y + i * line_height)
             )
             self.surface.blit(sub, sub_rect)
+
 
 class PauseCheatScreen(CheatScreen):
     """Extended cheat menu accessible from the pause screen."""
@@ -141,38 +132,39 @@ class PauseCheatScreen(CheatScreen):
             self._navigate(event.key)
             match event.key:
                 case pygame.K_RETURN:
-                    match self.menu_index:
-                        case 0:
-                            self.cheat.invincibility = not self.cheat.invincibility
-                        case 1:
-                            self.cheat.ghost_freeze = not self.cheat.ghost_freeze 
-                        case 2:
-                            self.cheat.speed_boost = not self.cheat.speed_boost
-                        case 3:
-                            self.cheat.infinite_time = not self.cheat.infinite_time
-                        case 4:
-                            self.cheat.infinite_lives = not self.cheat.infinite_lives
-                        case 5:
-                            self.cheat.add_lives = self.lives_menu[self.lives_index]
-                            self.next_screen = ScreenState.RESUME
-                        case 6:
-                            self.cheat.lvl_skip = True
-                            self.next_screen = ScreenState.GAME
-                        case 7:
-                            self.cheat.instant_win = True
-                            self.next_screen = ScreenState.END
-                        case 8:
-                            self.cheat.instant_lose = True
-                            self.next_screen = ScreenState.END
+                    if self.menu_index < 5:
+                        attr = self.cheat_attrs[self.menu_index]
+                        setattr(
+                            self.cheat, attr, not getattr(self.cheat, attr)
+                        )
+                    else:
+                        match self.menu_index:
+                            case 5:
+                                self.cheat.add_lives = (
+                                    self.lives_menu[self.lives_index]
+                                )
+                                self.next_screen = ScreenState.RESUME
+                            case 6:
+                                self.cheat.lvl_skip = True
+                                self.next_screen = ScreenState.GAME
+                            case 7:
+                                self.cheat.instant_win = True
+                                self.next_screen = ScreenState.END
+                            case 8:
+                                self.cheat.instant_lose = True
+                                self.next_screen = ScreenState.END
                 case pygame.K_LEFT:
                     if self.menu_index == 5:
-                            self.lives_index = (self.lives_index - 1) % len(self.lives_menu)
+                        self.lives_index = (
+                            (self.lives_index - 1) % len(self.lives_menu)
+                        )
                 case pygame.K_RIGHT:
                     if self.menu_index == 5:
-                        self.lives_index = (self.lives_index + 1) % len(self.lives_menu)
+                        self.lives_index = (
+                            (self.lives_index + 1) % len(self.lives_menu)
+                        )
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
-
 
     def update(self, current_time: int) -> None:
         """No-op: pause cheat screen has no animated state.
