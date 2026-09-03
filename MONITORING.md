@@ -514,3 +514,26 @@ K_q ajouté → `next_screen = ScreenState.QUIT`.
 K_p ajouté → `next_screen = ScreenState.PAUSE` (conformément au MONITORING §3.3).
 **`renderer.py` — `_update_window()` :**
 Ajout de `self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)` au même endroit que la réinstanciation de `pacman_sprite` et `ghost_sprites`. Corrige le désalignement des super-pacgums lors du changement de taille de maze entre niveaux.
+
+### #28 — 2026-09-03 — Bugfixes post code review #2
+
+**`ghost.py` — `_choose_target_direction` : Manhattan conservé intentionnellement.**
+Distance euclidienne (`math.hypot`) provoquait un bug où les fantômes tournent indéfiniment en rond dans certaines configurations de maze. Manhattan réduit massivement ce comportement. Arbitrage délibéré entre fidélité arcade et jouabilité sur maze généré procéduralement. Ligne `math.hypot` retirée.
+**`renderer.py` — `_draw_countdown` : surface SRCALPHA déplacée dans `__init__`.**
+Surface overlay recréée et reremplie à chaque frame — même pattern que le pause overlay corrigé en #16. Fix : `self.overlay` instancié une fois dans `__init__` (`pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)`, fill `(0, 0, 0, 150)`), réutilisé dans `_draw_countdown` par un simple `blit`. Dimensions fixes pour toute la session, pas de recréation dans `_update_window`.
+**`renderer.py` — dead code retiré.**
+Bloc `pygame.transform.scale` commenté (lignes 83–85), confirmé dead code en #25 — retiré. Condition `if self.pacman_sprite.life is not None` toujours vraie (`life` assigné inconditionnellement dans `PacmanSprite.__init__` après `super()`) — retirée.
+**`app.py` — `self.renderer` potentiellement non défini.**
+`self.renderer = Renderer(...)` était à l'intérieur du bloc `isinstance(highscore, int)` — si la condition était fausse, `self.renderer` n'existait jamais → `AttributeError` au premier accès. La condition est nécessaire pour Pyright (le type de `scores[0]['score']` est `str | int`). Fix : narrowing séparé de la construction — `highscore: int = 0`, narrowing via `isinstance`, puis `self.renderer` créé inconditionnellement après. Même correction dans `_handle_transitions / GAME`.
+**`renderer.py` — `_draw_hud` : dimensions `transform.scale` typées en `int`.**
+`self.font_size * 2.2` produisait un `float`. Wrappé en `int(...)` pour satisfaire Pyright.
+**`engine.py` — constantes de délai désynchronisées avec le MONITORING.**
+Tuning effectué après #24 non loggué. Valeurs réelles :
+- `_PLAYER_UPDATE_DELAY` : `[195, 170, 155, 155]`
+- Ghost SCATTER/CHASE : `[260, 225, 210, 210]`
+- Ghost FRIGHTENED : `[385, 350, 325, 325]`
+- Ghost RESPAWN : `[105, 105, 105, 105]`
+**`end_screen.py` / `models_ui.py` — espaces autorisés dans les usernames.**
+`EndScreen.handle_event` : filtre d'input `event.unicode.isalnum()` → `event.unicode.isalnum() or event.unicode == " "`. `PlayerScore._validate_username` : `username.isalnum()` → `all(c.isalnum() or c == " " for c in username)`. Conforme au MONITORING §3.2 "alphanumérique + espaces".
+**`cheat_screen.py` — `PauseCheatScreen` : absence de colonne droite sur items 6–8 — comportement voulu.**
+Level Skip, Instant Win, Instant Lose sont des actions ponctuelles, pas des toggles. Pas de statut ON/OFF à afficher. Cohérent avec d'autres menus du projet.

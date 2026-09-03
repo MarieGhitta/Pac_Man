@@ -41,13 +41,14 @@ class App:
         self.cheat: Cheat = Cheat()
         self.engine: Engine = Engine(self.config, self.cheat)
         self.highscore: Highscore = Highscore(self.config.highscore_filename)
-        highscore = 0
-        if len(self.highscore.scores) != 0:
-            highscore = self.highscore.scores[0]['score']
-        if isinstance(highscore, int):
-            self.renderer = Renderer(
-                self.engine.level, self.surface, highscore
-            )
+        highscore: int = 0
+        if self.highscore.scores:
+            value: int | str = self.highscore.scores[0]['score']
+            if isinstance(value, int):
+                highscore = value
+        self.renderer = Renderer(
+            self.engine.level, self.surface, highscore
+        )
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
             ScreenState.CHEAT: CheatScreen(self.surface, self.cheat),
@@ -144,15 +145,14 @@ class App:
                     screen.next_screen = None
                     return
                 self.engine = Engine(self.config, self.cheat)
-                highscore = 0
-                if len(self.highscore.scores) != 0:
-                    highscore = self.highscore.scores[0]['score']
-                if isinstance(highscore, int):
-                    self.renderer = Renderer(
-                        self.engine.level,
-                        self.surface,
-                        highscore
-                    )
+                highscore: int = 0
+                if self.highscore.scores:
+                    value: int | str = self.highscore.scores[0]['score']
+                    if isinstance(value, int):
+                        highscore = value
+                self.renderer = Renderer(
+                    self.engine.level, self.surface, highscore
+                )
                 self.screens[ScreenState.GAME] = GameScreen(
                     self.surface, self.engine, self.renderer
                 )

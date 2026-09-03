@@ -69,7 +69,7 @@ class EndScreen(Screen):
                             self.next_screen = ScreenState.HIGHSCORE
                     case _:
                         if (
-                            event.unicode.isalnum()
+                            (event.unicode.isalnum() or event.unicode == " ")
                             and len(self.username) < 10
                         ):
                             self.username += event.unicode

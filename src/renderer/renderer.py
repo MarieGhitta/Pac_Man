@@ -64,6 +64,8 @@ class Renderer:
             GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
         }
         self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)
+        self.overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
+        self.overlay.fill((0, 0, 0, 150))
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -80,9 +82,6 @@ class Renderer:
         if not dying:
             self._draw_ghosts(game.ghosts, current_time)
         self._draw_player(game.player, current_time, dying)
-        # scaled = pygame.transform.scale(
-        #     self.logical_surface, (self.scaled_w, self.scaled_h)
-        # )
         self.surface.blit(self.logical_surface, (self.offset_x, self.offset_y))
         self._draw_hud(game, current_time)
         if game.counting_down:
@@ -285,25 +284,24 @@ class Renderer:
             self.surface_width - (self.surface_width // 3),
             self.surface_height * 7 // 8
         )
-        if self.pacman_sprite.life is not None:
-            life_sprite = pygame.transform.scale(
-                self.pacman_sprite.life,
-                (self.font_size * 2.2, self.font_size * 2.2)
-            )
-            if game.lives < 10:
-                sprite_offset = 0.0
-                for _ in range(game.lives):
-                    self._draw_life_sprite(
-                        life_sprite, line_height, sprite_offset
-                    )
-                    sprite_offset += self.font_size * 1.8
-            else:
-                self._draw_life_sprite(life_sprite, line_height)
-                self._draw_text(
-                    f"x{str(game.lives)}",
-                    self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
-                    self.surface_height * 7 // 8 - line_height
+        life_sprite = pygame.transform.scale(
+            self.pacman_sprite.life,
+            (int(self.font_size * 2.2), int(self.font_size * 2.2))
+        )
+        if game.lives < 10:
+            sprite_offset = 0.0
+            for _ in range(game.lives):
+                self._draw_life_sprite(
+                    life_sprite, line_height, sprite_offset
                 )
+                sprite_offset += self.font_size * 1.8
+        else:
+            self._draw_life_sprite(life_sprite, line_height)
+            self._draw_text(
+                f"x{str(game.lives)}",
+                self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
+                self.surface_height * 7 // 8 - line_height
+            )
 
     def _draw_life_sprite(
         self,
@@ -406,9 +404,7 @@ class Renderer:
         return ghost.state
 
     def _draw_countdown(self, countdown: int) -> None:
-        overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
-        self.surface.blit(overlay, (0, 0))
+        self.surface.blit(self.overlay, (0, 0))
         text = self.countdown_font.render(str(countdown), True, Color.YELLOW)
         rect = text.get_rect(center=(
             self.surface.get_width() // 2, self.surface.get_height() // 2)
