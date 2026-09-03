@@ -46,7 +46,7 @@ class GameScreen(Screen):
                     self.engine.player.next_direction = Direction.DOWN
                 case pygame.K_LEFT:
                     self.engine.player.next_direction = Direction.LEFT
-                case pygame.K_ESCAPE:
+                case pygame.K_ESCAPE | pygame.K_p:
                     self.next_screen = ScreenState.PAUSE
                 case pygame.K_q:
                     self.next_screen = ScreenState.QUIT
