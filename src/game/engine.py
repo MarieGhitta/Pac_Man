@@ -267,7 +267,7 @@ class Engine:
                     ghost.update_delay = (
                         _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
                     )
-                self._check_collision()
+            self._check_collision()
 
     def _update_player(self) -> None:
         """Update the player."""
