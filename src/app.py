@@ -194,6 +194,12 @@ class App:
                 self.screen_state = ScreenState.HIGHSCORE
 
             case ScreenState.END:
+                if self.cheat.instant_win:
+                    self.cheat.instant_win = False
+                    self.engine.victory = True
+                if self.cheat.instant_lose:
+                    self.cheat.instant_lose = False
+                    self.engine.game_over = True
                 if self.screen_state == ScreenState.HIGHSCORE:
                     if end := self.screens[ScreenState.END]:
                         if isinstance(end, EndScreen):

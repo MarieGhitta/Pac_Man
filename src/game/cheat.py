@@ -8,3 +8,5 @@ class Cheat:
         self.infinite_lives: bool = False
         self.lvl_skip: bool = False
         self.add_life: bool = False
+        self.instant_win: bool = False
+        self.instant_lose: bool = False
