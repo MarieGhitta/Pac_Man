@@ -473,3 +473,10 @@ Ajout de `PAUSECHEAT`.
 Paramètre `new_color: tuple | None` remplacé par `highlight: bool = True`. Si `True` : item à `menu_index` en rouge, reste en blanc. Si `False` : tout en blanc.
 **Dead code identifié :**
 `scaled = pygame.transform.scale(...)` dans `Renderer.draw()` : `scaled_w/h` sont identiques aux dimensions de `logical_surface` (tile_size calculé pour remplir l'écran), le transform est un no-op. Confirmé dead code — à retirer.
+
+
+### #26 — 2026-09-03 — STOP AVEC CES SIGNALEMENTS DE MERDE
+ 
+**Clarification — faux positifs récurrents à ne plus signaler :**
+- `engine.py` — `_can_move()` : retour implicite `None` — NOT a bug. L'enum `Direction` couvre exhaustivement les 4 cas, la branche unreachable n'existe pas en pratique.
+- `ghost.py` — `_choose_direction()` et `_target_position()` : `match` sans default case — NOT a bug. Même raison : enum exhaustif.
