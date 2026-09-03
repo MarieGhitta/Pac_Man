@@ -140,7 +140,6 @@ class App:
                 if self.cheat.lvl_skip:
                     self.cheat.lvl_skip = False
                     self.engine._next_level()
-                    self.engine.on_resume(current_time)
                     self.screen_state = ScreenState.GAME
                     screen.next_screen = None
                     return
