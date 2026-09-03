@@ -84,8 +84,8 @@ class PauseCheatScreen(CheatScreen):
             "Speed Boost",
             "Infinite Time",
             "Infinite Lives",
-            "Level Skip",
             "Add Life",
+            "Level Skip",
             "Instant Win",
             "Instant Lose"
 
@@ -96,7 +96,10 @@ class PauseCheatScreen(CheatScreen):
             "speed_boost",
             "infinite_time",
             "infinite_lives",
+            "add_lives"
         ]
+        self.lives_menu: list[int] = [1, 3, 5, 10]
+        self.lives_index: int = 0
 
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN:
@@ -115,17 +118,22 @@ class PauseCheatScreen(CheatScreen):
                         case 4:
                             self.cheat.infinite_lives = not self.cheat.infinite_lives
                         case 5:
+                            self.cheat.add_lives = self.lives_menu[self.lives_index]
+                            self.next_screen = ScreenState.RESUME
+                        case 6:
                             self.cheat.lvl_skip = True
                             self.next_screen = ScreenState.GAME
-                        case 6:
-                            self.cheat.add_life = True
-                            self.next_screen = ScreenState.RESUME
                         case 7:
                             self.cheat.instant_win = True
                             self.next_screen = ScreenState.END
                         case 8:
                             self.cheat.instant_lose = True
                             self.next_screen = ScreenState.END
+                case pygame.K_LEFT | pygame.K_RIGHT:
+                    if self.menu_index == 5:
+                        self.lives_index = (self.lives_index + 1) % len(self.lives_menu)
+                    else:
+                        self.lives_index = (self.lives_index - 1) % len(self.lives_menu)
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
 
@@ -149,7 +157,10 @@ class PauseCheatScreen(CheatScreen):
         )
         for i, attr in enumerate(self.cheat_attrs):
             state = getattr(self.cheat, attr)
-            status = "ON" if state else "OFF"
+            if attr == "add_lives":
+                status = str(self.lives_menu[self.lives_index])
+            else:
+                status = "ON" if state else "OFF"
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = self.font.render(status, True, color)
             sub_rect = sub.get_rect(

@@ -208,9 +208,9 @@ class Engine:
         current_time = pygame.time.get_ticks()
         if self.cheat.infinite_lives:
             self.lives = 99
-        if self.cheat.add_life:
-            self.cheat.add_life = False
-            self.lives += 1
+        if self.cheat.add_lives != 0:
+            self.lives += self.cheat.add_lives
+            self.cheat.add_lives = 0
         if self.counting_down:
             elapsed = current_time - self._countdown_start
             self.countdown = 3 - elapsed // 1000
