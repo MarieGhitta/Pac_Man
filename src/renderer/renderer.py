@@ -64,6 +64,8 @@ class Renderer:
             GhostType.CLYDE: GhostSprite(self.tile_size, Color.ORANGE)
         }
         self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)
+        self.overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
+        self.overlay.fill((0, 0, 0, 150))
 
     def draw(self, game: Engine) -> None:
         """Draw the current game state: maze, player, ghosts, and HUD.
@@ -406,9 +408,7 @@ class Renderer:
         return ghost.state
 
     def _draw_countdown(self, countdown: int) -> None:
-        overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
-        self.surface.blit(overlay, (0, 0))
+        self.surface.blit(self.overlay, (0, 0))
         text = self.countdown_font.render(str(countdown), True, Color.YELLOW)
         rect = text.get_rect(center=(
             self.surface.get_width() // 2, self.surface.get_height() // 2)
