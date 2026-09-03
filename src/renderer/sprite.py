@@ -23,7 +23,7 @@ class Sprite(ABC):
             tuple[Direction | None, SpriteState]
         ] = set()
         self.frames: dict[
-            tuple[Direction | None, SpriteState],
+            tuple[Direction | None, SpriteState | None],
             list[pygame.surface.Surface]
         ] = {}
         self._build_frames()
@@ -33,7 +33,9 @@ class Sprite(ABC):
         pass
 
     def update(
-        self, current_time: int, variant: tuple[Direction | None, SpriteState]
+        self,
+        current_time: int,
+        variant: tuple[Direction | None, SpriteState | None]
     ) -> None:
         if variant != self._last_variant:
             self.anim_tick = 0
@@ -59,7 +61,7 @@ class Sprite(ABC):
         surface: pygame.surface.Surface,
         x: int,
         y: int,
-        variant: tuple[Direction | None, SpriteState]
+        variant: tuple[Direction | None, SpriteState | None]
     ) -> None:
         if not self.frames[variant]:
             return
@@ -74,7 +76,7 @@ class PacmanSprite(Sprite):
         self.anim_speed = 75
         self.life: pygame.surface.Surface = self.frames[
             (Direction.LEFT, PacmanState.ALIVE)
-        ][1] 
+        ][1]
 
     def _build_frames(self) -> None:
         frames = [self._build_frame(i) for i in range(13)]
@@ -400,7 +402,7 @@ class GhostSprite(Sprite):
         self.color = color
         super().__init__(tile_size)
         self.anim_count = 2
-        self.anim_speed = 75
+        self.anim_speed = 150
 
     def _build_frames(self) -> None:
         frames = [self._build_frame(i) for i in range(8)]
@@ -653,3 +655,44 @@ class GhostSprite(Sprite):
             surface, (self.tile_size, self.tile_size)
         )
         return surface
+
+
+class SuperPacgumSprite(Sprite):
+
+    def __init__(self, tile_size: int) -> None:
+        super().__init__(tile_size)
+
+    def _build_frames(self) -> None:
+        frame = [
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000111100000000",
+                "00000001111110000000",
+                "00000011111111000000",
+                "00000011111111000000",
+                "00000011111111000000",
+                "00000011111111000000",
+                "00000001111110000000",
+                "00000000111100000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000",
+                "00000000000000000000"
+        ]
+        surface = pygame.surface.Surface(
+            (len(frame[0]), len(frame[0])), pygame.SRCALPHA
+        )
+        for y, row in enumerate(frame):
+            for x, pixel in enumerate(row):
+                if pixel == "1":
+                    surface.set_at((x, y), Color.LIGHTPINK)
+        surface = pygame.transform.scale(
+            surface, (self.tile_size, self.tile_size)
+        )
+        self.frames[(None, None)] = [surface]

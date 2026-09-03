@@ -28,7 +28,7 @@ class PauseScreen(Screen):
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
         )
         self.menu_items = [
-            "Resume", "Main Menu", "Quit"
+            "Resume", "Main Menu", "Cheat Mode", "Quit"
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
@@ -47,6 +47,8 @@ class PauseScreen(Screen):
                         case 1:
                             self.next_screen = ScreenState.TITLE
                         case 2:
+                            self.next_screen = ScreenState.PAUSECHEAT
+                        case 3:
                             self.next_screen = ScreenState.QUIT
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.RESUME

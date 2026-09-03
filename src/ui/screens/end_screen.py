@@ -15,7 +15,8 @@ class EndScreen(Screen):
         self,
         surface: pygame.surface.Surface,
         current_time: int,
-        ending: str
+        ending: str,
+        score: int
     ) -> None:
         """Initialize the end screen.
 
@@ -42,8 +43,12 @@ class EndScreen(Screen):
         ]
         self.can_navigate: bool = False
         self.username: str = ""
+        self.score: str = str(score)
         self.score_input: list[str] = [
-            "Enter your name:", self.username
+            f"Your score: {self.score}",
+            "",
+            "Enter your name:",
+            self.username
         ]
         self.can_write: bool = False
 
@@ -135,7 +140,8 @@ class EndScreen(Screen):
             self.font,
             line_height,
             menu_start_y,
-            self.score_alpha
+            self.score_alpha,
+            highlight=False
         )
 
         line_height = int(self.font.get_height() * 1.5)
@@ -146,5 +152,5 @@ class EndScreen(Screen):
             self.font,
             line_height,
             menu_start_y,
-            self.menu_alpha
+            self.menu_alpha,
         )

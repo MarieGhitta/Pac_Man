@@ -20,12 +20,16 @@ class ConfigLoader:
     def _get_int(self, data: dict[str, Any],
                  key: str,
                  default: int,
-                 minimum: int | None = None) -> int:
+                 minimum: int | None = None,
+                 maximum: int | None = None) -> int:
         value = data.get(key, default)
         if not isinstance(value, int):
             print(f"Invalid '{key}', using default ({default}).")
             return default
         if minimum is not None and value < minimum:
+            print(f"Invalid '{key}', using default ({default}).")
+            return default
+        if maximum is not None and value > maximum:
             print(f"Invalid '{key}', using default ({default}).")
             return default
         return value
@@ -41,24 +45,23 @@ class ConfigLoader:
 
     def _build_level(self,
                      data: dict[str, Any]) -> LevelConfig:
-        width = self._get_int(data, "width", 20, minimum=1)
-        height = self._get_int(data, "height", 20, minimum=1)
+        width = self._get_int(data, "width", 15, 3, 101)
+        height = self._get_int(data, "height", 19, 3, 101)
         return LevelConfig(width, height)
 
     def _build_config(self, data: dict[str, Any]) -> Config:
         highscore_filename = self._get_str(data, "highscore_filename",
                                            "highscores.json")
-        lives = self._get_int(data, "lives", 3, minimum=1)
-        pacgum = self._get_int(data, "pacgum", 0, minimum=0)
-        points_per_pacgum = self._get_int(data, "points_per_pacgum", 10,
-                                          minimum=0)
+        max_levels = self._get_int(data, "max_levels", 10, 10, 99)
+        lives = self._get_int(data, "lives", 3, 1, 99)
+        pacgum = self._get_int(data, "pacgum", 0, 0)
+        points_per_pacgum = self._get_int(data, "points_per_pacgum", 10, 0, 100)
         points_per_super_pacgum = self._get_int(data,
                                                 "points_per_super_pacgum",
-                                                50, minimum=0)
-        points_per_ghost = self._get_int(data, "points_per_ghost", 200,
-                                         minimum=0)
+                                                50, 0, 500)
+        points_per_ghost = self._get_int(data, "points_per_ghost", 200, 0, 2000)
         seed = self._get_int(data, "seed", 42)
-        level_max_time = self._get_int(data, "level_max_time", 90, minimum=1)
+        level_max_time = self._get_int(data, "level_max_time", 90, 10, 90)
         levels_data = data.get("levels", [])
         if not isinstance(levels_data, list):
             print("Invalid 'levels', using default ([]).")
@@ -68,12 +71,13 @@ class ConfigLoader:
             if isinstance(level, dict):
                 levels.append(self._build_level(level))
             else:
-                print("Invalid level configuration, skipping level.")
+                print("invalid level configuration, skipping level.")
         if not levels:
             raise ValueError("configuration must have at least one level")
         return Config(
             highscore_filename=highscore_filename,
             levels=levels,
+            max_levels=max_levels,
             lives=lives,
             pacgum=pacgum,
             points_per_pacgum=points_per_pacgum,
