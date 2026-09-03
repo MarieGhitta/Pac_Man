@@ -10,14 +10,14 @@ from src.utils.screen_state import ScreenState
 
 
 class Screen(ABC):
-    """Abstract base class for all game screens.
-
-    Each concrete screen manages its own input handling, state update,
-    and rendering. Set `next_screen` to signal a transition to the manager.
-    """
+    """Abstract base class for all game screens."""
 
     def __init__(self, surface: pygame.surface.Surface) -> None:
-        """Initialize the screen with no pending transition."""
+        """Initialize shared screen attributes and load the default font.
+
+        Args:
+            surface: Target pygame surface.
+        """
         self.next_screen: ScreenState | None = None
         self.surface = surface
         self.width: int = surface.get_width()
@@ -57,16 +57,10 @@ class Screen(ABC):
         Args:
             current_time: Current time in milliseconds.
         """
-        pass
 
     @abstractmethod
     def draw(self) -> None:
-        """Render the screen onto the given surface.
-
-        Args:
-            surface: The pygame surface to draw onto.
-        """
-        pass
+        """Render the screen onto the given surface."""
 
     def _draw_logo(
         self,
@@ -103,12 +97,17 @@ class Screen(ABC):
         x: int = 2,
         highlight: bool = True
     ) -> None:
-        """Render menu items centered horizontally, highlight the selected one.
+        """Render a list of menu items, highlighting the selected one.
 
         Args:
-            font: The font used for the menu.
+            items: Strings to display.
+            font: Font used to render items.
             line_height: Vertical spacing between items in pixels.
-            menu_start_y: Y coordinate of the first menu item center.
+            menu_start_y: Y-coordinate of the first item center.
+            alpha: Opacity of each item (0–255).
+            alignment: Pygame rect anchor, e.g. ``"center"`` or ``"midleft"``.
+            x: Denominator for horizontal position (``width // x``).
+            highlight: If True, tint the selected item red.
         """
         for i, el in enumerate(items):
             if highlight:
@@ -116,8 +115,8 @@ class Screen(ABC):
             else:
                 color = Color.WHITE
             sub = font.render(el, True, color)
-            sub_rect = sub.get_rect(
-                **{alignment: (self.width // x, menu_start_y + i * line_height)}
-            )
+            sub_rect = sub.get_rect(**{alignment: (
+                    self.width // x, menu_start_y + i * line_height
+            )})
             sub.set_alpha(alpha)
             self.surface.blit(sub, sub_rect)

@@ -21,9 +21,10 @@ class EndScreen(Screen):
         """Initialize the end screen.
 
         Args:
-            surface: The pygame surface to draw onto.
-            current_time: Time in milliseconds used as animation origin.
-            ending: ``"win"`` or ``"lose"``, controls logo text and color.
+            surface: Target pygame surface.
+            current_time: Animation start timestamp in milliseconds.
+            ending: ``"win"`` or ``"lose"``, controls logo and color.
+            score: Final score to display and save.
         """
         super().__init__(surface)
         self.ending = ending

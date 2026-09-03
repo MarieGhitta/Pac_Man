@@ -1,3 +1,6 @@
+"""Animated sprite classes for Pac-Man, ghosts, and super-pacgums."""
+
+
 from abc import ABC, abstractmethod
 
 import pygame
@@ -9,7 +12,14 @@ from src.utils.sprite_enums import (
 
 
 class Sprite(ABC):
+    """Abstract base class for tile-based animated sprites."""
+
     def __init__(self, tile_size: int) -> None:
+        """Initialize the sprite animation state.
+
+        Args:
+            tile_size: Size in pixels of a single tile.
+        """
         self.tile_size = tile_size
         self.anim_tick: int = 0
         self.last_anim_update: int = 0
@@ -30,13 +40,19 @@ class Sprite(ABC):
 
     @abstractmethod
     def _build_frames(self) -> None:
-        pass
+        """Build and populate the frames dictionary."""
 
     def update(
         self,
         current_time: int,
         variant: tuple[Direction | None, SpriteState | None]
     ) -> None:
+        """Advance the animation tick for the given variant.
+
+        Args:
+            current_time: Current time in milliseconds.
+            variant: (direction, state) key identifying the animation.
+        """
         if variant != self._last_variant:
             self.anim_tick = 0
             self._last_variant = variant
@@ -63,6 +79,14 @@ class Sprite(ABC):
         y: int,
         variant: tuple[Direction | None, SpriteState | None]
     ) -> None:
+        """Blit the current animation frame onto a surface.
+
+        Args:
+            surface: Target surface.
+            x: Pixel x-coordinate (top-left).
+            y: Pixel y-coordinate (top-left).
+            variant: (direction, state) key identifying the animation.
+        """
         if not self.frames[variant]:
             return
         tick = self.anim_tick % len(self.frames[variant])
@@ -70,7 +94,14 @@ class Sprite(ABC):
 
 
 class PacmanSprite(Sprite):
+    """Animated Pac-Man sprite with directional and death variants."""
+
     def __init__(self, tile_size: int) -> None:
+        """Initialize Pac-Man frames and store the life icon.
+
+        Args:
+            tile_size: Size in pixels of a single tile.
+        """
         super().__init__(tile_size)
         self.anim_count = 4
         self.anim_speed = 75
@@ -79,6 +110,7 @@ class PacmanSprite(Sprite):
         ][1]
 
     def _build_frames(self) -> None:
+        """Build all directional frames and the one-shot DYING sequence."""
         frames = [self._build_frame(i) for i in range(13)]
         cycle = frames[:3] + [frames[1]]
         self.frames[(Direction.RIGHT, PacmanState.ALIVE)] = cycle
@@ -94,8 +126,15 @@ class PacmanSprite(Sprite):
         self.frames[(None, PacmanState.DYING)] = frames[3:]
         self._one_shot_variants.add((None, PacmanState.DYING))
 
-
     def _build_frame(self, frame_index: int) -> pygame.surface.Surface:
+        """Render a single Pac-Man pixel-art frame scaled to tile_size.
+
+        Args:
+            frame_index: Index into the frame grid list.
+
+        Returns:
+            Scaled SRCALPHA surface for this frame.
+        """
         frames = [
             [
                 "00000000000000000000",
@@ -397,14 +436,24 @@ class PacmanSprite(Sprite):
         )
         return surface
 
+
 class GhostSprite(Sprite):
+    """Animated ghost sprite with per-type color and state variants."""
+
     def __init__(self, tile_size: int, color: tuple[int, int, int]) -> None:
+        """Initialize ghost frames for the given color.
+
+        Args:
+            tile_size: Size in pixels of a single tile.
+            color: RGB body color for this ghost type.
+        """
         self.color = color
         super().__init__(tile_size)
         self.anim_count = 2
         self.anim_speed = 150
 
     def _build_frames(self) -> None:
+        """Build all directional frames."""
         frames = [self._build_frame(i) for i in range(8)]
         side = frames[:2]
         up = frames[2:4]
@@ -448,6 +497,16 @@ class GhostSprite(Sprite):
     def _build_frame(
         self, frame_index: int, respawn: bool = False, flicker: bool = False
     ) -> pygame.surface.Surface:
+        """Render a single ghost pixel-art frame scaled to tile_size.
+
+        Args:
+            frame_index: Index into the frame grid list.
+            respawn: If True, omit the body color (eyes-only mode).
+            flicker: If True, use FLICKER color palette.
+
+        Returns:
+            Scaled SRCALPHA surface for this frame.
+        """
         frames = [
             [
                 "00000000000000000000",
@@ -658,11 +717,18 @@ class GhostSprite(Sprite):
 
 
 class SuperPacgumSprite(Sprite):
+    """Static super-pacgum sprite (blinking handled by the renderer)."""
 
     def __init__(self, tile_size: int) -> None:
+        """Initialize the super-pacgum frame.
+
+        Args:
+            tile_size: Size in pixels of a single tile.
+        """
         super().__init__(tile_size)
 
     def _build_frames(self) -> None:
+        """Build the single super-pacgum frame."""
         frame = [
                 "00000000000000000000",
                 "00000000000000000000",

@@ -39,13 +39,14 @@ _DEATH_DELAY: int = 1500
 
 
 class Engine:
-    """Represent the game."""
+    """Manage the game state and logic."""
 
-    def __init__(self, config: Config, cheat: Cheat):
-        """Initialize the game.
+    def __init__(self, config: Config, cheat: Cheat) -> None:
+        """Initialize the engine for a new game.
 
         Args:
-            config (Config): The game configuration
+            config: Game configuration.
+            cheat: Shared cheat flags instance.
         """
         self.config = config
         self.cheat = cheat
@@ -85,7 +86,17 @@ class Engine:
         self.time_remaining: int = self.config.level_max_time
 
     def _create_ghosts(self, current_time: int) -> list[Ghost]:
-        """Create the ghosts for the current level."""
+        """Instantiate the four ghosts at their starting cells.
+
+        Args:
+            current_time: Current time in milliseconds.
+
+        Returns:
+            List of four Ghost instances.
+
+        Raises:
+            ValueError: If the level does not provide exactly four start cells.
+        """
         cells: list[Cell] = self.level.ghost_start_cells
         if len(cells) != 4:
             raise ValueError("expected four ghost start cells")
@@ -103,7 +114,17 @@ class Engine:
         ghost_type: GhostType,
         current_time: int
     ) -> Ghost:
-        """Create and return a Ghost from a cell list entry."""
+        """Create and return a Ghost from a cell list entry.
+
+        Args:
+            cells: List of ghost start cells.
+            cell_idx: Index into cells.
+            ghost_type: Type of ghost to create.
+            current_time: Current time in milliseconds.
+
+        Returns:
+            Initialized Ghost instance.
+        """
         return Ghost(
             cells[cell_idx].x,
             cells[cell_idx].y,
@@ -113,7 +134,14 @@ class Engine:
         )
 
     def _can_move(self, direction: Direction) -> bool:
-        """Return whether the player can move in the given direction."""
+        """Return whether the player can move in the given direction.
+
+        Args:
+            direction: Direction to check.
+
+        Returns:
+            True if the wall is absent in that direction.
+        """
         current_cell = self.level.maze.cells[self.player.y][self.player.x]
         if direction == Direction.UP:
             return not current_cell.north_wall
@@ -125,7 +153,7 @@ class Engine:
             return not current_cell.west_wall
 
     def move_player(self) -> None:
-        """Move the player in the given direction."""
+        """Move the player, collect cell content, check level completion."""
         if self._can_move(self.player.next_direction):
             self.player.direction = self.player.next_direction
         if not self._can_move(self.player.direction):
@@ -144,10 +172,19 @@ class Engine:
             self._next_level()
 
     def _add_score(self, points: int) -> None:
+        """Add points to the score, capped at the arcade maximum.
+
+        Args:
+            points: Points to add.
+        """
         self.score = min(self.score + points, 3333360)
 
     def _collect_cell_content(self, cell: Cell) -> None:
-        """Collect the content of a maze cell."""
+        """Collect the content of a cell and apply its effect.
+
+        Args:
+            cell: Cell entered by the player.
+        """
         if cell.content == CellContent.PACGUM:
             cell.content = CellContent.EMPTY
             self._add_score(self.config.points_per_pacgum)
@@ -284,7 +321,11 @@ class Engine:
         return 3
 
     def _update_ghost_state(self, current_time: int) -> None:
-        """Update the ghosts state."""
+        """Advance the Chase/Scatter cycle if the current phase has elapsed.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         if self.is_frighten:
             return
 
@@ -321,6 +362,11 @@ class Engine:
             ghost.state = self.ghost_state
 
     def _check_if_frighten(self, current_time: int) -> None:
+        """Exit frightened mode once no ghost remains FRIGHTENED.
+
+        Args:
+            current_time: Current time in milliseconds.
+        """
         for ghost in self.ghosts:
             if ghost.state == GhostState.FRIGHTENED:
                 return
@@ -338,7 +384,11 @@ class Engine:
                 return
 
     def _handle_collision(self, ghost: Ghost) -> None:
-        """Handle a collision with a ghost."""
+        """Handle a collision between the player and a ghost.
+
+        Args:
+            ghost: Ghost colliding with the player.
+        """
         if ghost.state == GhostState.FRIGHTENED:
             self._eat_ghost(ghost)
         else:
@@ -346,7 +396,11 @@ class Engine:
                 self._player_hit()
 
     def _eat_ghost(self, ghost: Ghost) -> None:
-        """Eat a frightened ghost."""
+        """Eat a frightened ghost and award combo score.
+
+        Args:
+            ghost: Frightened ghost to eat.
+        """
         score = self.config.points_per_ghost
         if self.eat_ghost_combo > 0:
             for _ in range(self.eat_ghost_combo):
@@ -411,9 +465,6 @@ class Engine:
 
     def on_resume(self, current_time: int) -> None:
         """Shift all timestamps forward by the pause duration.
-
-        Prevents the game loop from treating the pause as elapsed
-        play time, ensuring timers and interpolation resume seamlessly.
 
         Args:
             current_time: Current time in milliseconds.

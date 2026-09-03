@@ -5,16 +5,18 @@ from src.utils.sprite_enums import Direction
 
 
 class Player:
-    """Represent Pac-Man."""
+    """Represent the player-controlled Pac-Man entity."""
 
     def __init__(
         self, x: int, y: int, last_update: int, update_delay: int
     ) -> None:
-        """Initialize Pac-Man.
+        """Initialize Pac-Man at a given tile position.
 
         Args:
             x: Starting tile column.
             y: Starting tile row.
+            last_update: Timestamp of the last movement tick.
+            update_delay: Milliseconds between movement ticks.
         """
         self.x = x
         self.y = y
@@ -27,9 +29,6 @@ class Player:
 
     def move_to(self, x: int, y: int) -> None:
         """Move the player to the given tile position.
-
-        Resets prev_x and prev_y to the new position to prevent
-        interpolation across the jump.
 
         Args:
             x: Target tile column.
