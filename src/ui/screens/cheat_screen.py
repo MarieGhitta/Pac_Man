@@ -129,11 +129,12 @@ class PauseCheatScreen(CheatScreen):
                         case 8:
                             self.cheat.instant_lose = True
                             self.next_screen = ScreenState.END
-                case pygame.K_LEFT | pygame.K_RIGHT:
+                case pygame.K_LEFT:
+                    if self.menu_index == 5:
+                            self.lives_index = (self.lives_index - 1) % len(self.lives_menu)
+                case pygame.K_RIGHT:
                     if self.menu_index == 5:
                         self.lives_index = (self.lives_index + 1) % len(self.lives_menu)
-                    else:
-                        self.lives_index = (self.lives_index - 1) % len(self.lives_menu)
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
 
