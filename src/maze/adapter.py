@@ -9,7 +9,7 @@ class MazeAdapter:
 
     def adapt(
         self,
-        matrix: list[list[int]], 
+        matrix: list[list[int]],
         entry: tuple[int, int],
         exit: tuple[int, int]
     ) -> Maze:

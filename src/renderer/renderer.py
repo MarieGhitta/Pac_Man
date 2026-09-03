@@ -15,7 +15,7 @@ from src.utils.sprite_enums import GhostState, GhostType, PacmanState
 
 
 class Renderer:
-    """Draw the game."""
+    """Render the game state onto a pygame surface."""
 
     def __init__(
         self,
@@ -23,11 +23,12 @@ class Renderer:
         surface: pygame.surface.Surface,
         highscore: int
     ) -> None:
-        """Initialize the renderer and create the fullscreen window.
+        """Initialize the renderer and precompute layout from the level.
 
         Args:
-            level: The initial game level.
-            surface: The pygame surface to draw onto.
+            level: Initial game level, used to compute tile size.
+            surface: Target pygame surface.
+            highscore: Current top score to display in the HUD.
         """
         self.surface = surface
         self.surface_width = surface.get_width()
@@ -88,10 +89,11 @@ class Renderer:
             self._draw_countdown(game.countdown)
 
     def _draw_maze(self, maze: Maze, current_time: int) -> None:
-        """Draw all maze cells, including walls and cell contents.
+        """Draw all maze cells: walls and contents.
 
         Args:
             maze: The maze to draw.
+            current_time: Current time in milliseconds, used for blinking.
         """
         for row in maze.cells:
             for cell in row:
@@ -132,12 +134,11 @@ class Renderer:
     def _draw_wall(
         self, start_pos: tuple[int, int], end_pos: tuple[int, int]
     ) -> None:
-        """Draw a wall segment as a blue tube: thick blue line with a black
-        inner line to create a hollow outlined effect.
+        """Draw a wall segment as a thick blue line.
 
         Args:
-            start_pos: Screen coordinates of the wall's start point.
-            end_pos: Screen coordinates of the wall's end point.
+            start_pos: Pixel coordinates of the segment start.
+            end_pos: Pixel coordinates of the segment end.
         """
         pygame.draw.line(
             self.logical_surface, Color.BLUE, start_pos, end_pos,
@@ -145,10 +146,11 @@ class Renderer:
         )
 
     def _draw_cell_content(self, cell: Cell, current_time: int) -> None:
-        """Draw the content of a maze cell.
+        """Draw the content of a cell (pacgum, super-pacgum, or nothing).
 
         Args:
-            cell: The maze cell whose content is drawn.
+            cell: Cell to draw.
+            current_time: Current time in milliseconds, used for blinking.
         """
         match cell.content:
             case CellContent.PACGUM:
@@ -176,11 +178,12 @@ class Renderer:
     def _draw_player(
         self, player: Player, current_time: int, dying: bool
     ) -> None:
-        """Draw the player at its interpolated position.
+        """Draw Pac-Man at its interpolated position.
 
         Args:
-            player: The player to draw.
-            current_time: Current time in milliseconds for interpolation.
+            player: Player to draw.
+            current_time: Current time in milliseconds.
+            dying: If True, use the death animation variant.
         """
         render_x, render_y = self._interpolate(player, current_time)
         center_x, center_y = self._to_screen(render_x, render_y)
@@ -192,7 +195,6 @@ class Renderer:
         self.pacman_sprite.draw(
             self.logical_surface, center_x, center_y, variant
         )
-
 
     def _to_screen(
         self, x: float, y: float, centered: bool = False
@@ -299,7 +301,11 @@ class Renderer:
             self._draw_life_sprite(life_sprite, line_height)
             self._draw_text(
                 f"x{str(game.lives)}",
-                self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
+                (
+                    self.surface_width // 3
+                    + life_sprite.get_width()
+                    + line_height // 4
+                ),
                 self.surface_height * 7 // 8 - line_height
             )
 
@@ -309,6 +315,13 @@ class Renderer:
         line_height: int,
         offset: float = 0.0
     ) -> None:
+        """Blit a single life icon onto the HUD.
+
+        Args:
+            life_sprite: Pre-scaled life icon surface.
+            line_height: Used to compute vertical position.
+            offset: Horizontal offset for multiple icons.
+        """
         self.surface.blit(
             life_sprite,
             (
@@ -326,6 +339,16 @@ class Renderer:
         current_time: int = 0,
         blink: bool = False,
     ) -> None:
+        """Render a centered text string onto the main surface.
+
+        Args:
+            text: String to render.
+            x: Horizontal center in pixels.
+            y: Vertical center in pixels.
+            color: RGB text color.
+            current_time: Current time in milliseconds, used for blinking.
+            blink: If True, toggle visibility every 250 ms.
+        """
         display = self.font.render(text, True, color)
         display_rect = display.get_rect(center=(x, y))
         if blink:
@@ -395,6 +418,15 @@ class Renderer:
     def _visual_ghost_state(
         self, ghost: Ghost, current_time: int
     ) -> GhostState:
+        """Return the visual state of a ghost.
+
+        Args:
+            ghost: Ghost to evaluate.
+            current_time: Current time in milliseconds.
+
+        Returns:
+            GhostState to use for sprite selection.
+        """
         if (
             ghost.state == GhostState.FRIGHTENED
             and ghost.frightened_until - current_time <= 2000
@@ -404,6 +436,11 @@ class Renderer:
         return ghost.state
 
     def _draw_countdown(self, countdown: int) -> None:
+        """Draw the countdown overlay with the current number centered.
+
+        Args:
+            countdown: Digit to display (3, 2, 1).
+        """
         self.surface.blit(self.overlay, (0, 0))
         text = self.countdown_font.render(str(countdown), True, Color.YELLOW)
         rect = text.get_rect(center=(
