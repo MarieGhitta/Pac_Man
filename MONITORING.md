@@ -4,28 +4,48 @@
 
 ```
 pac-man.py                  → point d'entrée, boucle principale
+src/
+	__init__.py
+	app.py
 src/config/
-    __init__.py
-    loader.py               → chargement et validation du JSON
-    models_config.py        → Config, LevelConfig
+	__init__.py
+	loader.py               → chargement et validation du JSON
+	models_config.py        → Config, LevelConfig
 src/game/
-    __init__.py
-    game.py                 → logique principale, update loop
-    player.py               → Player (position, direction)
-    ghost.py                → Ghost (IA, déplacement)
-    ghost_type.py           → enum GhostType (BLINKY/PINKY/INKY/CLYDE)
-    ghost_state.py          → enum GhostState (CHASE/SCATTER/FRIGHTENED/RESPAWN)
-    level.py                → Level (maze + placement pacgums/super/ghosts)
-    direction.py            → enum Direction
-    cell_content.py         → enum CellContent
+	__init__.py
+	cheat.py
+	engine.py                 → logique principale, update loop
+	player.py               → Player (position, direction)
+	ghost.py                → Ghost (IA, déplacement)
+	level.py                → Level (maze + placement pacgums/super/ghosts)
+	cell_content.py         → enum CellContent
 src/maze/
-    __init__.py
-    adapter.py              → conversion maze externe → modèles internes
-    generator.py            → MazeFactory (wrapper du module externe)
-    models_maze.py          → Maze, Cell
+	__init__.py
+	adapter.py              → conversion maze externe → modèles internes
+	generator.py            → MazeFactory (wrapper du module externe)
+	models_maze.py          → Maze, Cell
 src/renderer/
-    __init__.py
-    renderer.py             → Renderer (pygame)
+	__init__.py
+	renderer.py             → Renderer (pygame)
+	sprite.py
+src/ui/
+	__init__.py
+	highscore.py
+	models_ui.py
+	screens/
+		__init__.py
+		cheat_screen.py
+		end_screen.py
+		game_screen.py
+		highscore_screen.py
+		pause_screen.py
+		screen.py
+		title_screen.py
+src/utils/
+	__init__.py
+	color.py
+	screen_state.py
+	sprite_enums.py
 exploration/mazegenerator/  → MODULE EXTERNE — NE PAS MODIFIER
 ```
 
@@ -480,3 +500,17 @@ Paramètre `new_color: tuple | None` remplacé par `highlight: bool = True`. Si 
 **Clarification — faux positifs récurrents à ne plus signaler :**
 - `engine.py` — `_can_move()` : retour implicite `None` — NOT a bug. L'enum `Direction` couvre exhaustivement les 4 cas, la branche unreachable n'existe pas en pratique.
 - `ghost.py` — `_choose_direction()` et `_target_position()` : `match` sans default case — NOT a bug. Même raison : enum exhaustif.
+
+
+### #27 — 2026-09-03 — Bugfixes post-checkup
+
+**`cheat_screen.py` — `PauseCheatScreen.handle_event` :**
+K_LEFT et K_RIGHT distingués — LEFT décrémente `lives_index`, RIGHT incrémente.
+**`app.py` — lvl_skip countdown :**
+Suppression de `self.engine.on_resume(current_time)` après `engine._next_level()` dans le bloc `cheat.lvl_skip`. `_next_level()` resets déjà `_countdown_start` ; `on_resume()` le décalait dans le futur → countdown > 3s.
+**`title_screen.py` :**
+K_q ajouté → `next_screen = ScreenState.QUIT`.
+**`game_screen.py` :**
+K_p ajouté → `next_screen = ScreenState.PAUSE` (conformément au MONITORING §3.3).
+**`renderer.py` — `_update_window()` :**
+Ajout de `self.superpacgum_sprite = SuperPacgumSprite(self.tile_size)` au même endroit que la réinstanciation de `pacman_sprite` et `ghost_sprites`. Corrige le désalignement des super-pacgums lors du changement de taille de maze entre niveaux.
