@@ -82,9 +82,6 @@ class Renderer:
         if not dying:
             self._draw_ghosts(game.ghosts, current_time)
         self._draw_player(game.player, current_time, dying)
-        # scaled = pygame.transform.scale(
-        #     self.logical_surface, (self.scaled_w, self.scaled_h)
-        # )
         self.surface.blit(self.logical_surface, (self.offset_x, self.offset_y))
         self._draw_hud(game, current_time)
         if game.counting_down:
@@ -287,25 +284,24 @@ class Renderer:
             self.surface_width - (self.surface_width // 3),
             self.surface_height * 7 // 8
         )
-        if self.pacman_sprite.life is not None:
-            life_sprite = pygame.transform.scale(
-                self.pacman_sprite.life,
-                (self.font_size * 2.2, self.font_size * 2.2)
-            )
-            if game.lives < 10:
-                sprite_offset = 0.0
-                for _ in range(game.lives):
-                    self._draw_life_sprite(
-                        life_sprite, line_height, sprite_offset
-                    )
-                    sprite_offset += self.font_size * 1.8
-            else:
-                self._draw_life_sprite(life_sprite, line_height)
-                self._draw_text(
-                    f"x{str(game.lives)}",
-                    self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
-                    self.surface_height * 7 // 8 - line_height
+        life_sprite = pygame.transform.scale(
+            self.pacman_sprite.life,
+            (self.font_size * 2.2, self.font_size * 2.2)
+        )
+        if game.lives < 10:
+            sprite_offset = 0.0
+            for _ in range(game.lives):
+                self._draw_life_sprite(
+                    life_sprite, line_height, sprite_offset
                 )
+                sprite_offset += self.font_size * 1.8
+        else:
+            self._draw_life_sprite(life_sprite, line_height)
+            self._draw_text(
+                f"x{str(game.lives)}",
+                self.surface_width // 3 + life_sprite.get_width() + line_height // 4,
+                self.surface_height * 7 // 8 - line_height
+            )
 
     def _draw_life_sprite(
         self,
