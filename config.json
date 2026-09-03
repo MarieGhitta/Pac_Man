@@ -15,7 +15,7 @@
         }
     ],
     "max_levels": 15,
-    "lives": 80,
+    "lives": 33,
     "pacgum": 1,
     "points_per_pacgum": 10,
     "points_per_super_pacgum": 50,
