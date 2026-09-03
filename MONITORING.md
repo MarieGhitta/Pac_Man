@@ -95,9 +95,9 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 
 ### 3.1 Timer de niveau (`level_max_time`)
 
-- [ ] `game.py` : tracker le temps écoulé depuis le début du niveau.
-- [ ] Déclencher une mort du joueur si `level_max_time` (secondes) est atteint — une vie perdue, positions réinitialisées.
-- [ ] Afficher le compte à rebours dans le HUD.
+- [x] `game.py` : tracker le temps écoulé depuis le début du niveau.
+- [x] Déclencher une mort du joueur si `level_max_time` (secondes) est atteint — une vie perdue, positions réinitialisées.
+- [x] Afficher le compte à rebours dans le HUD.
 
 ### 3.2 Highscore — système persistant
 
@@ -116,11 +116,9 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 - [x] Game starts in fullscreen
 - [x] Mazes fit the screen (80/20 ratio)
 - [x] Dynamic tile, font and padding (this may change later on)
-- [ ] Is dynamic font relevant? See later in the project
 
 #### Title Screen
 - [x] **Logo** : "PAC-MAN" style original (logo pixel-art statique).
-- [ ] **Animation** : une ligne sous le logo — les 4 fantômes poursuivent Pac-Man de droite à gauche → Pac-Man mange un super-pacgum → se retourne → mange les fantômes un par un (séquence en boucle).
 - [x] **Menu** en dessous de l'animation :
   - **Play**
   - **Highscores**
@@ -149,13 +147,12 @@ Les vitesses sont exprimées en % d'une vitesse de base (1 case/unité). Elles s
 
 Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque option est un toggle ou une action :
 
-- [ ] **Invincibility** : toggle — collisions avec ghosts non-frightened désactivées.
-- [ ] **Level Skip** : action — passe immédiatement au niveau suivant.
-- [ ] **Ghost Freeze** : toggle — les ghosts ne se déplacent plus.
-- [ ] **Extra Life** : action — ajoute +X vies (valeur X à définir, ex. +1 ou +3).
-- [ ] **Increased Speed** : toggle — ajoute +X% à la vitesse de Pac-Man (valeur X à définir).
-- [ ] Interface cheat : écran dédié avec la liste des cheats, état actif/inactif visible, navigable au clavier.
-- [ ] Indicateur visuel discret en HUD quand au moins un cheat est actif (ex. "CHEAT" en coin).
+- [x] **Invincibility** : toggle — collisions avec ghosts non-frightened désactivées.
+- [x] **Level Skip** : action — passe immédiatement au niveau suivant.
+- [x] **Ghost Freeze** : toggle — les ghosts ne se déplacent plus.
+- [x] **Extra Life** : action — ajoute +X vies (valeur X à définir, ex. +1 ou +3).
+- [x] **Increased Speed** : double la vitesse.
+- [x] Interface cheat : écran dédié avec la liste des cheats, état actif/inactif visible, navigable au clavier.
 
 ### 3.5 HUD en jeu (refonte renderer)
 
@@ -174,7 +171,7 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 
 #### Fantômes
 - [x] Sprite fantôme classique : corps arrondi, bas dentelé, **yeux directionnels**.
-- [xx Frightened : corps bleu uni.
+- [x] Frightened : corps bleu uni.
 - [x] Frightened clignotant (bleu/blanc, dernières ~2s — lié à § 2.6).
 - [x] Respawn : **yeux seuls** se déplaçant vers le spawn.
 - [x] Couleurs par type : Blinky rouge, Pinky rose, Inky cyan, Clyde orange.
@@ -187,47 +184,10 @@ Configurable depuis le **Title Screen** et depuis le **Pause Menu**. Chaque opti
 
 #### UI & typographie
 - [x] Police arcade (ex. Press Start 2P ou équivalent libre).
-- [ ] Disposition HUD cohérente avec le style visuel général.
+- [x] Disposition HUD cohérente avec le style visuel général.
 
 #### Animation
 - [x] Frame interpolation
-
----
-
-## 4. Bonus (si temps disponible)
-
-### 4.1 Son
-
-- [ ] Musique de fond (thème arcade).
-- [ ] Bruitages : manger pacgum, manger super-pacgum, manger fantôme, mort, niveau suivant, victoire.
-- [ ] Contrôle volume / mute.
-Brother DCP-L2627DWE
-
-### 4.2 Tunnel wraparound
-
-- [ ] `game.py` — `move_player()` : si le joueur sort par le bord gauche/droit, téléporter au bord opposé.
-- [ ] Même logique pour `ghost.py` — `_move()`.
-- [ ] Vérifier la compatibilité avec la structure des bords des mazes générées aléatoirement.
-
-### 4.3 Multijoueur réseau local
-
-Architecture : **client/serveur TCP**. Un joueur héberge (serveur, IP locale type `192.168.x.x` + port), les autres se connectent en entrant cette adresse.
-
-- [ ] Module réseau à créer (`src/network/`).
-- [ ] 1 Pac-Man obligatoire (hôte ou client), jusqu'à 4 joueurs supplémentaires incarnant des fantômes.
-- [ ] Écran de lobby : hôte crée la partie (affiche son IP/port), clients entrent l'adresse.
-- [ ] Synchronisation d'état : positions, score, vies, état des ghosts, pacgums mangés.
-- [ ] Gestion des déconnexions (joueur fantôme qui quitte → ghost repasse en IA).
-
-### 4.4 Reskin de sprites
-
-- [ ] Pac-Woman (sprite alternatif).
-- [ ] Sélection de skin depuis le menu principal.
-- [ ] (Optionnel) Mode graphique "moderne" vs "arcade 1980".
-
-### 4.5 Blinky "Cruise Elroy"
-
-- [ ] Quand le nombre de pacgums restants passe sous un seuil, Blinky ignore le Scatter et accélère.Brother DCP-L2627DWE
 
 ---
 
@@ -480,3 +440,36 @@ Toutes les constantes de délai augmentées de ~15 % pour ralentir le gameplay s
 - Ghost SCATTER/CHASE : `[200, 175, 160, 160]` → `[235, 205, 190, 190]`
 - Ghost FRIGHTENED : `[300, 275, 250, 250]` → `[350, 320, 295, 295]`
 - Ghost RESPAWN : `[80, 80, 80, 80]` → `[95, 95, 95, 95]`
+
+### #25 — 2026-09-03 — Cheat menu
+
+**`src/game/cheat.py` — nouvelle classe `Cheat` :**
+Dataclass simple avec 9 attributs : `invincibility`, `ghost_freeze`, `speed_boost`, `infinite_time`, `infinite_lives` (bools) ; `add_lives: int = 0` ; `lvl_skip`, `instant_win`, `instant_lose` (bools). Passée par référence à `Engine` et aux écrans cheat — un seul objet en mémoire, modifications immédiatement visibles dans `Engine`.
+**`src/ui/screens/cheat_screen.py` — `CheatScreen` et `PauseCheatScreen` :**
+`CheatScreen(Screen)` : menu de 5 toggles (Invincibility / Ghost Freeze / Speed Boost / Infinite Time / Infinite Lives). Layout 2 colonnes : labels `midleft` via `_draw_menu`, colonne droite ON/OFF dessinée manuellement via `getattr(self.cheat, attr)`. ENTER toggle via `setattr`. ESC → TITLE.
+`PauseCheatScreen(CheatScreen)` : hérite de `CheatScreen`, étend `menu_items`/`cheat_attrs` avec 4 items supplémentaires (Add Life / Level Skip / Instant Win / Instant Lose). Overlay semi-transparent sur `frozen_frame`. `lives_menu = [1, 3, 5, 10]` + `lives_index` — LEFT/RIGHT cyclent la valeur sur l'item Add Life, colonne droite affiche la valeur numérique au lieu de ON/OFF. ENTER sur Add Life : `self.cheat.add_lives = lives_menu[lives_index]` + `next_screen = RESUME`. ENTER sur Level Skip : `cheat.lvl_skip = True` + `next_screen = GAME`. ESC → PAUSE.
+**`src/utils/screen_state.py` :**
+Ajout de `PAUSECHEAT`.
+**`engine.py` — intégration des flags cheat dans `update()` :**
+- `infinite_lives` : `self.lives = 99` en tête de chaque frame.
+- `add_lives` : `self.lives += self.cheat.add_lives` puis reset à 0 — consommé une seule fois.
+- `speed_boost` : delay joueur `//= 2` localement, constante `_PLAYER_UPDATE_DELAY` intacte.
+- `infinite_time` : `remaining` forcé à `config.level_max_time` avant le calcul de `time_remaining`.
+- `ghost_freeze` : boucle ghosts et `_check_collision()` enveloppées dans `if not self.cheat.ghost_freeze`.
+- `invincibility` : `_handle_collision` — si ghost non-FRIGHTENED et `cheat.invincibility`, ne pas appeler `_player_hit()`.
+- **Bug fix** : `_check_collision()` était dans la boucle `for ghost in self.ghosts` → appelée 4× par frame → jusqu'à 4 appels à `_player_hit()` simultanés. Déplacée hors de la boucle.
+**`app.py` — wiring :**
+- `self.cheat = Cheat()` persistant entre les parties, passé à chaque `Engine` et aux deux écrans cheat.
+- `screens` : ajout `ScreenState.PAUSECHEAT: PauseCheatScreen(...)`.
+- `_update` : `frozen_frame` blit si `PAUSE or PAUSECHEAT`.
+- `_handle_transitions` :
+  - `PAUSE` : `frozen_frame` et `on_pause()` capturés uniquement si la source est `GAME` (évite l'écrasement du frozen_frame au retour de PAUSECHEAT).
+  - `GAME` : si `cheat.lvl_skip` → `engine._next_level()` sans recréer Engine (score et vies préservés), reset flag, `RESUME` non appelé (timestamps déjà réinitialisés par `_next_level`).
+  - `RESUME` : `cheat.add_lives` consommé dans Engine, `on_resume()` appelé.
+  - `END` : `instant_win` → `engine.victory = True` ; `instant_lose` → `engine.game_over = True` avant création de `EndScreen`.
+**`end_screen.py` :**
+`EndScreen.__init__` reçoit `score: int` en paramètre. `score_input` restructuré en 5 lignes (`"Your score:" / str(score) / "" / "Enter your name:" / username`). `draw()` met à jour `score_input[-1]` avec `self.username` à chaque frame.
+**`screen.py` — `_draw_menu` :**
+Paramètre `new_color: tuple | None` remplacé par `highlight: bool = True`. Si `True` : item à `menu_index` en rouge, reste en blanc. Si `False` : tout en blanc.
+**Dead code identifié :**
+`scaled = pygame.transform.scale(...)` dans `Renderer.draw()` : `scaled_w/h` sont identiques aux dimensions de `logical_surface` (tile_size calculé pour remplir l'écran), le transform est un no-op. Confirmé dead code — à retirer.
