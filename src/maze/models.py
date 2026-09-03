@@ -5,26 +5,28 @@ from src.game.cell_content import CellContent
 
 
 class Cell:
-    """Create Cell class."""
+    """Represent a single maze tile with wall flags and content."""
 
-    def __init__(self,
-                 x: int,
-                 y: int,
-                 north_wall: bool,
-                 east_wall: bool,
-                 south_wall: bool,
-                 west_wall: bool,
-                 walkable: bool) -> None:
-        """Initialize a cell.
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        north_wall: bool,
+        east_wall: bool,
+        south_wall: bool,
+        west_wall: bool,
+        walkable: bool
+    ) -> None:
+        """Initialize a maze cell.
 
         Args:
-            x (int): Coordinate x of a cell.
-            y (int): Coordinate y of a cell.
-            north_wall (bool): True if there is a north wall.
-            east_wall (bool): True if there is a east wall.
-            south_wall (bool): True if there is a south wall.
-            west_wall (bool): True if there is a west wall.
-            walkable (bool): True if the cell is not blocked.
+            x: Tile column.
+            y: Tile row.
+            north_wall: True if a north wall is present.
+            east_wall: True if an east wall is present.
+            south_wall: True if a south wall is present.
+            west_wall: True if a west wall is present.
+            walkable: True if the cell can be entered.
         """
         self.x = x
         self.y = y
@@ -37,22 +39,24 @@ class Cell:
 
 
 class Maze:
-    """Create Maze class."""
+    """Represent the full maze grid with entry and exit references."""
 
-    def __init__(self,
-                 width: int,
-                 height: int,
-                 cells: list[list[Cell]],
-                 entry_cell: Cell,
-                 exit_cell: Cell) -> None:
-        """Initialize maze class.
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        cells: list[list[Cell]],
+        entry_cell: Cell,
+        exit_cell: Cell
+    ) -> None:
+        """Initialize the maze.
 
         Args:
-            width (int): Width of the maze.
-            height (int): Height of the maze
-            cells (list[list[Cell]]): Cells of the maze.
-            entry_cell (Cell): Entry of the maze.
-            exit_cell (Cell): Exit of the maze.
+            width: Number of tile columns.
+            height: Number of tile rows.
+            cells: 2D grid of Cell instances.
+            entry_cell: Maze entry cell.
+            exit_cell: Maze exit cell.
         """
         self.width = width
         self.height = height
