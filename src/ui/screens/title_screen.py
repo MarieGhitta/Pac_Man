@@ -44,7 +44,7 @@ class TitleScreen(Screen):
                             self.next_screen = ScreenState.CHEAT
                         case 3:
                             self.next_screen = ScreenState.QUIT
-                case pygame.K_ESCAPE:
+                case pygame.K_ESCAPE | pygame.K_q:
                     self.next_screen = ScreenState.QUIT
 
     def update(self, current_time: int) -> None:
