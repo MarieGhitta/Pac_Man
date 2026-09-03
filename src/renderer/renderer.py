@@ -49,7 +49,6 @@ class Renderer:
         self.scaled_h: int = (self.maze_height + 1) * self.tile_size
         self.offset_x: int = (self.surface_width - self.scaled_w) // 2
         self.offset_y: int = (self.surface_height - self.scaled_h) // 2
-        self.maze_offset: int = self.tile_size // 2
         self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
