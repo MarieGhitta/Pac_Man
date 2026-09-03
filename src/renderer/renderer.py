@@ -286,7 +286,7 @@ class Renderer:
         )
         life_sprite = pygame.transform.scale(
             self.pacman_sprite.life,
-            (self.font_size * 2.2, self.font_size * 2.2)
+            (int(self.font_size * 2.2), int(self.font_size * 2.2))
         )
         if game.lives < 10:
             sprite_offset = 0.0
