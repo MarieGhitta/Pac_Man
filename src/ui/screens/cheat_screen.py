@@ -54,6 +54,13 @@ class CheatScreen(Screen):
     def draw(self) -> None:
         """Render the cheat toggle menu with ON/OFF status column."""
         self.surface.fill(Color.BLACK)
+        self._draw_cheat_content()
+
+    def _draw_cheat_content(
+        self,
+        lives_menu: list[int] | None = None,
+        lives_index: int = 0
+    ) -> None:
         line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height // 2 - total_height // 3
@@ -62,19 +69,25 @@ class CheatScreen(Screen):
             self.font,
             line_height,
             menu_start_y,
-            255,
-            "midleft",
-            4
+            alignment="midleft",
+            x=4
         )
         for i, attr in enumerate(self.cheat_attrs):
             state = getattr(self.cheat, attr)
-            status = "ON" if state else "OFF"
+            if attr == "add_lives" and lives_menu is not None:
+                status = str(lives_menu[lives_index])
+            else:
+                status = "ON" if state else "OFF"
             color = Color.RED if i == self.menu_index else Color.WHITE
             sub = self.font.render(status, True, color)
             sub_rect = sub.get_rect(
-                midleft=(self.width * 2 // 3, menu_start_y + i * line_height)
+                midleft=(
+                    self.width * 2 // 3,
+                    menu_start_y + i * line_height
+                )
             )
             self.surface.blit(sub, sub_rect)
+
 
 
 class PauseCheatScreen(CheatScreen):
@@ -162,27 +175,4 @@ class PauseCheatScreen(CheatScreen):
     def draw(self) -> None:
         """Render the overlay and extended cheat menu."""
         self.surface.blit(self.overlay, (0, 0))
-        line_height = int(self.font.get_height() * 1.5)
-        total_height = len(self.menu_items) * line_height
-        menu_start_y = self.height // 2 - total_height // 3
-        self._draw_menu(
-            self.menu_items,
-            self.font,
-            line_height,
-            menu_start_y,
-            255,
-            "midleft",
-            4
-        )
-        for i, attr in enumerate(self.cheat_attrs):
-            state = getattr(self.cheat, attr)
-            if attr == "add_lives":
-                status = str(self.lives_menu[self.lives_index])
-            else:
-                status = "ON" if state else "OFF"
-            color = Color.RED if i == self.menu_index else Color.WHITE
-            sub = self.font.render(status, True, color)
-            sub_rect = sub.get_rect(
-                midleft=(self.width * 2 // 3, menu_start_y + i * line_height)
-            )
-            self.surface.blit(sub, sub_rect)
+        self._draw_cheat_content(self.lives_menu, self.lives_index)
