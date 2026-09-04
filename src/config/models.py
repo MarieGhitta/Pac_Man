@@ -34,15 +34,16 @@ class Config:
         """Initialize the game configuration.
 
         Args:
-            highscore_filename (str): The file with scores.
-            levels (list[LevelConfig]): THe list of levels.
-            lives (int): The number of lives.
-            pacgum (int): The number of pacgums.
-            points_per_pacgum (int): Points of pacgum.
-            points_per_super_pacgum (int): Points per super pacgum.
-            points_per_ghost (int): points per ghost.
-            seed (int): The seed.
-            level_max_time (int): Max time per level.
+            highscore_filename: Path to the highscore JSON file.
+            levels: List of level configurations.
+            max_levels: Total number of levels in a game.
+            lives: Starting number of lives.
+            pacgum: Number of pacgums to place (0 = fill all).
+            points_per_pacgum: Points awarded per pacgum collected.
+            points_per_super_pacgum: Points awarded per super-pacgum collected.
+            points_per_ghost: Base points awarded per ghost eaten.
+            seed: RNG seed for level 1 maze generation.
+            level_max_time: Time limit per level in seconds.
         """
         self.highscore_filename = highscore_filename
         self.levels = levels
