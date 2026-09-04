@@ -551,3 +551,11 @@ Branchement sur `game.cheat.infinite_lives` pour afficher "∞" à la place des 
 **`highscore_screen.py` — `colors[i]` sans garde : non corrigé intentionnellement.**
 `Highscore.add_score()` garantit le top 10 — `len(scores) > 10` est impossible. Guard non ajouté : masquerait un bug dans `Highscore` au lieu de crasher clairement.
  
+### #30 — 2026-09-04 — Bugfixes post code review #4 + décision projet
+
+**`end_screen.py` — `update()` : `logo_alpha` hors bornes corrigé.**
+Pour `elapsed` ∈ [2500, 3500ms], `fade_out_progress = min(1.0, (elapsed - 3500) / 800)` produisait une valeur négative → `logo_alpha` dépassait 255. Pygame clampait silencieusement, pas de bug visuel, mais valeur stockée incorrecte. Fix : `min(1.0, max(0.0, (elapsed - 3500) / 800))`.
+**`renderer.py` — `_draw_hud` : décalage "xinf" — comportement voulu.**
+Le `+ line_height // 2` supplémentaire dans la branche `infinite_lives` est intentionnel : "xinf" compte 4 caractères contre 2–3 pour "x{N}", le léger décalage compense visuellement.
+**Bonus retirés du scope.**
+L'intégralité des bonus (son, multijoueur réseau local, reskins, Blinky Cruise Elroy, tunnel wraparound) est abandonnée. Le programme est fonctionnel et stable — investir du temps sur des bonus non requis n'est pas justifié à ce stade.
