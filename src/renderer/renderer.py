@@ -289,7 +289,18 @@ class Renderer:
             self.pacman_sprite.life,
             (int(self.font_size * 2.2), int(self.font_size * 2.2))
         )
-        if game.lives < 10:
+        if game.cheat.infinite_lives:
+            self._draw_life_sprite(life_sprite, line_height)
+            self._draw_text(
+                "xinf",
+                (
+                    (self.surface_width // 3 + line_height // 2)
+                    + life_sprite.get_width()
+                    + line_height // 4
+                ),
+                self.surface_height * 7 // 8 - line_height
+            )
+        elif game.lives < 10:
             sprite_offset = 0.0
             for _ in range(game.lives):
                 self._draw_life_sprite(
@@ -307,6 +318,7 @@ class Renderer:
                 ),
                 self.surface_height * 7 // 8 - line_height
             )
+
 
     def _draw_life_sprite(
         self,

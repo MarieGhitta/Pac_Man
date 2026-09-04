@@ -57,6 +57,7 @@ class Sprite(ABC):
             self.anim_tick = 0
             self._last_variant = variant
             self.anim_stop = False
+            self.last_anim_update = current_time
         if not self.frames[variant] or self.anim_stop:
             return
         if current_time - self.last_anim_update >= self.anim_speed:

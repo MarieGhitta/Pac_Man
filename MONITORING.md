@@ -537,3 +537,17 @@ Tuning effectué après #24 non loggué. Valeurs réelles :
 `EndScreen.handle_event` : filtre d'input `event.unicode.isalnum()` → `event.unicode.isalnum() or event.unicode == " "`. `PlayerScore._validate_username` : `username.isalnum()` → `all(c.isalnum() or c == " " for c in username)`. Conforme au MONITORING §3.2 "alphanumérique + espaces".
 **`cheat_screen.py` — `PauseCheatScreen` : absence de colonne droite sur items 6–8 — comportement voulu.**
 Level Skip, Instant Win, Instant Lose sont des actions ponctuelles, pas des toggles. Pas de statut ON/OFF à afficher. Cohérent avec d'autres menus du projet.
+
+### #29 — 2026-09-04 — Bugfixes post code review #3
+ 
+**`sprite.py` — `Sprite.update()` : `last_anim_update` réinitialisé au changement de variant.**
+`last_anim_update` n'était pas remis à `current_time` lors d'un changement de variant. Si `current_time - last_anim_update >= anim_speed` au moment du changement (typiquement après une pause prolongée), `anim_tick` avançait à 1 dès le premier `update()` call → frame 0 du nouveau variant sautée. Cas critique : animation one-shot `DYING` tronquée après reprise de pause. Fix : `self.last_anim_update = current_time` ajouté dans le bloc `if variant != self._last_variant`.
+**`engine.py` — `Engine.update()` : `ghost.update_delay` capturé avant `ghost.update()`.**
+`update_delay` était assigné après `ghost.update()`, qui peut transiter `ghost.state` de FRIGHTENED vers SCATTER/CHASE. L'interpolation utilisait alors le delay du nouvel état (260ms) pour un mouvement effectué à l'ancien delay (385ms) → alpha = 1.0 atteint prématurément → glitch visuel sur la frame de transition. Fix : `old_delay = _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]` capturé avant l'appel, réutilisé dans la condition et assigné à `ghost.update_delay` après.
+**`engine.py` — `Engine.update()` : `add_lives` capé à 99 via `min()`.**
+`add_lives` était appliqué après `self.lives = 99` (infinite_lives) → `lives` pouvait dépasser 99 pour 1 frame. Fix : `self.lives = min(self.lives + self.cheat.add_lives, 99)`. Si `infinite_lives` est on, `min(99 + N, 99) = 99` — `add_lives` est consommé sans dépassement.
+**`renderer.py` — `_draw_hud()` : affichage "∞" si `infinite_lives`.**
+Branchement sur `game.cheat.infinite_lives` pour afficher "∞" à la place des icônes de vie. `Engine.lives` reste `int` à 99.
+**`highscore_screen.py` — `colors[i]` sans garde : non corrigé intentionnellement.**
+`Highscore.add_score()` garantit le top 10 — `len(scores) > 10` est impossible. Guard non ajouté : masquerait un bug dans `Highscore` au lieu de crasher clairement.
+ 
