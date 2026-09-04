@@ -50,13 +50,13 @@ class Screen(ABC):
             case pygame.K_DOWN:
                 self.menu_index = (self.menu_index + 1) % len(self.menu_items)
 
-    @abstractmethod
     def update(self, current_time: int) -> None:
         """Advance the screen's internal state.
 
         Args:
             current_time: Current time in milliseconds.
         """
+        del current_time
 
     @abstractmethod
     def draw(self) -> None:

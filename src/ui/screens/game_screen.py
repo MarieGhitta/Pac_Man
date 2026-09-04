@@ -57,6 +57,7 @@ class GameScreen(Screen):
         Args:
             current_time: Current time in milliseconds.
         """
+        del current_time
         self.engine.update()
         if self.engine.game_over or self.engine.victory:
             self.next_screen = ScreenState.END
