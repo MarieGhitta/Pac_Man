@@ -103,7 +103,7 @@ class EndScreen(Screen):
             logo_progress = max(0.0, (elapsed - 1000) / 1000)
             self.logo_alpha = int(min(1.0, logo_progress) * 255)
         else:
-            fade_out_progress = min(1.0, (elapsed - 3500) / 800)
+            fade_out_progress = min(1.0, max(0.0, (elapsed - 3500) / 800))
             self.logo_alpha = int((1.0 - fade_out_progress) * 255)
             score_progress = max(0.0, (elapsed - 4300) / 1000)
             self.score_alpha = int(min(1.0, score_progress) * 255)
