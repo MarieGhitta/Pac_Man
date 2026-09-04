@@ -30,7 +30,7 @@ class PlayerScore():
             ValueError: If username is not alnum or is out of length bounds.
         """
         if not all(c.isalnum() or c == " " for c in username):
-            raise ValueError("username must be alphanumeric")
+            raise ValueError("username must be alphanumeric or space")
         username_length = len(username)
         if username_length < 3 or username_length > 10:
             raise ValueError("username must be between 3 and 10 characters")
