@@ -234,7 +234,7 @@ class Engine:
         self.elapsed_before_fright = 0
         self.counting_down = True
         self.countdown = 3
-        self._countdown_start = pygame.time.get_ticks()
+        self._countdown_start = current_time
         self.level_start_time = 0
         self.time_remaining = self.config.level_max_time
 
@@ -429,7 +429,7 @@ class Engine:
         self.elapsed_before_fright = 0
         self.counting_down = True
         self.countdown = 3
-        self._countdown_start = pygame.time.get_ticks()
+        self._countdown_start = current_time
         self.level_start_time = 0
         self.time_remaining = self.config.level_max_time
 
