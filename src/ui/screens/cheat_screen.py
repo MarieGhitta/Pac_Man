@@ -89,7 +89,6 @@ class CheatScreen(Screen):
             self.surface.blit(sub, sub_rect)
 
 
-
 class PauseCheatScreen(CheatScreen):
     """Extended cheat menu accessible from the pause screen."""
 

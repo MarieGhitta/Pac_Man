@@ -22,7 +22,10 @@ class PauseScreen(Screen):
             surface: The pygame surface to draw onto.
         """
         super().__init__(surface)
-        self.overlay = self._draw_overlay()
+        self.overlay = pygame.Surface(
+            (self.width, self.height), pygame.SRCALPHA
+        )
+        self.overlay.fill(Color.ALPHA_BLACK)
         self.font_size = self.height // 16
         self.font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
@@ -61,13 +64,3 @@ class PauseScreen(Screen):
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height // 2 - total_height // 3
         self._draw_menu(self.menu_items, self.font, line_height, menu_start_y)
-
-    def _draw_overlay(self) -> pygame.surface.Surface:
-        """Create a semi-transparent black overlay covering the full surface.
-
-        Returns:
-            A pygame Surface with per-pixel alpha, filled with ALPHA_BLACK.
-        """
-        overlay = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        overlay.fill(Color.ALPHA_BLACK)
-        return overlay
