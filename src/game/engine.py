@@ -80,7 +80,7 @@ class Engine:
         self.dying: bool = False
         self._death_start: int = 0
         self.counting_down: bool = True
-        self._countdown_start: int = pygame.time.get_ticks()
+        self._countdown_start: int = current_time
         self.countdown: int = 3
         self.level_start_time: int = 0
         self.time_remaining: int = self.config.level_max_time
@@ -151,25 +151,6 @@ class Engine:
             return not current_cell.south_wall
         if direction == Direction.LEFT:
             return not current_cell.west_wall
-
-    def move_player(self) -> None:
-        """Move the player, collect cell content, check level completion."""
-        if self._can_move(self.player.next_direction):
-            self.player.direction = self.player.next_direction
-        if not self._can_move(self.player.direction):
-            return
-        if self.player.direction == Direction.UP:
-            self.player.y -= 1
-        elif self.player.direction == Direction.RIGHT:
-            self.player.x += 1
-        elif self.player.direction == Direction.DOWN:
-            self.player.y += 1
-        elif self.player.direction == Direction.LEFT:
-            self.player.x -= 1
-        new_cell = self.level.maze.cells[self.player.y][self.player.x]
-        self._collect_cell_content(new_cell)
-        if self._is_level_completed():
-            self._next_level()
 
     def _add_score(self, points: int) -> None:
         """Add points to the score, capped at the arcade maximum.
@@ -280,6 +261,11 @@ class Engine:
         delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         if self.cheat.speed_boost:
             delay //= 2
+        if (
+            self.player.next_direction != self.player.direction
+            and self._can_move(self.player.next_direction)
+        ):
+            self.player.last_update = current_time - delay
         if current_time - self.player.last_update >= delay:
             self.player.last_update = current_time
             self.player.prev_x = self.player.x
@@ -304,7 +290,24 @@ class Engine:
 
     def _update_player(self) -> None:
         """Update the player."""
-        self.move_player()
+        if self._can_move(self.player.next_direction):
+            self.player.direction = self.player.next_direction
+        if not self._can_move(self.player.direction):
+            return
+        if self.player.direction == Direction.UP:
+            self.player.y -= 1
+        elif self.player.direction == Direction.RIGHT:
+            self.player.x += 1
+        elif self.player.direction == Direction.DOWN:
+            self.player.y += 1
+        elif self.player.direction == Direction.LEFT:
+            self.player.x -= 1
+        new_cell = self.level.maze.cells[self.player.y][self.player.x]
+        self._check_collision()
+        self._collect_cell_content(new_cell)
+        if self._is_level_completed():
+            self._next_level()
+
 
     def _level_interval(self) -> int:
         """Return the level interval."""
