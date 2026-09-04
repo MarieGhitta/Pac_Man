@@ -246,7 +246,7 @@ class Engine:
         if self.cheat.infinite_lives:
             self.lives = 99
         if self.cheat.add_lives != 0:
-            self.lives += self.cheat.add_lives
+            self.lives = min(self.lives + self.cheat.add_lives, 99)
             self.cheat.add_lives = 0
         if self.counting_down:
             elapsed = current_time - self._countdown_start
