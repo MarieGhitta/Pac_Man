@@ -14,13 +14,12 @@ class MazeFactory:
         """Generate and adapt a maze.
 
         Args:
-            width (int): Width of the maze.
-            height (int): Height of the maze.
-            seed (int): Seed of the maze.
+            width: Width of the maze in tiles.
+            height: Height of the maze in tiles.
+            seed: RNG seed for maze generation.
 
         Returns:
-            tuple[list[list[int]], tuple[int, int], tuple[int, int]]:
-            Generated maze, coordinates entry cell, coordinates exit cell.
+            Adapted Maze instance.
         """
         generator = LibMazeGenerator(
             size=(width, height), perfect=False, seed=seed
