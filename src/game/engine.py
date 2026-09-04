@@ -264,9 +264,9 @@ class Engine:
                     self._reset_positions()
             return
         remaining = (
-                self.config.level_max_time
-                - (current_time - self.level_start_time)
-                // 1000
+            self.config.level_max_time
+            - (current_time - self.level_start_time)
+            // 1000
         )
         if self.cheat.infinite_time:
             remaining = self.config.level_max_time
@@ -288,10 +288,8 @@ class Engine:
             self.player.update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         if not self.cheat.ghost_freeze:
             for ghost in self.ghosts:
-                if (
-                    current_time - ghost.last_update
-                    >= _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
-                ):
+                old_delay = _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
+                if (current_time - ghost.last_update >= old_delay):
                     ghost.last_update = current_time
                     ghost.prev_x = ghost.x
                     ghost.prev_y = ghost.y
@@ -301,9 +299,7 @@ class Engine:
                         self.ghosts,
                         self.ghost_state,
                     )
-                    ghost.update_delay = (
-                        _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
-                    )
+                    ghost.update_delay = old_delay
             self._check_collision()
 
     def _update_player(self) -> None:
