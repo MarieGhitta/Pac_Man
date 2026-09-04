@@ -51,13 +51,6 @@ class CheatScreen(Screen):
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.TITLE
 
-    def update(self, current_time: int) -> None:
-        """No-op: cheat screen has no animated state.
-
-        Args:
-            current_time: Current time in milliseconds (unused).
-        """
-
     def draw(self) -> None:
         """Render the cheat toggle menu with ON/OFF status column."""
         self.surface.fill(Color.BLACK)
@@ -165,13 +158,6 @@ class PauseCheatScreen(CheatScreen):
                         )
                 case pygame.K_ESCAPE:
                     self.next_screen = ScreenState.PAUSE
-
-    def update(self, current_time: int) -> None:
-        """No-op: pause cheat screen has no animated state.
-
-        Args:
-            current_time: Current time in milliseconds (unused).
-        """
 
     def draw(self) -> None:
         """Render the overlay and extended cheat menu."""

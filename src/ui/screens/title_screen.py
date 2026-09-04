@@ -47,14 +47,6 @@ class TitleScreen(Screen):
                 case pygame.K_ESCAPE | pygame.K_q:
                     self.next_screen = ScreenState.QUIT
 
-    def update(self, current_time: int) -> None:
-        """Advance the screen's internal state.
-
-        Args:
-            current_time: Current time in milliseconds.
-        """
-        pass
-
     def draw(self) -> None:
         """Render the screen onto the given surface."""
         self.surface.fill(Color.BLACK)
