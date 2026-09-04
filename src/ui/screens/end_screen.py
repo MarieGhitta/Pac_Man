@@ -145,7 +145,6 @@ class EndScreen(Screen):
             highlight=False
         )
 
-        line_height = int(self.font.get_height() * 1.5)
         total_height = len(self.menu_items) * line_height
         menu_start_y = self.height * 3 // 4 - total_height // 2
         self._draw_menu(
