@@ -261,11 +261,6 @@ class Engine:
         delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         if self.cheat.speed_boost:
             delay //= 2
-        if (
-            self.player.next_direction != self.player.direction
-            and self._can_move(self.player.next_direction)
-        ):
-            self.player.last_update = current_time - delay
         if current_time - self.player.last_update >= delay:
             self.player.last_update = current_time
             self.player.prev_x = self.player.x
