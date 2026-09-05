@@ -36,6 +36,18 @@ _GHOST_CHASE_DELAY: list[list[float]] = [
 ]
 _GHOST_FRIGHTENED_DELAY: list[int] = [6000, 4000, 2000, 0]
 _DEATH_DELAY: int = 1500
+_DIRECTION_DELTA: dict[Direction, tuple[int, int]] = {
+    Direction.UP: (0, -1),
+    Direction.DOWN: (0, 1),
+    Direction.LEFT: (-1, 0),
+    Direction.RIGHT: (1, 0),
+}
+_OPPOSITE_DIR: dict[Direction, Direction] = {
+    Direction.UP: Direction.DOWN,
+    Direction.DOWN: Direction.UP,
+    Direction.LEFT: Direction.RIGHT,
+    Direction.RIGHT: Direction.LEFT,
+}
 
 
 class Engine:
@@ -235,6 +247,7 @@ class Engine:
             if elapsed >= 3000:
                 self.counting_down = False
                 self.level_start_time = current_time
+                self.player.last_update = current_time
             return
         if self.dying:
             if current_time - self._death_start >= _DEATH_DELAY:
@@ -261,12 +274,7 @@ class Engine:
         delay = _PLAYER_UPDATE_DELAY[lvl_idx]
         if self.cheat.speed_boost:
             delay //= 2
-        if current_time - self.player.last_update >= delay:
-            self.player.last_update = current_time
-            self.player.prev_x = self.player.x
-            self.player.prev_y = self.player.y
-            self._update_player()
-            self.player.update_delay = _PLAYER_UPDATE_DELAY[lvl_idx]
+        self._advance_player(current_time, delay)
         if not self.cheat.ghost_freeze:
             for ghost in self.ghosts:
                 old_delay = _GHOST_UPDATE_DELAY[ghost.state][lvl_idx]
@@ -303,6 +311,76 @@ class Engine:
         if self._is_level_completed():
             self._next_level()
 
+    def _advance_player(self, current_time: int, delay: int) -> None:
+        """Advance Pac-Man's continuous render position toward its destination.
+
+        Args:
+            current_time: Current time in milliseconds.
+            delay: Milliseconds per tile at the current level and cheat state.
+        """
+        elapsed = min(current_time - self.player.last_update, delay)
+        self.player.last_update = current_time
+        if elapsed <= 0:
+            return
+
+        rx = self.player.render_x
+        ry = self.player.render_y
+
+        opp = _OPPOSITE_DIR.get(self.player.direction)
+        if (self.player.next_direction == opp
+                and opp is not None
+                and self._can_move(opp)):
+            self.player.direction = opp
+
+        dx, dy = _DIRECTION_DELTA[self.player.direction]
+        at_center = (
+            abs(rx - self.player.x) < 1e-9
+            and abs(ry - self.player.y) < 1e-9
+        )
+
+        if not self._can_move(self.player.direction):
+            if at_center and self._can_move(self.player.next_direction):
+                self.player.direction = self.player.next_direction
+                dx, dy = _DIRECTION_DELTA[self.player.direction]
+            else:
+                return
+
+        step = elapsed / delay
+        dest_x = self.player.x + dx
+        dest_y = self.player.y + dy
+        rx += dx * step
+        ry += dy * step
+
+        reached = (
+            (dx > 0 and rx >= dest_x)
+            or (dx < 0 and rx <= dest_x)
+            or (dy > 0 and ry >= dest_y)
+            or (dy < 0 and ry <= dest_y)
+        )
+
+        if reached:
+            overshoot = abs((rx - dest_x) * dx + (ry - dest_y) * dy)
+            rx = float(dest_x)
+            ry = float(dest_y)
+            self.player.x = dest_x
+            self.player.y = dest_y
+            cell = self.level.maze.cells[self.player.y][self.player.x]
+            self._collect_cell_content(cell)
+            if self._is_level_completed():
+                self.player.render_x = rx
+                self.player.render_y = ry
+                self._next_level()
+                return
+            for d in [self.player.next_direction, self.player.direction]:
+                if self._can_move(d):
+                    self.player.direction = d
+                    ndx, ndy = _DIRECTION_DELTA[d]
+                    rx += ndx * overshoot
+                    ry += ndy * overshoot
+                    break
+
+        self.player.render_x = rx
+        self.player.render_y = ry
 
     def _level_interval(self) -> int:
         """Return the level interval."""
