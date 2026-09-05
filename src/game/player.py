@@ -24,6 +24,8 @@ class Player:
         self.update_delay = update_delay
         self.prev_x: int = x
         self.prev_y: int = y
+        self.render_x: float = float(x)
+        self.render_y: float = float(y)
         self.direction: Direction = Direction.LEFT
         self.next_direction: Direction = Direction.LEFT
 
@@ -38,3 +40,5 @@ class Player:
         self.y = y
         self.prev_x = x
         self.prev_y = y
+        self.render_x = float(x)
+        self.render_y = float(y)

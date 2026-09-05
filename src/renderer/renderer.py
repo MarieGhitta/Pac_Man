@@ -184,7 +184,7 @@ class Renderer:
             current_time: Current time in milliseconds.
             dying: If True, use the death animation variant.
         """
-        render_x, render_y = self._interpolate(player, current_time)
+        render_x, render_y = player.render_x, player.render_y
         center_x, center_y = self._to_screen(render_x, render_y)
         variant = (
             (None, PacmanState.DYING)
