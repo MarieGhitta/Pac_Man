@@ -559,3 +559,34 @@ Pour `elapsed` ∈ [2500, 3500ms], `fade_out_progress = min(1.0, (elapsed - 3500
 Le `+ line_height // 2` supplémentaire dans la branche `infinite_lives` est intentionnel : "xinf" compte 4 caractères contre 2–3 pour "x{N}", le léger décalage compense visuellement.
 **Bonus retirés du scope.**
 L'intégralité des bonus (son, multijoueur réseau local, reskins, Blinky Cruise Elroy, tunnel wraparound) est abandonnée. Le programme est fonctionnel et stable — investir du temps sur des bonus non requis n'est pas justifié à ce stade.
+
+### #31 — 2026-09-05 — Mouvement continu de Pac-Man
+
+**Contexte**
+Le mouvement tile-based original (tick toutes les 195ms) entraînait jusqu'à 195ms de délai entre une touche pressée et le déplacement visible. Plusieurs tentatives de fix intermédiaires (reset `last_update`, `try_set_direction`, seuil alpha) ont été abandonnées : toutes causaient des téléportations ou des déplacements diagonaux lors du spam de touches.
+
+**Approche retenue**
+Remplacement du système tick/interpolation de Pac-Man par un déplacement continu à position flottante, inspiré de l'approche du jeu de référence analysé (terminal, `game_coords` continu vers `target`).
+
+**`player.py`**
+Ajout de `render_x: float` et `render_y: float` (position visuelle continue en coordonnées tile). Initialisés à `float(x/y)` dans `__init__` et `move_to()`. `prev_x/y`, `last_update`, `update_delay` conservés pour la compatibilité avec le système d'interpolation des fantômes.
+
+**`engine.py`**
+Ajout de `_DIRECTION_DELTA` et `_OPPOSITE_DIR` en constantes module.
+Remplacement du bloc tick joueur dans `update()` par `self._advance_player(current_time, delay)`.
+Nouvelle méthode `_advance_player(current_time, delay)` :
+- Avance `render_x/y` de `elapsed / delay` tiles par frame vers la tile destination.
+- Demi-tour immédiat si `next_direction == OPPOSITE(direction)` et chemin libre.
+- Changement de direction perpendiculaire uniquement au centre de tile.
+- À l'arrivée : collecte du contenu, calcul de l'overshoot, tentative `next_direction` puis `direction`, réinjection de l'overshoot dans le nouveau sens.
+- `elapsed` capé à `delay` pour absorber les grandes pauses sans téléportation.
+Fix connexe : `self.player.last_update = current_time` ajouté au moment où `counting_down` passe à `False` — évite un `elapsed` accumulé de 3s qui téléportait Pac-Man de 2 tiles au démarrage.
+
+**`renderer.py`**
+`_draw_player()` : remplacement de `self._interpolate(player, current_time)` par `(player.render_x, player.render_y)`. `_interpolate()` conservée — utilisée par `_draw_ghosts()`.
+
+**Bug fix**
+`move_to()` ne réinitialisait pas `render_x/y` → après une mort, Pac-Man réapparaissait visuellement à la position de mort. Fix : `render_x = float(x)`, `render_y = float(y)` ajoutés dans `move_to()`.
+
+**Limitation connue**
+Dans un couloir de 2 tiles, le demi-tour mid-tile est bloqué si la tile source a un mur dans la direction opposée. Comportement physiquement correct — limitation inhérente au système tile-based acceptée.
