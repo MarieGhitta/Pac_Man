@@ -45,10 +45,12 @@ class Renderer:
             (self.maze_width + 1) * self.tile_size,
             (self.maze_height + 1) * self.tile_size
         ))
-        self.scaled_w: int = (self.maze_width + 1) * self.tile_size
-        self.scaled_h: int = (self.maze_height + 1) * self.tile_size
-        self.offset_x: int = (self.surface_width - self.scaled_w) // 2
-        self.offset_y: int = (self.surface_height - self.scaled_h) // 2
+        self.offset_x: int = (
+            self.surface_width - self.logical_surface.get_width()
+        ) // 2
+        self.offset_y: int = (
+            self.surface_height - self.logical_surface.get_height()
+        ) // 2
         self.font_size: int = self.surface_height // 48
         self.font: pygame.font.Font = pygame.font.Font(
             "assets/fonts/PressStart2P-Regular.ttf", self.font_size
@@ -390,10 +392,12 @@ class Renderer:
             (self.maze_width + 1) * self.tile_size,
             (self.maze_height + 1) * self.tile_size
         ))
-        self.scaled_w = (self.maze_width + 1) * self.tile_size
-        self.scaled_h = (self.maze_height + 1) * self.tile_size
-        self.offset_x = (self.surface_width - self.scaled_w) // 2
-        self.offset_y = (self.surface_height - self.scaled_h) // 2
+        self.offset_x: int = (
+            self.surface_width - self.logical_surface.get_width()
+        ) // 2
+        self.offset_y: int = (
+            self.surface_height - self.logical_surface.get_height()
+        ) // 2
         self.pacman_sprite = PacmanSprite(self.tile_size)
         self.ghost_sprites = {
             GhostType.BLINKY: GhostSprite(self.tile_size, Color.RED),
