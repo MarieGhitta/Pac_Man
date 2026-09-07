@@ -14,5 +14,6 @@ class ScreenState(Enum):
     PAUSE = auto()
     RESUME = auto()
     HIGHSCORE = auto()
+    INSTRUCTION = auto()
     END = auto()
     QUIT = auto()

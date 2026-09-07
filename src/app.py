@@ -12,6 +12,7 @@ from src.ui.highscore import Highscore
 from src.ui.models import PlayerScore
 from src.ui.screens.screen import Screen
 from src.ui.screens.title_screen import TitleScreen
+from src.ui.screens.instruction_screen import InstructionScreen
 from src.ui.screens.cheat_screen import CheatScreen, PauseCheatScreen
 from src.ui.screens.pause_screen import PauseScreen
 from src.ui.screens.end_screen import EndScreen
@@ -51,6 +52,7 @@ class App:
         )
         self.screens: dict[ScreenState, Screen | None] = {
             ScreenState.TITLE: TitleScreen(self.surface),
+            ScreenState.INSTRUCTION: InstructionScreen(self.surface),
             ScreenState.CHEAT: CheatScreen(self.surface, self.cheat),
             ScreenState.PAUSECHEAT: PauseCheatScreen(self.surface, self.cheat),
             ScreenState.GAME: GameScreen(
@@ -126,6 +128,11 @@ class App:
                     if isinstance(hs, HighscoreScreen):
                         hs.last_score = None
                 self.screen_state = ScreenState.TITLE
+
+            case ScreenState.INSTRUCTION:
+                if title := self.screens[ScreenState.TITLE]:
+                    title.menu_index = 0
+                self.screen_state = ScreenState.INSTRUCTION
 
             case ScreenState.CHEAT:
                 if title := self.screens[ScreenState.TITLE]:
