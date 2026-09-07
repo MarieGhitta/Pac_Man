@@ -35,9 +35,10 @@ Any missing or extra argument is reported with a clear message and a clean exit.
 
 ### Controls
 
-| Key            | Action                                   |
+| Key            | Action                                    |
 |----------------|-------------------------------------------|
 | Arrow keys     | Move Pac-Man / navigate menus             |
+| WASD           | Move Pac-Man                              |
 | Enter          | Validate a menu selection                 |
 | Left / Right   | Cycle a value (e.g. the "Add Life" cheat) |
 | Escape / P     | Pause the game                            |
@@ -55,6 +56,7 @@ The game launches in fullscreen (`pygame.FULLSCREEN | pygame.SCALED`) at the mon
 - [Pac-Man (reference implementation)](https://freepacman.org)
 - [Pac-Man — Wikipedia (FR)](https://fr.wikipedia.org/wiki/Pac-Man)
 - [The Pac-Man Dossier](https://pacman.holenet.info/)
+- [Spriters Resource - Pac-Man](https://www.spriters-resource.com/arcade/pacman/)
 
 ### AI usage
 
@@ -90,21 +92,20 @@ The game is configured through a single JSON file, passed as a command-line argu
 
 Supported keys:
 
-| Key                       | Default        | Notes                                              |
-|---------------------------|----------------|-----------------------------------------------------|
-| `highscore_filename`      | `highscores.json` | Path to the persistent highscore file           |
-| `levels`                  | *(required)*   | Array of `{width, height}` objects, one per level  |
-| `max_levels`              | `10`           | Total number of levels played (10–99)              |
-| `lives`                   | `3`            | Starting lives (1–99)                              |
-| `pacgum`                  | `0`            | Number of pacgums to place; `0` fills all available walkable cells |
-| `points_per_pacgum`       | `10`           | Points per pacgum (0–100)                          |
-| `points_per_super_pacgum` | `50`           | Points per super-pacgum (0–500)                    |
-| `points_per_ghost`        | `200`          | Base points per ghost eaten, before the combo multiplier (0–2000) |
-| `seed`                    | `42`           | RNG seed used for level 1's maze only               |
-| `level_max_time`          | `90`           | Seconds allowed per level before a life is lost (10–90) |
+| Key                       | Default         | Notes                                               |
+|---------------------------|-----------------|-----------------------------------------------------|
+| `highscore_filename`        | `highscores.json` | Path to the persistent highscore file               |
+| `levels`                    | *(required)*      | Array of `{width, height}` objects, one per level     |
+| `max_levels`                | `10`              | Total number of levels played (10–99)               |
+| `lives`                     | `3`               | Starting lives (1–99)                               |
+| `pacgum`                    | `0`               | Number of pacgums to place; `0` fills all available walkable cells |
+| `points_per_pacgum`         | `10`              | Points per pacgum (0–100)                           |
+| `points_per_super_pacgum`   | `50`              | Points per super-pacgum (0–500)                     |
+| `points_per_ghost`          | `200`             | Base points per ghost eaten, before the combo multiplier (0–2000) |
+| `seed`                      | `42`              | RNG seed used for level 1's maze only               |
+| `level_max_time`            | `90`              | Seconds allowed per level before a life is lost (10–90) |
 
 Each entry in `levels` provides its own `width`/`height` (3–101); if more levels are requested (`max_levels`) than entries are provided, the last entry is reused for the remaining levels.
-
 Comments starting with `#` or `//` are stripped before parsing. Invalid types or out-of-range values print a warning and fall back to the default shown above; unknown keys are silently ignored; a completely missing or unparsable file produces a clear error message instead of a crash.
 
 ## Highscore
@@ -190,3 +191,5 @@ exploration/mazegenerator/      → external A-Maze-ing package — never modifi
 ## Project Management
 
 The project was developed following a GitHub Flow workflow: one short-lived branch per feature or fix, opened as a pull request into `main`, reviewed before merge, and deleted afterward. Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) format (`feat:`, `fix:`, `refactor:`, `chore:`, ...).
+Due to different holidays schedule, the work organization was naturally separated in 2 distinct flows: Marie first worked on the game system, logic and engine with maze implementation, then Julien worked on finalizing the engine (specifically ghost behaviours), game rendering, highscore system, cheats and the different menus.
+The project was followed collaboratively using a Kanban table
