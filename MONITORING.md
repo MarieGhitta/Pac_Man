@@ -606,3 +606,14 @@ Contrairement à l'ancien `_update_player()` (tick-based, code mort depuis #31),
 
 **`engine.py` — `_check_collision()` : garde anti double-déclenchement.**
 Deux appels à `_check_collision()` coexistent désormais dans le même frame (celui ajouté ci-dessus, et celui de fin de frame après la boucle fantômes). Sans garde, une collision mortelle détectée par le premier appel pouvait être re-détectée par le second (le fantôme responsable n'ayant pas encore bougé ce frame-là), causant une perte de vie double sur un seul frame. Fix : ajout de `if self.dying: return` en tête de `_check_collision()`. Le cas "manger un fantôme frightened" n'est pas concerné (le fantôme passe en `RESPAWN`, ignoré par la boucle de collision).
+
+### #34 — 2026-09-07 — Contrôles WASD + écran d'instructions
+
+**`game_screen.py` — contrôles WASD.**
+`handle_event()` accepte désormais W/A/S/D en plus des flèches directionnelles (`K_UP | K_w`, `K_RIGHT | K_d`, `K_DOWN | K_s`, `K_LEFT | K_a`), sans changer le comportement existant.
+
+**`instruction_screen.py` — nouvel écran d'instructions.**
+Nouvel écran statique (`InstructionScreen`) listant les règles de base (contrôles WASD/flèches, condition de victoire de niveau, effet des super-pacgums, comportement des fantômes), accessible depuis le menu titre ("Instructions") et fermé par Échap (retour au titre).
+
+**`screen_state.py` / `title_screen.py` / `app.py` — câblage.**
+Ajout de `ScreenState.INSTRUCTION` à l'énumération, entrée "Instructions" dans le menu titre (`case 2` → `ScreenState.INSTRUCTION`), et `case ScreenState.INSTRUCTION` dans `App._handle_transitions` (instanciation dans `self.screens`, reset de `menu_index` du titre au retour).
