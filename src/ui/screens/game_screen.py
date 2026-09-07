@@ -38,13 +38,13 @@ class GameScreen(Screen):
         """
         if event.type == pygame.KEYDOWN:
             match event.key:
-                case pygame.K_UP:
+                case pygame.K_UP | pygame.K_w:
                     self.engine.player.next_direction = Direction.UP
-                case pygame.K_RIGHT:
+                case pygame.K_RIGHT | pygame.K_d:
                     self.engine.player.next_direction = Direction.RIGHT
-                case pygame.K_DOWN:
+                case pygame.K_DOWN | pygame.K_s:
                     self.engine.player.next_direction = Direction.DOWN
-                case pygame.K_LEFT:
+                case pygame.K_LEFT | pygame.K_a:
                     self.engine.player.next_direction = Direction.LEFT
                 case pygame.K_ESCAPE | pygame.K_p:
                     self.next_screen = ScreenState.PAUSE
