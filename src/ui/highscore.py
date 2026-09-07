@@ -25,16 +25,25 @@ class Highscore():
         self._check_file()
 
     def _check_file(self) -> None:
-        """Load scores from file, or create an empty file if absent."""
+        """Load scores from file, or create an empty file if absent.
+
+        Raises:
+            ValueError: If the file is corrupted or cannot be read/created.
+        """
         if Path(self.path).exists():
             try:
                 with open(self.path, 'r') as f:
                     self.scores = json.load(f)
             except json.JSONDecodeError as e:
-                raise ValueError(f"corrupted highscore file: {e}")
+                raise ValueError(f"corrupted highscore file: {e}") from e
+            except OSError as e:
+                raise ValueError(f"cannot read highscore file: {e}") from e
         else:
-            with open(self.path, 'w') as f:
-                json.dump([], f)
+            try:
+                with open(self.path, 'w') as f:
+                    json.dump([], f)
+            except OSError as e:
+                raise ValueError(f"cannot create highscore file: {e}") from e
 
     def add_score(self, player: PlayerScore) -> int | None:
         """Add a score, keep the top 10, and persist to disk.
