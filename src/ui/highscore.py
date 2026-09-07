@@ -51,6 +51,9 @@ class Highscore():
         Args:
             player: valid player object with username and score.
 
+        Returns:
+            Index of the entry in the sorted top 10, or None.
+
         Raises:
             ValueError: If the highscore file cannot be written.
         """
@@ -59,11 +62,16 @@ class Highscore():
         }
         self.scores.append(entry)
         self.scores = sorted(
-            self.scores, key=lambda n: n["score"], reverse=True
+            self.scores,
+            key=lambda n: n["score"],
+            reverse=True
         )[:10]
         try:
             with open(self.path, "w") as f:
                 json.dump(self.scores, f, indent=4)
         except OSError as e:
             raise ValueError(f"cannot save highscore file: {e}") from e
-        return self.scores.index(entry) if entry in self.scores else None
+        for i, item in enumerate(self.scores):
+            if item is entry:
+                return i
+        return None
