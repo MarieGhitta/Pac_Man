@@ -47,7 +47,10 @@ class ConfigLoader:
         Returns:
             Validated integer value.
         """
-        value = data.get(key, default)
+        if key not in data:
+            print(f"Missing '{key}', using default ({default}).")
+            return default
+        value = data[key]
         if not isinstance(value, int):
             print(f"Invalid '{key}', using default ({default}).")
             return default
@@ -72,7 +75,10 @@ class ConfigLoader:
         Returns:
             Validated string value.
         """
-        value = data.get(key, default)
+        if key not in data:
+            print(f"Missing '{key}', using default ({default}).")
+            return default
+        value = data[key]
         if not isinstance(value, str):
             print(f"Invalid '{key}', using default ({default}).")
             return default
