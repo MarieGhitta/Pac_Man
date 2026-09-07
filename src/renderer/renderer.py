@@ -321,7 +321,6 @@ class Renderer:
                 self.surface_height * 7 // 8 - line_height
             )
 
-
     def _draw_life_sprite(
         self,
         life_sprite: pygame.surface.Surface,
@@ -392,10 +391,10 @@ class Renderer:
             (self.maze_width + 1) * self.tile_size,
             (self.maze_height + 1) * self.tile_size
         ))
-        self.offset_x: int = (
+        self.offset_x = (
             self.surface_width - self.logical_surface.get_width()
         ) // 2
-        self.offset_y: int = (
+        self.offset_y = (
             self.surface_height - self.logical_surface.get_height()
         ) // 2
         self.pacman_sprite = PacmanSprite(self.tile_size)
