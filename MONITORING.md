@@ -669,3 +669,24 @@ Ajout de `ScreenState.INSTRUCTION` à l'énumération, entrée "Instructions" da
 - `add_score()` : même trou côté écriture (`open(self.path, "w")`) — même fix, `OSError` → `ValueError`.
 - `add_score()` : docstring corrigée — documentait `username`/`score` comme paramètres séparés alors que la signature prend `player: PlayerScore`. `Returns:` et `Raises:` ajoutés (absents jusque-là).
 - `add_score()` : `self.scores.index(entry)` comparait par valeur (dict) — en cas de doublon username+score déjà présent dans le top 10, pouvait renvoyer l'index de l'ancienne entrée au lieu de celle qu'on vient d'ajouter (mauvaise ligne surlignée sur `HighscoreScreen`). Fix : recherche par identité (`is`) sur `self.scores` au lieu de `.index()`/`in`.
+
+### #36 — 2026-09-07 — Validation JSON highscore
+
+**`highscore.py` — `_check_file()` : validation de la forme du JSON chargé.**
+- Un fichier syntaxiquement valide mais mal formé (`{}`, `[1,2,3]`, `[{"foo":1}]`) passait `json.load()` sans erreur — `JSONDecodeError` ne couvre que la syntaxe, pas la structure attendue — et plantait plus tard, ailleurs (tri dans `add_score()`, ou `HighscoreScreen.draw()`).
+- Ajout de `_is_valid_scores(data)` : vérifie que `data` est une `list` de `dict` contenant `"username"` (str) et `"score"` (int).
+- `_check_file()` lève désormais `ValueError` si la forme est invalide, même traitement que pour un JSON corrompu.
+
+**`pacman_github_backlog.json` — item "Ready" laissé tel quel, décision actée.**
+- `feat: remove /**/ comments` (issue #8) reste en colonne "Ready" indéfiniment — décision assumée, pas une omission. À ne plus signaler.
+
+**`config.json` — retiré du scope de review.**
+- Valeurs modifiées fréquemment en local (tests), fichier non re-uploadé systématiquement dans le contexte. Ne plus vérifier ce fichier — son contenu ici peut être obsolète.
+
+**`pyproject.toml` — `description` corrigée.**
+- Placeholder (`"Add your description here"`) remplacé. Confirmé fait, à ne plus signaler.
+
+**`loader.py` — distinction "Missing" vs "Invalid" pour les clés absentes.**
+- `_get_int`/`_get_str` utilisaient `data.get(key, default)` : une clé absente retombait directement sur `default` (déjà valide par construction) et passait tous les checks sans jamais logger de message — seule une clé présente mais invalide (mauvais type ou hors bornes) en déclenchait un. Or le sujet (V.3) demande un message dans les deux cas ("On missing or invalid values... log a clear message").
+- Fix : test explicite `if key not in data:` en tête de chaque fonction, avec son propre message (`Missing '{key}', using default ({default}).`).
+- Même correctif appliqué à `levels_data` dans `_build_config()` (`data.get("levels", [])` remplacé par un `if "levels" not in data:` explicite, avant la vérification de type existante).
