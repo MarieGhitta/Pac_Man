@@ -35,17 +35,10 @@ class HighscoreScreen(Screen):
             event: The pygame event to handle.
         """
         if event.type == pygame.KEYDOWN:
-            match event.key:
-                case pygame.K_ESCAPE:
-                    self.next_screen = (
-                        ScreenState.END
-                        if self.endgame else ScreenState.TITLE
-                    )
-                case pygame.K_RETURN:
-                    self.next_screen = (
-                        ScreenState.END
-                        if self.endgame else ScreenState.TITLE
-                    )
+            if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
+                self.next_screen = (
+                    ScreenState.END if self.endgame else ScreenState.TITLE
+                )
 
     def update(self, current_time: int) -> None:
         """Toggle visibility of the highlighted score row for blinking effect.
