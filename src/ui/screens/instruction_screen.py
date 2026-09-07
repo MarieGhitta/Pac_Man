@@ -26,7 +26,7 @@ class InstructionScreen(Screen):
             "Use WASD or arrow keys to navigate Pac-man.",
             "The level is completed once Pac-man ate all pacgums on screen.",
             "Super-pacgums make ghosts frightened and edible for a while.",
-            "Ghosts have different chase behavior"
+            "Ghosts have different chase behavior "
             + "and kills Pac-man on collision.",
         ]
 
