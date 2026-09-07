@@ -1,3 +1,6 @@
+"""Instructions screen listing the game's basic rules and controls."""
+
+
 import pygame
 
 from src.ui.screens.screen import Screen
@@ -6,10 +9,10 @@ from src.utils.screen_state import ScreenState
 
 
 class InstructionScreen(Screen):
-    """Title screen with logo, animation, and main menu."""
+    """Static screen listing the game's basic rules and controls."""
 
     def __init__(self, surface: pygame.surface.Surface) -> None:
-        """Initialize the title screen.
+        """Initialize the instruction screen.
 
         Args:
             surface: The pygame surface to draw onto.
@@ -24,7 +27,7 @@ class InstructionScreen(Screen):
             "The level is completed once Pac-man ate all pacgums on screen.",
             "Super-pacgums make ghosts frightened and edible for a while.",
             "Ghosts have different chase behavior"
-                + "and kills Pac-man on collision.",
+            + "and kills Pac-man on collision.",
         ]
 
     def handle_event(self, event: pygame.event.Event) -> None:
