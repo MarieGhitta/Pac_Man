@@ -217,23 +217,23 @@ class Renderer:
         )
 
     def _interpolate(
-        self, sprite: Player | Ghost, current_time: int
+        self, ghost: Ghost, current_time: int
     ) -> tuple[float, float]:
-        """Compute the interpolated grid position of a sprite.
+        """Compute the interpolated grid position of a ghost.
 
         Args:
-            sprite: The player or ghost to interpolate.
+            ghost: The ghost to interpolate.
             current_time: Current time in milliseconds.
 
         Returns:
             Interpolated (x, y) grid coordinates as floats.
         """
         alpha = min(
-            1.0, (current_time - sprite.last_update) / sprite.update_delay
+            1.0, (current_time - ghost.last_update) / ghost.update_delay
         )
         return (
-            sprite.prev_x + (sprite.x - sprite.prev_x) * alpha,
-            sprite.prev_y + (sprite.y - sprite.prev_y) * alpha
+            ghost.prev_x + (ghost.x - ghost.prev_x) * alpha,
+            ghost.prev_y + (ghost.y - ghost.prev_y) * alpha
         )
 
     def _draw_hud(self, game: Engine, current_time: int) -> None:
