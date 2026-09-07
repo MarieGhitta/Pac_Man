@@ -291,26 +291,6 @@ class Engine:
                     ghost.update_delay = old_delay
             self._check_collision()
 
-    def _update_player(self) -> None:
-        """Update the player."""
-        if self._can_move(self.player.next_direction):
-            self.player.direction = self.player.next_direction
-        if not self._can_move(self.player.direction):
-            return
-        if self.player.direction == Direction.UP:
-            self.player.y -= 1
-        elif self.player.direction == Direction.RIGHT:
-            self.player.x += 1
-        elif self.player.direction == Direction.DOWN:
-            self.player.y += 1
-        elif self.player.direction == Direction.LEFT:
-            self.player.x -= 1
-        new_cell = self.level.maze.cells[self.player.y][self.player.x]
-        self._check_collision()
-        self._collect_cell_content(new_cell)
-        if self._is_level_completed():
-            self._next_level()
-
     def _advance_player(self, current_time: int, delay: int) -> None:
         """Advance Pac-Man's continuous render position toward its destination.
 
@@ -365,6 +345,8 @@ class Engine:
             self.player.x = dest_x
             self.player.y = dest_y
             cell = self.level.maze.cells[self.player.y][self.player.x]
+            if not self.cheat.ghost_freeze:
+                self._check_collision()
             self._collect_cell_content(cell)
             if self._is_level_completed():
                 self.player.render_x = rx
@@ -447,6 +429,8 @@ class Engine:
 
     def _check_collision(self) -> None:
         """Check collisions between the player and the ghosts."""
+        if self.dying:
+            return
         for ghost in self.ghosts:
             if ghost.state == GhostState.RESPAWN:
                 continue
