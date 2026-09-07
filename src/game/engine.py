@@ -298,6 +298,8 @@ class Engine:
             current_time: Current time in milliseconds.
             delay: Milliseconds per tile at the current level and cheat state.
         """
+        if self.dying:
+            return
         elapsed = min(current_time - self.player.last_update, delay)
         self.player.last_update = current_time
         if elapsed <= 0:
@@ -347,6 +349,10 @@ class Engine:
             cell = self.level.maze.cells[self.player.y][self.player.x]
             if not self.cheat.ghost_freeze:
                 self._check_collision()
+            self.player.render_x = rx
+            self.player.render_y = ry
+            if self.dying:
+                return
             self._collect_cell_content(cell)
             if self._is_level_completed():
                 self.player.render_x = rx
