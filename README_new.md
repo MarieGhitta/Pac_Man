@@ -72,7 +72,7 @@ scale to 100% avoids the issue.
 
 ### AI usage
 
-An AI assistant (Claude, Anthropic) was used throughout the project as a
+An AI assistant (Claude, Chat GPT) was used throughout the project as a
 support tool, under the same rule for every session: it could propose but
 never decide or write production code unilaterally — all changes were
 reviewed and validated by the author before being applied.
@@ -289,3 +289,12 @@ development.
 <!-- TODO: link the dedicated project-management subdirectory here once
      available (timeline/Kanban, progress tracking, risk analysis, team
      organisation, test plan — see subject Chapter VIII). -->
+    
+## Resources
+
+<!-- A “Resources” section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project. -->
+- Pygame documentation: https://www.pygame.org/docs/
+- Pygame tutorials: http://pygametutorials.wikidot.com/tutorials-basic
+- Pac-Man game: https://freepacman.org
+- infos Pac-Man: https://fr.wikipedia.org/wiki/Pac-Man
+
