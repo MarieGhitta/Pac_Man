@@ -25,7 +25,6 @@ highscore board, a level timer, and a cheat mode for testing/demo purposes.
 - [uv](https://docs.astral.sh/uv/) as package/dependency manager
 - pygame >= 2.6.1 (installed automatically by uv)
 - The A-Maze-ing wheel vendored at `libs/mazegenerator-2.1.0-py3-none-any.whl`
-  (already referenced in `pyproject.toml`, no separate install needed)
 
 ### Installation
 
@@ -43,7 +42,7 @@ uv run python pac-man.py config.json
 ```
 
 Any missing or extra argument is reported with a clear message and a clean
-exit — never a Python traceback.
+exit.
 
 ### Controls
 
@@ -69,10 +68,7 @@ scale to 100% avoids the issue.
 - [Pygame tutorials](http://pygametutorials.wikidot.com/tutorials-basic)
 - [Pac-Man (reference implementation)](https://freepacman.org)
 - [Pac-Man — Wikipedia (FR)](https://fr.wikipedia.org/wiki/Pac-Man)
-- *The Pac-Man Dossier* by Jamey Pittman (bundled as `the_pacman_dossier.html`)
-  — a reverse-engineering of the original 1980 arcade game, used as the
-  canonical reference for ghost targeting logic, Chase/Scatter timing, and
-  per-level speed tables.
+- [The Pac-Man Dossier](https://pacman.holenet.info/)
 
 ### AI usage
 
@@ -81,14 +77,10 @@ support tool, under the same rule for every session: it could propose but
 never decide or write production code unilaterally — all changes were
 reviewed and validated by the author before being applied.
 
-Concretely, it was used for:
-
 - **Code review**: recurring passes over the codebase to spot bugs,
   inconsistencies, and deviations from the intended arcade behaviour
   (ghost AI, timing, cheat logic, rendering). Findings were proposed as
   fixes, validated, then implemented and logged.
-- **Documentation**: drafting and maintaining `MONITORING.md` (the running
-  log of bugs, fixes and decisions) and this `README.md`.
 - **Docstrings**: generating module/class/method docstrings for several
   files, following the project's own conventions (Google-style Args/Returns,
   lines under 80 characters).
