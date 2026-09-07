@@ -126,10 +126,14 @@ class ConfigLoader:
         )
         seed = self._get_int(data, "seed", 42)
         level_max_time = self._get_int(data, "level_max_time", 90, 10, 90)
-        levels_data = data.get("levels", [])
-        if not isinstance(levels_data, list):
-            print("Invalid 'levels', using default ([]).")
+        if "levels" not in data:
+            print("Missing 'levels', using default ([]).")
             levels_data = []
+        else:
+            levels_data = data["levels"]
+            if not isinstance(levels_data, list):
+                print("Invalid 'levels', using default ([]).")
+                levels_data = []
         levels = []
         for level in levels_data:
             if isinstance(level, dict):
