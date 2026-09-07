@@ -71,10 +71,7 @@ class Engine:
         )
         current_time: int = pygame.time.get_ticks()
         self.player: Player = Player(
-            self.level.start_cell.x,
-            self.level.start_cell.y,
-            current_time,
-            _PLAYER_UPDATE_DELAY[0]
+            self.level.start_cell.x, self.level.start_cell.y, current_time
         )
         self.score: int = 0
         self.ghosts: list[Ghost] = self._create_ghosts(current_time)
