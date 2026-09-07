@@ -1,0 +1,162 @@
+{
+  "board": "Pac-Man 42 — Backlog",
+  "source": "GitHub Projects export (Pac-Man_-_Backlog.tsv)",
+  "columns": {
+    "ready": [
+      {
+        "title": "feat: remove /**/ comments",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/8",
+        "status": "Ready"
+      }
+    ],
+    "abandonned": [
+      {
+        "title": "scoring",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/6",
+        "status": "Abandonned"
+      },
+      {
+        "title": "interface",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/12",
+        "status": "Abandonned"
+      }
+    ],
+    "done": [
+      {
+        "title": "fix: dynamic speed",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/23",
+        "status": "Done"
+      },
+      {
+        "title": "fix: ghost behaviors",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/22",
+        "status": "Done"
+      },
+      {
+        "title": "fix: pacgum fills the screen if config is out of range",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/17",
+        "status": "Done"
+      },
+      {
+        "title": "fix: first lvl seed",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/16",
+        "status": "Done"
+      },
+      {
+        "title": "project setup",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/3",
+        "status": "Done"
+      },
+      {
+        "title": "basic visualization",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/9",
+        "status": "Done"
+      },
+      {
+        "title": "parsing",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/1",
+        "status": "Done"
+      },
+      {
+        "title": "graphic lib",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/4",
+        "status": "Done"
+      },
+      {
+        "title": "adding pacgums and super pacgums",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/13",
+        "status": "Done"
+      },
+      {
+        "title": "move ghosts",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/11",
+        "status": "Done"
+      },
+      {
+        "title": "integration maze",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/7",
+        "status": "Done"
+      },
+      {
+        "title": "add ghosts",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/14",
+        "status": "Done"
+      },
+      {
+        "title": "basic architecture",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/2",
+        "status": "Done"
+      },
+      {
+        "title": "game engine",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/5",
+        "status": "Done"
+      },
+      {
+        "title": "move pac-man",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/10",
+        "status": "Done"
+      },
+      {
+        "title": "feat: respawn tile (center)",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/45",
+        "status": "Done"
+      },
+      {
+        "title": "feat: dynamic speed per state and level",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/46",
+        "status": "Done"
+      },
+      {
+        "title": "feat: frame interpolation",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/47",
+        "status": "Done"
+      },
+      {
+        "title": "feat: persistant highscore system",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/48",
+        "status": "Done"
+      },
+      {
+        "title": "feat: screen system",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/49",
+        "status": "Done"
+      },
+      {
+        "title": "feat: fullscreen",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/50",
+        "status": "Done"
+      },
+      {
+        "title": "feat: sprite design and animation",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/51",
+        "status": "Done"
+      },
+      {
+        "title": "feat: global app handling engine and rendering",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/52",
+        "status": "Done"
+      },
+      {
+        "title": "feat: HUD system",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/53",
+        "status": "Done"
+      },
+      {
+        "title": "feat: timer",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/54",
+        "status": "Done"
+      },
+      {
+        "title": "feat: cheat mode",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/55",
+        "status": "Done"
+      },
+      {
+        "title": "fix: continuous movement",
+        "url": "https://github.com/MarieGhitta/Pac_Man/issues/56",
+        "status": "Done"
+      }
+    ]
+  }
+}
