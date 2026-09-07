@@ -617,3 +617,55 @@ Nouvel écran statique (`InstructionScreen`) listant les règles de base (contr�
 
 **`screen_state.py` / `title_screen.py` / `app.py` — câblage.**
 Ajout de `ScreenState.INSTRUCTION` à l'énumération, entrée "Instructions" dans le menu titre (`case 2` → `ScreenState.INSTRUCTION`), et `case ScreenState.INSTRUCTION` dans `App._handle_transitions` (instanciation dans `self.screens`, reset de `menu_index` du titre au retour).
+
+### #35 — 2026-09-07 — Bugfixes post code review #5
+
+**`highscore_screen.py` — `handle_event` : fusion ESC/RETURN.**
+- Les deux `case` (`K_ESCAPE`, `K_RETURN`) avaient un corps strictement identique — signalé à tort comme bug lors du code review #5, confirmé comportement voulu (retour vers `END` si `endgame`, sinon `TITLE`, quelle que soit la touche).
+- `match` remplacé par un seul `if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:`. Simplification sans changement de comportement.
+
+**`engine.py` — `_advance_player` : `dying` ne bloquait pas le reste de la frame.**
+- `_check_collision()` (au moment où le joueur atteint sa tuile de destination) ou le timeout de niveau pouvaient déclencher `_player_hit()` (`dying = True`) sans interrompre l'exécution : `_collect_cell_content`, `_is_level_completed()` et potentiellement `_next_level()` s'exécutaient quand même dans la même frame.
+- Cas limite : mourir et manger le dernier pacgum au même instant déclenchait `_next_level()` avec `dying` encore actif → `_reset_positions()` (ou `game_over`) parasite juste après le countdown du niveau suivant.
+- Fix : `if self.dying: return` en tête de `_advance_player` (couvre le timeout, `dying` déjà vrai avant l'appel).
+- Fix : second `if self.dying: return` juste après `_check_collision()` dans le bloc `reached`, précédé de l'assignation de `render_x`/`render_y` à la position de destination (pour que l'animation de mort parte de la bonne tuile).
+
+**`instruction_screen.py` — espace manquant dans un message d'instructions.**
+- Concaténation `"...chase behavior" + "and kills Pac-man..."` sans espace entre les deux chaînes → affichait "behaviorand" à l'écran.
+- Espace ajouté.
+
+**`player.py` / `engine.py` / `renderer.py` — nettoyage des attributs morts de `Player` (résidus de #31).**
+- `prev_x`, `prev_y` retirés de `Player.__init__` et de `move_to()` — jamais lus depuis le passage au mouvement continu ; seuls les équivalents sur `Ghost` sont utilisés par `Renderer._interpolate`.
+- `update_delay` retiré de la signature de `Player.__init__`, de son assignation, et du site d'appel dans `engine.py` (`Player(x, y, current_time, _PLAYER_UPDATE_DELAY[0])`) — attribut jamais relu. `_PLAYER_UPDATE_DELAY` (constante module) reste utilisé normalement, sans changement.
+- `Renderer._interpolate` : docstring corrigée — paramètre documenté comme `sprite: The player or ghost to interpolate.` alors que la méthode ne prend plus qu'un `Ghost` depuis le passage de `Player` au rendu par `render_x`/`render_y`. Renommé en `ghost: The ghost to interpolate.`
+
+**`sprite.py` — `anim_count` retiré.**
+- Attribut jamais lu (seul `len(self.frames[variant])` détermine réellement le nombre de frames d'une animation). Supprimé des trois sites : `Sprite.__init__` (`= 0`), `PacmanSprite.__init__` (`= 4`), `GhostSprite.__init__` (`= 2`).
+
+**`ghost.py` — `_choose_direction` : branche `FLICKER` non retirée, comportement voulu.**
+- `case GhostState.FRIGHTENED | GhostState.FLICKER:` — la partie `FLICKER` est confirmée morte : `ghost.state` n'est jamais assigné à `FLICKER`, état purement visuel calculé côté `Renderer._visual_ghost_state` (cf. MONITORING #21).
+- Laissée en l'état intentionnellement : retirer `FLICKER` du `case` romprait la couverture exhaustive des 5 membres de `GhostState` sur ce `match`, réintroduisant un faux positif LSP (retour manquant) sur une fonction qui n'a pas de `case _`.
+- À ne plus signaler.
+
+**`mazegenerator.py` / `level.py` — vérification empirique des petits mazes, aucun bug trouvé.**
+- Inquiétude testée : cellules "42" isolées (module externe) pouvant fausser `Level._find_corner_cells` sur de petits mazes.
+- `Level()` exécuté hors-jeu sur 4901 combinaisons largeur/hauteur (3–15) × seed, puis un second passage aux bornes (3, 16, 17, 50, 101) : 0 échec, 4 coins distincts et walkable à chaque fois.
+- Aucune modification requise.
+
+**Fichiers annexes — rien à signaler.**
+- `top_level.txt`, `_gitignore`, `uv.lock` : conformes.
+- `git_cheatsheet.md` : aide-mémoire personnel générique (exemples `feat/ast-chunker`, `bm25`, sans rapport avec le projet), sans impact.
+
+**`pacman_github_backlog.json` — item "Ready" non clôturé.**
+- `feat: remove /**/ comments` (issue #8) toujours en colonne "Ready". Cohérent avec le code actuel : `loader.py::_remove_comments` ne gère que `#`/`//`, pas les commentaires bloc `/* */`.
+- Pas un bug — à trancher (implémenté ou abandonné) avant rendu si le board doit être propre.
+
+**`pacman_en_subject.pdf` — correction d'une remarque précédente.**
+- Le fichier n'est pas illisible : le contenu du sujet est bien indexé et accessible via la recherche dans le project knowledge.
+- Le fichier brut sur disque a une signature atypique, sans conséquence sur le projet.
+
+**`highscore.py` — robustesse aux erreurs de fichier et docstrings.**
+- `_check_file()` : `OSError` catché en plus de `json.JSONDecodeError`, re-levé en `ValueError` (`from e`) — couvre la lecture (fichier illisible) et la création du fichier absent (répertoire non-writable). Avant ce fix, une `PermissionError` remontait telle quelle jusqu'à `pac-man.py::main()`, non catchée (seuls `ValueError`/`pygame.error` le sont) → crash avec traceback, contrairement à la garantie annoncée (README, MONITORING §3.2) et à V.3 du sujet.
+- `add_score()` : même trou côté écriture (`open(self.path, "w")`) — même fix, `OSError` → `ValueError`.
+- `add_score()` : docstring corrigée — documentait `username`/`score` comme paramètres séparés alors que la signature prend `player: PlayerScore`. `Returns:` et `Raises:` ajoutés (absents jusque-là).
+- `add_score()` : `self.scores.index(entry)` comparait par valeur (dict) — en cas de doublon username+score déjà présent dans le top 10, pouvait renvoyer l'index de l'ancienne entrée au lieu de celle qu'on vient d'ajouter (mauvaise ligne surlignée sur `HighscoreScreen`). Fix : recherche par identité (`is`) sur `self.scores` au lieu de `.index()`/`in`.
