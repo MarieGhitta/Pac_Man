@@ -590,3 +590,19 @@ Fix connexe : `self.player.last_update = current_time` ajouté au moment où `co
 
 **Limitation connue**
 Dans un couloir de 2 tiles, le demi-tour mid-tile est bloqué si la tile source a un mur dans la direction opposée. Comportement physiquement correct — limitation inhérente au système tile-based acceptée.
+
+### #32 — 2026-09-05 — Fix argument CLI (§V.1 sujet) + checkup pré-README
+
+**`pac-man.py` — argument de configuration manquant.**
+`main()` appelait `App("config.json")` en dur, sans jamais lire `sys.argv`. Le sujet (V.1 Usage) impose un lancement `python3 pac-man.py config.json` avec le fichier de config passé en argument obligatoire ; tout argument fourni en ligne de commande était jusque-là silencieusement ignoré. Fix : `import sys` ajouté (ordre stdlib → third-party → local respecté). En tête de `main()`, `argc = len(sys.argv)` ; si `argc != 2`, message `"Missing argument for the program to run"` puis `sys.exit()` (pas de traceback, conforme à V.3). Sinon `config = sys.argv[1]` passé à `App(config)`.
+
+**Checkup pré-README — code mort identifié, non corrigé.**
+`engine.py` — `_update_player()` : ancien système de déplacement tick-based, remplacé par `_advance_player()` lors du passage au mouvement continu (#31). N'est plus appelée nulle part dans le fichier. Laissée en l'état, retrait à valider.
+
+### #33 — 2026-09-07 — Fix pass-through joueur/fantôme (collision manquée sur échange de tuiles)
+
+**`engine.py` — `_advance_player()` ne vérifiait aucune collision.**
+Contrairement à l'ancien `_update_player()` (tick-based, code mort depuis #31), `_advance_player()` (mouvement continu) n'appelait `_check_collision()` nulle part ; seule restait la vérification de fin de frame, après la boucle des fantômes. Cas raté : le joueur avance de la tuile A vers B pendant qu'un fantôme avance de B vers A dans le même frame — au moment où le check de fin de frame s'exécute, le fantôme a déjà quitté B, la collision passe inaperçue (pass-through). Fix : `_check_collision()` appelé dans `_advance_player()` dès que le joueur atteint sa tuile de destination (avant `_collect_cell_content`), protégé par `if not self.cheat.ghost_freeze:` pour rester cohérent avec #25.
+
+**`engine.py` — `_check_collision()` : garde anti double-déclenchement.**
+Deux appels à `_check_collision()` coexistent désormais dans le même frame (celui ajouté ci-dessus, et celui de fin de frame après la boucle fantômes). Sans garde, une collision mortelle détectée par le premier appel pouvait être re-détectée par le second (le fantôme responsable n'ayant pas encore bougé ce frame-là), causant une perte de vie double sur un seul frame. Fix : ajout de `if self.dying: return` en tête de `_check_collision()`. Le cas "manger un fantôme frightened" n'est pas concerné (le fantôme passe en `RESPAWN`, ignoré par la boucle de collision).
