@@ -290,11 +290,4 @@ development.
      available (timeline/Kanban, progress tracking, risk analysis, team
      organisation, test plan — see subject Chapter VIII). -->
     
-## Resources
-
-<!-- A “Resources” section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project. -->
-- Pygame documentation: https://www.pygame.org/docs/
-- Pygame tutorials: http://pygametutorials.wikidot.com/tutorials-basic
-- Pac-Man game: https://freepacman.org
-- infos Pac-Man: https://fr.wikipedia.org/wiki/Pac-Man
 
