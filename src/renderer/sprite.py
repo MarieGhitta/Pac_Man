@@ -24,7 +24,6 @@ class Sprite(ABC):
         self.anim_tick: int = 0
         self.last_anim_update: int = 0
         self.anim_speed: int = 0
-        self.anim_count: int = 0
         self.anim_stop: bool = False
         self._last_variant: tuple[
             Direction | None, SpriteState | None
@@ -104,7 +103,6 @@ class PacmanSprite(Sprite):
             tile_size: Size in pixels of a single tile.
         """
         super().__init__(tile_size)
-        self.anim_count = 4
         self.anim_speed = 75
         self.life: pygame.surface.Surface = self.frames[
             (Direction.LEFT, PacmanState.ALIVE)
@@ -450,7 +448,6 @@ class GhostSprite(Sprite):
         """
         self.color = color
         super().__init__(tile_size)
-        self.anim_count = 2
         self.anim_speed = 150
 
     def _build_frames(self) -> None:
