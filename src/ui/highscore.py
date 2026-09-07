@@ -49,8 +49,10 @@ class Highscore():
         """Add a score, keep the top 10, and persist to disk.
 
         Args:
-            username: player name.
-            score: player score.
+            player: valid player object with username and score.
+
+        Raises:
+            ValueError: If the highscore file cannot be written.
         """
         entry: dict[str, str | int] = {
             "username": player.username, "score": player.score
@@ -59,6 +61,9 @@ class Highscore():
         self.scores = sorted(
             self.scores, key=lambda n: n["score"], reverse=True
         )[:10]
-        with open(self.path, "w") as f:
-            json.dump(self.scores, f, indent=4)
+        try:
+            with open(self.path, "w") as f:
+                json.dump(self.scores, f, indent=4)
+        except OSError as e:
+            raise ValueError(f"cannot save highscore file: {e}") from e
         return self.scores.index(entry) if entry in self.scores else None
