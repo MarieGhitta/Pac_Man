@@ -690,3 +690,32 @@ Ajout de `ScreenState.INSTRUCTION` à l'énumération, entrée "Instructions" da
 - `_get_int`/`_get_str` utilisaient `data.get(key, default)` : une clé absente retombait directement sur `default` (déjà valide par construction) et passait tous les checks sans jamais logger de message — seule une clé présente mais invalide (mauvais type ou hors bornes) en déclenchait un. Or le sujet (V.3) demande un message dans les deux cas ("On missing or invalid values... log a clear message").
 - Fix : test explicite `if key not in data:` en tête de chaque fonction, avec son propre message (`Missing '{key}', using default ({default}).`).
 - Même correctif appliqué à `levels_data` dans `_build_config()` (`data.get("levels", [])` remplacé par un `if "levels" not in data:` explicite, avant la vérification de type existante).
+
+### #37 — 2026-09-08 — Revue exhaustive code/sujet + corrections de conformité
+
+**Contexte**
+Revue complète du MONITORING.md et de l'intégralité du code source, croisée avec le sujet (`pacman_en_subject.pdf`), à la demande de nnnooobbbuuuooo.
+
+**Makefile — confirmé conforme (§III.2)**
+Le fichier existe à la racine du dépôt (absent des fichiers indexés dans le project knowledge au moment de la revue, d'où un signalement initial erroné). Contient `install`/`run`/`debug`/`clean` (obligatoires) + `uninstall`/`lint`/`lint-strict`. Fix appliqué sur `clean` : les patterns `*/__pycache__` et `*/*/__pycache__` ne couvraient que 2 niveaux de profondeur (insuffisant pour `src/ui/screens/__pycache__`) — remplacés par `find . -type d -name '__pycache__' -exec rm -rf {} +`.
+
+**Déploiement plateforme publique (§IV mandatory + §VII packaging) — en cours**
+Jeu à publier sur itch.io. Décision actée : packaging en exécutable (PyInstaller, build `onedir` + wrapper `run.sh`/`run.bat` forçant le `cwd`) plutôt qu'un zip de sources, pour coller à l'exigence de package/spec reproductible et régénérable en peer review. Non finalisé à la date de ce log.
+
+**README — Project Management (§VIII + §IX)**
+Paragraphe ajouté à la suite de la section existante : lien vers le Kanban GitHub Projects (`https://github.com/users/MarieGhitta/projects/2`) + référence à `pacman_github_backlog.json` comme snapshot versionné du board.
+
+**README — Highscore (§IX, justification manquante)**
+Phrase ajoutée justifiant le choix d'un JSON plat plutôt qu'une base de données (pas de dépendance, top 10 lu/écrit en bloc, facile à inspecter/reset pour la peer review).
+
+**`generator.py` — gestion d'erreur du générateur externe (§V.4)**
+`MazeFactory.generate()` n'avait aucun `try/except` autour de l'appel à `LibMazeGenerator`/`MazeAdapter`, alors que le sujet impose une gestion propre en cas d'échec du générateur. Fix : appel encapsulé dans un `try/except Exception`, re-levé en `ValueError` (cohérent avec le pattern déjà utilisé dans `loader.py`), pour retomber dans le handler existant de `main()`. `except Exception` volontairement large : le type d'exception d'un package externe non maîtrisé n'est pas prévisible.
+
+**`loader.py::_get_int` / `highscore.py::_is_valid_scores` — bool accepté comme int**
+`isinstance(x, int)` est vrai pour un `bool` en Python (sous-classe d'`int`). Un `"lives": true` ou un `"score": false` dans le JSON passait la validation silencieusement au lieu de tomber sur le default/l'erreur attendue. Fix : garde `or isinstance(value, bool)` ajoutée dans les deux fonctions.
+
+**Écarté**
+Divergence du clignotement super-pacgum (`renderer.py`, 150ms vs 500ms documenté en #21) : valeurs de tuning ajustées après coup et jamais rejouées dans le MONITORING — non traité comme bug. Le MONITORING est à considérer partiellement obsolète sur les valeurs de timing fines ajustées en dehors des sessions de log.
+
+**Reste en suspens (hors scope de cette session)**
+Nommage `center_x`/`center_y` vs `corner_x`/`corner_y` dans `renderer.py` (cosmétique, `_draw_cell_content` et `_draw_player`). Dérive documentaire MONITORING #14/#22/#25 vs code actuel (`life_sprite`→`life` dans `sprite.py`, retrait de `reportArgumentType` dans `pyrightconfig.json`, `Cheat` qualifié à tort de dataclass) — non bloquants, non traités.
