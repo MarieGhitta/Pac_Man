@@ -117,6 +117,8 @@ The highscore system is a simple, persistent top-10 leaderboard stored as a JSON
 - On save, the new entry is appended, the list is sorted by score (descending), and truncated to the top 10. If the new score makes the cut, its rank is used to highlight (blink) it on the Highscore screen.
 - The system is robust to a missing file (created fresh), a corrupted file, and permission errors — none of these crash the game.
 
+A single JSON file was chosen over a database: the top-10 list is small, read/written as a whole on every save, and needs no querying — a database would add a dependency and a schema for no real benefit here. It also keeps the highscore system self-contained and easy to inspect, back up, or reset by hand, which matters for a project evaluated by peers who need to reproduce and verify its behavior quickly.
+
 ## Maze Generation
 
 The project does not implement its own maze generator. Instead, it integrates the external **A-Maze-ing** package (vendored as a wheel under `libs/`), used as-is and never modified, as required by the project subject.
@@ -192,4 +194,4 @@ exploration/mazegenerator/      → external A-Maze-ing package — never modifi
 
 The project was developed following a GitHub Flow workflow: one short-lived branch per feature or fix, opened as a pull request into `main`, reviewed before merge, and deleted afterward. Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) format (`feat:`, `fix:`, `refactor:`, `chore:`, ...).
 Due to different holidays schedule, the work organization was naturally separated in 2 distinct flows: Marie first worked on the game system, logic and engine with maze implementation, then Julien worked on finalizing the engine (specifically ghost behaviours), game rendering, highscore system, cheats and the different menus.
-The project was followed collaboratively using a Kanban table
+The project was followed collaboratively using a Kanban board: [github.com/users/MarieGhitta/projects/2](https://github.com/users/MarieGhitta/projects/2). A JSON snapshot of the board is kept at [`pacman_github_backlog.json`](./pacman_github_backlog.json) at the root of this repository, so its state at submission time remains available even if the live board changes afterward.
