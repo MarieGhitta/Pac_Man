@@ -21,11 +21,13 @@ class MazeFactory:
         Returns:
             Adapted Maze instance.
         """
-        generator = LibMazeGenerator(
-            size=(width, height), perfect=False, seed=seed
-        )
-        adapter = MazeAdapter()
-
-        return adapter.adapt(
-            generator.maze, generator.maze_entry, generator.maze_exit
-        )
+        try:
+            generator = LibMazeGenerator(
+                size=(width, height), perfect=False, seed=seed
+            )
+            adapter = MazeAdapter()
+            return adapter.adapt(
+                generator.maze, generator.maze_entry, generator.maze_exit
+            )
+        except Exception as e:
+            raise ValueError(f"maze generation failed: {e}") from e
