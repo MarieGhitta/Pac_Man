@@ -29,6 +29,6 @@ lint-strict:
 	uv run mypy . --strict
 
 clean:
-	rm -rf __pycache__ */__pycache__ */*/__pycache__
+	find . -type d -name '__pycache__' -exec rm -rf {} +
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
 	find . -type f -name '*.py[co]' -delete
